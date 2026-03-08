@@ -14,6 +14,34 @@ Main components:
 - EF Core DbContext: `Infrastructure/MonitoringDbContext.cs`
 - Models: `Models/*`
 
+```mermaid
+flowchart TD
+    A[MonitoringWorker Start] --> B[Read Config and DI<br/>IntervalSeconds Logger ScopeFactory]
+    B --> C{{while not cancelled}}
+    C --> D[Start Cycle<br/>startedAt UTC stopwatch]
+    D --> E[Generate Mock Telemetry<br/>TurbineId WindSpeed RotorSpeed PowerOutput Vibration Temperature]
+
+    E --> F[Upsert Turbine]
+    F -->|DB write| DB1[(Turbines<br/>INSERT if missing<br/>UPDATE LastTelemetryTime Status)]
+
+    F --> G[Insert TelemetryHistory]
+    G -->|DB write| DB2[(TelemetryHistories<br/>INSERT)]
+
+    G --> H[Alert Lifecycle in AlertManager<br/>Rule Vibration > 8]
+    H -->|DB write| DB3[(Alerts<br/>INSERT Active<br/>UPDATE to Resolved<br/>UPDATE to Cleared)]
+
+    H --> I[Update WorkerStatus<br/>worker-01 heartbeat]
+    I -->|DB write| DB4[(WorkerStatuses<br/>UPSERT)]
+
+    I --> J[Insert WorkerMetrics<br/>Signals Alarms Latency]
+    J -->|DB write| DB5[(WorkerMetrics<br/>INSERT)]
+
+    J --> K[SaveChangesAsync]
+    K --> L[Structured Log<br/>Telemetry processed for turbine TurbineId]
+    L --> M[Delay IntervalSeconds]
+    M --> C
+```
+
 ## Database tables
 
 - Turbines
