@@ -1,13 +1,16 @@
-namespace COMP702_WindTurbine.Models;
+/*
+purpose: represents a wind turbine. stores metadata like name, location & current status
+*/
+using System;
 
-public sealed class Turbine
+namespace COMP702_WindTurbine.Models
 {
-    public required string TurbineId { get; set; }
-    public required string Name { get; set; }
-    public required string Location { get; set; }
-    public required string Status { get; set; } // Running, Alarm, Offline
-    public DateTime? LastTelemetryTime { get; set; } // UTC
-
-    public ICollection<TelemetryHistory> TelemetryHistories { get; set; } = new List<TelemetryHistory>();
-    public ICollection<Alert> Alerts { get; set; } = new List<Alert>();
+    public class Turbine
+    {
+        public string TurbineId { get; set; } = string.Empty; //external identifiers (primary key)
+        public string Name { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty; //site location
+        public string Status { get; set; } = string.Empty; //running, alarm, offline
+        public DateTime? LastTelemetryTime { get; set; } //time of the most recent telemetry received
+    }
 }
