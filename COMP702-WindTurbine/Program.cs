@@ -1,26 +1,17 @@
-using COMP702_WindTurbine.Alerting;
-using COMP702_WindTurbine.DataSources;
-using COMP702_WindTurbine.Infrastructure;
-using COMP702_WindTurbine.Pipeline;
-using COMP702_WindTurbine.Prediction;
-using COMP702_WindTurbine.Processing;
-using COMP702_WindTurbine.Workers;
+/*
+purpose: entry point for the windows service. it sets up the dependency injection container and starts the hosted service (the monitoring worker)
+what will be added later:
+- register IDataAccessor, IDataSource implementations, outlier detectors, engines & the pipeline orchestrator
+- configure the dbcontext (with connection string from config)
+*/
 
-var builder = Host.CreateApplicationBuilder(args);
+using COMP702_WindTurbine.Workers; //brings in the MonitoringWorker class
+using Microsoft.Extensions.DependencyInjection; //gives us the ServiceCollection for dependency injection
+using Microsoft.Extensions.Hosting; //provides the Host class to build & run the service
 
-builder.Services.AddSingleton<IDataSource, MockDataSource>();
-builder.Services.AddSingleton<IDataFormatter, DefaultFormatter>();
-builder.Services.AddSingleton<IPredictionEngine, RulePredictionEngine>();
+var builder = Host.CreateApplicationBuilder(args); //creates a default host builder with configuration, logging etc.
 
-builder.Services.AddSingleton<AlertManager>();
-builder.Services.AddSingleton<PipelineOrchestrator>();
-
-builder.Services.AddSingleton<MetricsCollector>();
-builder.Services.AddSingleton<HealthService>();
-builder.Services.AddSingleton<RetryPolicy>();
-builder.Services.AddSingleton<PollingScheduler>();
-
-builder.Services.AddHostedService<MonitoringWorker>();
+builder.Services.AddHostedService<MonitoringWorker>(); //registers the MonitoringWorker as a hosted service - this is what runs in the background
 
 var host = builder.Build();
 host.Run();

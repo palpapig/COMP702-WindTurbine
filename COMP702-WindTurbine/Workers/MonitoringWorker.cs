@@ -1,120 +1,42 @@
-using System.Diagnostics;
-using COMP702_WindTurbine.Alerting;
-using COMP702_WindTurbine.Infrastructure;
-using COMP702_WindTurbine.Models;
-using Microsoft.EntityFrameworkCore;
+/*
+purpose: this is the heart of the windows service – a background worker that runs continuously. 
+currently it just logs heartbeats to prove the service is alive. 
+later it will orchestrate the whole data pipeline: fetch from data sources, process, and store.
+what will be added later:
+- inject a method which is a collection of all registered data sources (mock, possibly canary etc.) the monitoring worker will loop through them to fetch live data from every source 
+- for each batch, call a method that takes a batch of raw telemetry, normalises units, runs outlier detectors and stores the results (raw with flags, cleaned with flags) through the data accessor. its the main preprocessing step
+- maybe also trigger engines directly (or let the formatter do it)
+- handle errors & logging
+*/
+using Microsoft.Extensions.Hosting; //provides backgroundservice & hostedservice interfaces
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace COMP702_WindTurbine.Workers;
-
-public sealed class MonitoringWorker : BackgroundService
+namespace COMP702_WindTurbine.Workers
 {
-    private const string WorkerId = "worker-01";
-    private readonly ILogger<MonitoringWorker> _logger;
-    private readonly MonitoringDbContext _dbContext;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly AlertManager _alertManager;
-    private readonly TimeSpan _interval;
-    private readonly Random _random = new();
-
-    public MonitoringWorker(
-        ILogger<MonitoringWorker> logger,
-        MonitoringDbContext dbContext,
-        IServiceScopeFactory scopeFactory,
-        AlertManager alertManager,
-        IConfiguration configuration)
+    public class MonitoringWorker : BackgroundService //backgroundservice is a base class for long-running services
     {
-        _logger = logger;
-        _dbContext = dbContext;
-        _scopeFactory = scopeFactory;
-        _alertManager = alertManager;
-        _interval = TimeSpan.FromSeconds(configuration.GetValue<int?>("Monitoring:IntervalSeconds") ?? 5);
-    }
+        private readonly ILogger<MonitoringWorker> _logger; //logger instance for this worker
+        private readonly TimeSpan _interval = TimeSpan.FromSeconds(10); //how often to log (later, how often to poll)
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation("Monitoring worker started with interval {IntervalSeconds}s", _interval.TotalSeconds);
-
-        while (!stoppingToken.IsCancellationRequested)
+        public MonitoringWorker(ILogger<MonitoringWorker> logger)
         {
-            var startedAt = DateTime.UtcNow;
-            var stopwatch = Stopwatch.StartNew();
-            var alarmsTriggered = 0;
+            _logger = logger;
+        }
 
-            try
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken) //this method runs when the service starts
+        {
+            _logger.LogInformation("Monitoring Worker started at: {time}", DateTimeOffset.Now);
+            //loop until pressing ctrl + c
+            while (!stoppingToken.IsCancellationRequested)
             {
-                // Touch root context to satisfy injected dependency while scoped context is used for writes.
-                _ = _dbContext.Model;
-
-                using var scope = _scopeFactory.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<MonitoringDbContext>();
-
-                var turbineId = $"WT-{_random.Next(1, 6):00}";
-                var telemetry = new TelemetryHistory
-                {
-                    TurbineId = turbineId,
-                    Timestamp = startedAt,
-                    WindSpeed = Math.Round(3 + _random.NextDouble() * 22, 2),
-                    RotorSpeed = Math.Round(5 + _random.NextDouble() * 30, 2),
-                    PowerOutput = Math.Round(_random.NextDouble() * 5000, 2),
-                    Vibration = Math.Round(_random.NextDouble() * 12, 2),
-                    Temperature = Math.Round(35 + _random.NextDouble() * 70, 2)
-                };
-
-                var turbine = await db.Turbines.FirstOrDefaultAsync(t => t.TurbineId == turbineId, stoppingToken);
-                if (turbine is null)
-                {
-                    turbine = new Turbine
-                    {
-                        TurbineId = turbineId,
-                        Name = $"Turbine {turbineId}",
-                        Location = "Site-A",
-                        Status = "Running"
-                    };
-                    db.Turbines.Add(turbine);
-                }
-
-                db.TelemetryHistories.Add(telemetry);
-
-                alarmsTriggered = await _alertManager.ProcessVibrationAlertAsync(
-                    db,
-                    turbineId,
-                    startedAt,
-                    telemetry.Vibration ?? 0,
-                    stoppingToken);
-                turbine.Status = alarmsTriggered > 0 || telemetry.Vibration > 8.0 ? "Alarm" : "Running";
-
-                turbine.LastTelemetryTime = startedAt;
-
-                var workerStatus = await db.WorkerStatuses.FirstOrDefaultAsync(w => w.WorkerId == WorkerId, stoppingToken);
-                if (workerStatus is null)
-                {
-                    workerStatus = new WorkerStatus { WorkerId = WorkerId, Status = "Healthy" };
-                    db.WorkerStatuses.Add(workerStatus);
-                }
-                workerStatus.LastHeartbeat = DateTime.UtcNow;
-                workerStatus.LastDataFetchTime = startedAt;
-                workerStatus.Status = "Healthy";
-                workerStatus.LastError = null;
-
-                stopwatch.Stop();
-                db.WorkerMetrics.Add(new WorkerMetrics
-                {
-                    WorkerId = WorkerId,
-                    Timestamp = DateTime.UtcNow,
-                    SignalsProcessed = 1,
-                    AlarmsTriggered = alarmsTriggered,
-                    PipelineLatencyMs = stopwatch.Elapsed.TotalMilliseconds
-                });
-
-                await db.SaveChangesAsync(stoppingToken);
-                _logger.LogInformation("Telemetry processed for turbine {TurbineId}", turbineId);
-            }
-            catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
-            {
-                _logger.LogError(ex, "Monitoring cycle failed");
+                _logger.LogInformation("Worker heartbeat at: {time}", DateTimeOffset.Now); //log a heartbeat
+                await Task.Delay(_interval, stoppingToken); //wait for the interval, respecting the cancellation token
             }
 
-            await Task.Delay(_interval, stoppingToken);
+            _logger.LogInformation("Monitoring Worker stopped at: {time}", DateTimeOffset.Now);
         }
     }
 }
