@@ -5,8 +5,12 @@ using COMP702_WindTurbine.Pipeline;
 using COMP702_WindTurbine.Prediction;
 using COMP702_WindTurbine.Processing;
 using COMP702_WindTurbine.Workers;
+using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddDbContext<MonitoringDbContext>(options =>
+    options.UseInMemoryDatabase("MonitoringDb"));
 
 builder.Services.AddSingleton<IDataSource, MockDataSource>();
 builder.Services.AddSingleton<IDataFormatter, DefaultFormatter>();

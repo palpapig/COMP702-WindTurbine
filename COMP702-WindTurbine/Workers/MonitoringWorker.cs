@@ -10,7 +10,6 @@ public sealed class MonitoringWorker : BackgroundService
 {
     private const string WorkerId = "worker-01";
     private readonly ILogger<MonitoringWorker> _logger;
-    private readonly MonitoringDbContext _dbContext;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AlertManager _alertManager;
     private readonly TimeSpan _interval;
@@ -18,13 +17,11 @@ public sealed class MonitoringWorker : BackgroundService
 
     public MonitoringWorker(
         ILogger<MonitoringWorker> logger,
-        MonitoringDbContext dbContext,
         IServiceScopeFactory scopeFactory,
         AlertManager alertManager,
         IConfiguration configuration)
     {
         _logger = logger;
-        _dbContext = dbContext;
         _scopeFactory = scopeFactory;
         _alertManager = alertManager;
         _interval = TimeSpan.FromSeconds(configuration.GetValue<int?>("Monitoring:IntervalSeconds") ?? 5);
@@ -42,9 +39,6 @@ public sealed class MonitoringWorker : BackgroundService
 
             try
             {
-                // Touch root context to satisfy injected dependency while scoped context is used for writes.
-                _ = _dbContext.Model;
-
                 using var scope = _scopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<MonitoringDbContext>();
 
