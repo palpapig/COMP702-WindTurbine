@@ -1,0 +1,7 @@
+file,target_column,input_feature_count_before_pruning,feature_count_after_multicollinearity_pruning,excluded_columns_count,multicollinearity_dropped_columns_count,selected_features_count,top_feature,top_feature_abs_corr
+Turbine_Data_Kelmarsh_1_2019-01-01_-_2020-01-01_228_cleaned.csv,Power (kW),138,55,84,83,39,Wind speed (m/s),0.9619502971165892
+Turbine_Data_Kelmarsh_2_2019-01-01_-_2020-01-01_229_cleaned.csv,Power (kW),138,50,84,88,33,Wind speed (m/s),0.9652653828139124
+Turbine_Data_Kelmarsh_3_2019-01-01_-_2020-01-01_230_cleaned.csv,Power (kW),138,47,84,91,31,Wind speed (m/s),0.9597968585440069
+Turbine_Data_Kelmarsh_4_2019-01-01_-_2020-01-01_231_cleaned.csv,Power (kW),138,49,84,89,33,Wind speed (m/s),0.9648506240597191
+Turbine_Data_Kelmarsh_5_2019-01-01_-_2020-01-01_232_cleaned.csv,Power (kW),138,49,84,89,34,Wind speed (m/s),0.9593338136679532
+Turbine_Data_Kelmarsh_6_2019-01-01_-_2020-01-01_233_cleaned.csv,Power (kW),138,50,84,88,32,Wind speed (m/s),0.9625045618792202

@@ -1,0 +1,8 @@
+file,target_column,rows_used,input_feature_count,selected_component_count,final_cumulative_explained_variance,error
+cleaning_summary.csv,,,,,,Could not find target power column in cleaning_summary.csv
+Turbine_Data_Kelmarsh_1_2019-01-01_-_2020-01-01_228_cleaned.csv,Power (kW),36504.0,184.0,40.0,0.9500051686437407,
+Turbine_Data_Kelmarsh_2_2019-01-01_-_2020-01-01_229_cleaned.csv,Power (kW),37066.0,180.0,38.0,0.9512889283665655,
+Turbine_Data_Kelmarsh_3_2019-01-01_-_2020-01-01_230_cleaned.csv,Power (kW),39385.0,184.0,37.0,0.950768256972395,
+Turbine_Data_Kelmarsh_4_2019-01-01_-_2020-01-01_231_cleaned.csv,Power (kW),37787.0,178.0,37.0,0.95018248521691,
+Turbine_Data_Kelmarsh_5_2019-01-01_-_2020-01-01_232_cleaned.csv,Power (kW),37176.0,178.0,37.0,0.9517541593979328,
+Turbine_Data_Kelmarsh_6_2019-01-01_-_2020-01-01_233_cleaned.csv,Power (kW),39416.0,184.0,37.0,0.9503693436619707,

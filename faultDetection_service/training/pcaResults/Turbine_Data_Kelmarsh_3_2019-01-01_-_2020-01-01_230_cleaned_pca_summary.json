@@ -1,0 +1,269 @@
+{
+  "file": "Turbine_Data_Kelmarsh_3_2019-01-01_-_2020-01-01_230_cleaned.csv",
+  "target_column": "Power (kW)",
+  "input_feature_count": 184,
+  "rows_used": 39385,
+  "selected_component_count": 37,
+  "explained_variance_threshold": 0.95,
+  "top_features_per_pc": {
+    "PC1": [
+      "Current L1 / U (A)",
+      "Current L3 / W (A)",
+      "Grid current (A)",
+      "Current L2 / V (A)",
+      "Apparent power (kVA)"
+    ],
+    "PC2": [
+      "Transformer cell temperature (\u00b0C)",
+      "Ambient temperature (converter) (\u00b0C)",
+      "Nacelle ambient temperature (\u00b0C)",
+      "Rotor bearing temp (\u00b0C)",
+      "Hub temperature (\u00b0C)"
+    ],
+    "PC3": [
+      "Blade angle (pitch position) A (\u00b0)",
+      "Blade angle (pitch position) C (\u00b0)",
+      "Blade angle (pitch position) B (\u00b0)",
+      "Rear bearing temperature, Max (\u00b0C)",
+      "Rear bearing temperature (\u00b0C)"
+    ],
+    "PC4": [
+      "Lost Production (Production-based IEC B.2.3) (kWh)",
+      "Lost Production (Time-based IEC B.2.4) (kWh)",
+      "Lost Production (Production-based IEC B.2.2) (kWh)",
+      "Lost Production (Time-based IEC B.2.2) (kWh)",
+      "Lost Production (Time-based IEC B.2.3) (kWh)"
+    ],
+    "PC5": [
+      "Voltage L1 / U (V)",
+      "Grid voltage (V)",
+      "Voltage L2 / V (V)",
+      "Voltage L3 / W (V)",
+      "Voltage L1 / U, Min (V)"
+    ],
+    "PC6": [
+      "Nacelle position (\u00b0)",
+      "Yaw bearing angle (\u00b0)",
+      "Nacelle position, Maximum (\u00b0)",
+      "Nacelle position, Minimum (\u00b0)",
+      "Wind direction (\u00b0)"
+    ],
+    "PC7": [
+      "Lost Production to Performance (kWh)",
+      "Lost Production Total (kWh)",
+      "Tower Acceleration X (mm/ss)",
+      "Performance Index",
+      "Production Factor"
+    ],
+    "PC8": [
+      "Voltage L1 / U, Standard deviation (V)",
+      "Voltage L3 / W, Standard deviation (V)",
+      "Reactive Energy Import counter (kvarh)",
+      "Voltage L2 / V, Standard deviation (V)",
+      "Energy Export counter (kWh)"
+    ],
+    "PC9": [
+      "Rear bearing temperature, Min (\u00b0C)",
+      "Gear oil temperature (\u00b0C)",
+      "Reactive Energy Import counter (kvarh)",
+      "Energy Export counter (kWh)",
+      "Rear bearing temperature (\u00b0C)"
+    ],
+    "PC10": [
+      "Voltage L2 / V, Standard deviation (V)",
+      "Voltage L3 / W, Standard deviation (V)",
+      "Voltage L1 / U, Standard deviation (V)",
+      "Grid voltage, Standard deviation (V)",
+      "Energy Export counter (kWh)"
+    ],
+    "PC11": [
+      "Lost Production Total (kWh)",
+      "Lost Production to Performance (kWh)",
+      "Production Factor",
+      "Performance Index",
+      "Vane position 1+2 (\u00b0)"
+    ],
+    "PC12": [
+      "Production-based IEC B.2.3 (Users View)",
+      "Production-based IEC B.2.2 (Users View)",
+      "Time-based System Avail.",
+      "Available Capacity for Production (kW)",
+      "Production-based System Avail. (virtual)"
+    ],
+    "PC13": [
+      "Blade angle (pitch position) A, Min (\u00b0)",
+      "Blade angle (pitch position) B, Min (\u00b0)",
+      "Blade angle (pitch position) C, Min (\u00b0)",
+      "Generator bearing front temperature, Max (\u00b0C)",
+      "Generator bearing front temperature (\u00b0C)"
+    ],
+    "PC14": [
+      "Vane position 1+2 (\u00b0)",
+      "Yaw error (\u00b0)",
+      "Time-based IEC B.2.4 (Users View)",
+      "Time-based IEC B.2.3 (Users View)",
+      "Time-based IEC B.2.2 (Users View)"
+    ],
+    "PC15": [
+      "Time-based IEC B.2.2 (Users View)",
+      "Time-based IEC B.2.3 (Users View)",
+      "Time-based IEC B.2.4 (Users View)",
+      "Yaw error (\u00b0)",
+      "Vane position 1+2 (\u00b0)"
+    ],
+    "PC16": [
+      "Grid frequency (Hz)",
+      "Grid frequency, Min (Hz)",
+      "Grid frequency, Max (Hz)",
+      "Time-based IEC B.2.2 (Users View)",
+      "Time-based IEC B.2.4 (Users View)"
+    ],
+    "PC17": [
+      "Generator bearing front temperature, Std (\u00b0C)",
+      "Generator bearing rear temperature, Std (\u00b0C)",
+      "Yaw error (\u00b0)",
+      "Vane position 1+2 (\u00b0)",
+      "Nacelle temperature, Standard deviation (\u00b0C)"
+    ],
+    "PC18": [
+      "Generator bearing front temperature, Max (\u00b0C)",
+      "Generator bearing front temperature (\u00b0C)",
+      "Generator bearing front temperature, Min (\u00b0C)",
+      "Stator temperature 1 (\u00b0C)",
+      "Blade angle (pitch position) A, Min (\u00b0)"
+    ],
+    "PC19": [
+      "Generator bearing front temperature, Std (\u00b0C)",
+      "Generator bearing rear temperature, Std (\u00b0C)",
+      "Reactive Energy Import counter (kvarh)",
+      "Energy Export counter (kWh)",
+      "Metal particle count counter"
+    ],
+    "PC20": [
+      "Yaw error (\u00b0)",
+      "Vane position 1+2 (\u00b0)",
+      "Voltage L3 / W (V)",
+      "Nacelle position, Standard deviation (\u00b0)",
+      "Grid voltage (V)"
+    ],
+    "PC21": [
+      "Gear oil temperature, Standard deviation (\u00b0C)",
+      "Nacelle temperature, Standard deviation (\u00b0C)",
+      "Gear oil temperature, Max (\u00b0C)",
+      "Front bearing temperature, Standard deviation (\u00b0C)",
+      "Generator bearing rear temperature, Std (\u00b0C)"
+    ],
+    "PC22": [
+      "Grid frequency, Standard deviation (Hz)",
+      "Yaw error (\u00b0)",
+      "Vane position 1+2 (\u00b0)",
+      "Voltage L1 / U, Max (V)",
+      "Voltage L3 / W, Max (V)"
+    ],
+    "PC23": [
+      "Grid frequency, Standard deviation (Hz)",
+      "Grid frequency, Max (Hz)",
+      "Grid frequency, Min (Hz)",
+      "Voltage L3 / W, Min (V)",
+      "Voltage L1 / U, Min (V)"
+    ],
+    "PC24": [
+      "Tower Acceleration X (mm/ss)",
+      "Lost Production to Performance (kWh)",
+      "Lost Production Total (kWh)",
+      "Yaw error (\u00b0)",
+      "Vane position 1+2 (\u00b0)"
+    ],
+    "PC25": [
+      "Energy Import (kWh)",
+      "Energy Import counter (kWh)",
+      "Reactive Energy Export (kvarh)",
+      "Nacelle position, Standard deviation (\u00b0)",
+      "Reactive Energy Export counter (kvarh)"
+    ],
+    "PC26": [
+      "Reactive Energy Export counter (kvarh)",
+      "Metal particle count",
+      "Energy Import counter (kWh)",
+      "Hub temperature, standard deviation (\u00b0C)",
+      "Nacelle position, Standard deviation (\u00b0)"
+    ],
+    "PC27": [
+      "Metal particle count",
+      "Reactive Energy Export counter (kvarh)",
+      "Energy Import counter (kWh)",
+      "Hub temperature, standard deviation (\u00b0C)",
+      "Nacelle temperature, Standard deviation (\u00b0C)"
+    ],
+    "PC28": [
+      "Energy Import counter (kWh)",
+      "Stator temperature 1 (\u00b0C)",
+      "Energy Import (kWh)",
+      "Nacelle temperature, Standard deviation (\u00b0C)",
+      "Cable windings from calibration point"
+    ],
+    "PC29": [
+      "Hub temperature, standard deviation (\u00b0C)",
+      "Hub temperature, max (\u00b0C)",
+      "Reactive Energy Export (kvarh)",
+      "Cable windings from calibration point",
+      "Reactive Energy Export counter (kvarh)"
+    ],
+    "PC30": [
+      "Cable windings from calibration point",
+      "Nacelle position, Standard deviation (\u00b0)",
+      "Nacelle temperature, Standard deviation (\u00b0C)",
+      "Energy Import counter (kWh)",
+      "Reactive Energy Export (kvarh)"
+    ],
+    "PC31": [
+      "Nacelle position, Standard deviation (\u00b0)",
+      "Energy Import (kWh)",
+      "Reactive Energy Export (kvarh)",
+      "Hub temperature, standard deviation (\u00b0C)",
+      "Cable windings from calibration point"
+    ],
+    "PC32": [
+      "Cable windings from calibration point",
+      "Lost Production Total (kWh)",
+      "Lost Production to Performance (kWh)",
+      "Performance Index",
+      "Production Factor"
+    ],
+    "PC33": [
+      "Nacelle temperature, Standard deviation (\u00b0C)",
+      "Front bearing temperature, Standard deviation (\u00b0C)",
+      "Cable windings from calibration point",
+      "Rear bearing temperature, Standard deviation (\u00b0C)",
+      "Reactive Energy Export (kvarh)"
+    ],
+    "PC34": [
+      "Reactive Energy Export (kvarh)",
+      "Cable windings from calibration point",
+      "Lost Production to Performance (kWh)",
+      "Lost Production Total (kWh)",
+      "Production Factor"
+    ],
+    "PC35": [
+      "Energy Import (kWh)",
+      "Reactive Energy Export (kvarh)",
+      "Gear oil temperature, Min (\u00b0C)",
+      "Motor current axis 1 (A)",
+      "Gear oil temperature, Max (\u00b0C)"
+    ],
+    "PC36": [
+      "Nacelle temperature, Standard deviation (\u00b0C)",
+      "Gear oil temperature, Min (\u00b0C)",
+      "Gear oil temperature, Max (\u00b0C)",
+      "Wind direction, Standard deviation (\u00b0)",
+      "Metal particle count counter"
+    ],
+    "PC37": [
+      "Energy Budget - Default (kWh)",
+      "Long Term Wind (m/s)",
+      "Cable windings from calibration point",
+      "Gear oil temperature, Max (\u00b0C)",
+      "Gear oil temperature, Min (\u00b0C)"
+    ]
+  }
+}
