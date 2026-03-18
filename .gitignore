@@ -23,3 +23,16 @@
 # OS files
 .DS_Store
 Thumbs.db
+faultDetection_service/training/rawData/Turbine_Data_Kelmarsh_6_2019-01-01_-_2020-01-01_233.csv
+faultDetection_service/training/rawData/Turbine_Data_Kelmarsh_5_2019-01-01_-_2020-01-01_232.csv
+faultDetection_service/training/rawData/Turbine_Data_Kelmarsh_4_2019-01-01_-_2020-01-01_231.csv
+faultDetection_service/training/rawData/Turbine_Data_Kelmarsh_3_2019-01-01_-_2020-01-01_230.csv
+faultDetection_service/training/rawData/Turbine_Data_Kelmarsh_2_2019-01-01_-_2020-01-01_229.csv
+faultDetection_service/training/rawData/Turbine_Data_Kelmarsh_1_2019-01-01_-_2020-01-01_228.csv
+faultDetection_service/training/cleanData/Turbine_Data_Kelmarsh_6_2019-01-01_-_2020-01-01_233_cleaned.csv
+faultDetection_service/training/cleanData/Turbine_Data_Kelmarsh_5_2019-01-01_-_2020-01-01_232_cleaned.csv
+faultDetection_service/training/cleanData/Turbine_Data_Kelmarsh_4_2019-01-01_-_2020-01-01_231_cleaned.csv
+faultDetection_service/training/cleanData/Turbine_Data_Kelmarsh_3_2019-01-01_-_2020-01-01_230_cleaned.csv
+faultDetection_service/training/cleanData/Turbine_Data_Kelmarsh_2_2019-01-01_-_2020-01-01_229_cleaned.csv
+faultDetection_service/training/cleanData/Turbine_Data_Kelmarsh_1_2019-01-01_-_2020-01-01_228_cleaned.csv
+faultDetection_service/training/cleanData/cleaning_summary.csv
