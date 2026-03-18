@@ -24,6 +24,26 @@ MIN_POWER = 0.0
 # Drop rows with missing values in all columns after key cleaning
 DROP_ALL_NA_ROWS = False
 
+# ---------------------------
+# Outlier handling settings
+# ---------------------------
+ENABLE_OUTLIER_REMOVAL = True
+
+# IQR multiplier: 1.5 is standard, 3.0 is less aggressive
+IQR_MULTIPLIER = 1.5
+
+# Only use columns that matter for training / power behavior
+OUTLIER_COLUMNS = [
+    "Wind speed (m/s)",
+    "Power (kW)",
+    "Rotor speed (RPM)",
+    "Blade angle (pitch position) A (°)",
+    "Nacelle position (°)",
+    "Wind direction (°)",
+    "Nacelle ambient temperature (°C)",
+    "Yaw error (°)",
+]
+
 
 def normalize_text(s: str) -> str:
     s = str(s).replace("Â°", "°")
@@ -50,6 +70,51 @@ def ensure_yaw_error(df: pd.DataFrame) -> pd.DataFrame:
 
 def drop_duplicate_timestamps(df: pd.DataFrame, time_col: str) -> pd.DataFrame:
     return df.drop_duplicates(subset=[time_col], keep="first").copy()
+
+
+def get_existing_outlier_columns(df: pd.DataFrame) -> list[str]:
+    return [col for col in OUTLIER_COLUMNS if col in df.columns]
+
+
+def remove_iqr_outliers(df: pd.DataFrame, cols: list[str], multiplier: float = 1.5) -> tuple[pd.DataFrame, int]:
+    """
+    Removes rows where any selected column falls outside:
+    [Q1 - multiplier*IQR, Q3 + multiplier*IQR]
+    """
+    if not cols:
+        return df.copy(), 0
+
+    cleaned = df.copy()
+    original_len = len(cleaned)
+
+    keep_mask = pd.Series(True, index=cleaned.index)
+
+    for col in cols:
+        series = pd.to_numeric(cleaned[col], errors="coerce")
+
+        # Ignore columns with too few usable values
+        valid = series.dropna()
+        if len(valid) < 4:
+            continue
+
+        q1 = valid.quantile(0.25)
+        q3 = valid.quantile(0.75)
+        iqr = q3 - q1
+
+        # If column is constant or nearly constant, skip it
+        if pd.isna(iqr) or iqr == 0:
+            continue
+
+        lower = q1 - multiplier * iqr
+        upper = q3 + multiplier * iqr
+
+        col_mask = series.isna() | ((series >= lower) & (series <= upper))
+        keep_mask &= col_mask
+
+    cleaned = cleaned[keep_mask].copy()
+    removed_count = original_len - len(cleaned)
+
+    return cleaned, removed_count
 
 
 def clean_training_file(path: Path) -> tuple[pd.DataFrame, dict]:
@@ -100,6 +165,18 @@ def clean_training_file(path: Path) -> tuple[pd.DataFrame, dict]:
         df = df.dropna()
     na_rows_removed = before_na - len(df)
 
+    # Outlier removal
+    outlier_rows_removed = 0
+    outlier_cols_used = []
+
+    if ENABLE_OUTLIER_REMOVAL:
+        outlier_cols_used = get_existing_outlier_columns(df)
+        df, outlier_rows_removed = remove_iqr_outliers(
+            df,
+            cols=outlier_cols_used,
+            multiplier=IQR_MULTIPLIER
+        )
+
     # Sort by time
     df = df.sort_values(TIME_COL).reset_index(drop=True)
 
@@ -110,6 +187,8 @@ def clean_training_file(path: Path) -> tuple[pd.DataFrame, dict]:
         "duplicate_rows_removed": duplicate_rows_removed,
         "filtered_rows_removed": filtered_rows_removed,
         "na_rows_removed": na_rows_removed,
+        "outlier_rows_removed": outlier_rows_removed,
+        "outlier_columns_used": ", ".join(outlier_cols_used) if outlier_cols_used else "",
         "final_rows": len(df),
     }
 
@@ -137,7 +216,11 @@ def main():
             cleaned_df.to_csv(out_file, index=False)
 
             summaries.append(summary)
-            print(f"✓ Cleaned: {file_path.name} -> {out_file.name} | rows kept: {len(cleaned_df)}")
+            print(
+                f"✓ Cleaned: {file_path.name} -> {out_file.name} | "
+                f"rows kept: {len(cleaned_df)} | "
+                f"outliers removed: {summary['outlier_rows_removed']}"
+            )
 
         except Exception as e:
             print(f"✗ Failed: {file_path.name} | {e}")
@@ -148,6 +231,8 @@ def main():
                 "duplicate_rows_removed": None,
                 "filtered_rows_removed": None,
                 "na_rows_removed": None,
+                "outlier_rows_removed": None,
+                "outlier_columns_used": None,
                 "final_rows": None,
                 "error": str(e),
             })
