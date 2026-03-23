@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36623.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMP702-WindTurbine", "COMP702-WindTurbine\COMP702-WindTurbine.csproj", "{BD40C9D1-B4A5-4AFB-8D4C-3B27C1E525A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMP702-WindTurbine.Api", "COMP702-WindTurbine.Api\COMP702-WindTurbine.Api.csproj", "{284C6FAE-C462-4817-AD37-3449861E8449}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{BD40C9D1-B4A5-4AFB-8D4C-3B27C1E525A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD40C9D1-B4A5-4AFB-8D4C-3B27C1E525A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD40C9D1-B4A5-4AFB-8D4C-3B27C1E525A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{284C6FAE-C462-4817-AD37-3449861E8449}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{284C6FAE-C462-4817-AD37-3449861E8449}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{284C6FAE-C462-4817-AD37-3449861E8449}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{284C6FAE-C462-4817-AD37-3449861E8449}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,6 @@
+@COMP702_WindTurbine.Api_HostAddress = http://localhost:5100
+
+GET {{COMP702_WindTurbine.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
