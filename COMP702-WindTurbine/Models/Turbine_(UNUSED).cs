@@ -1,4 +1,4 @@
-namespace benchmarking_experimenting.models;
+namespace COMP702_WindTurbine.models;
 public sealed class Turbine
 {
     public required string TurbineId { get; set; }

@@ -1,10 +1,9 @@
-using benchmarking_experimenting.database;
-using benchmarking_experimenting.models;
+using COMP702_WindTurbine.database;
+using COMP702_WindTurbine.models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Update.Internal;
-using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 
-namespace benchmarking_experimenting.services;
+namespace COMP702_WindTurbine.services;
 
 public sealed class DbService (
     MonitoringDbContext db

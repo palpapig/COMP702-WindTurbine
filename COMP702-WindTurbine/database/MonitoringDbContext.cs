@@ -1,6 +1,6 @@
-namespace benchmarking_experimenting.database;
+namespace COMP702_WindTurbine.database;
 
-using benchmarking_experimenting.models;
+using COMP702_WindTurbine.models;
 using Microsoft.EntityFrameworkCore;
 
 public class MonitoringDbContext : DbContext

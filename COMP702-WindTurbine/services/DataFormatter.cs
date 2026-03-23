@@ -1,5 +1,5 @@
-namespace benchmarking_experimenting.services;
-using benchmarking_experimenting.models;
+namespace COMP702_WindTurbine.services;
+using COMP702_WindTurbine.models;
 
 
 public sealed class DataFormatter

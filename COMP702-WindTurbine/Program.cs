@@ -1,6 +1,6 @@
-using benchmarking_experimenting;
-using benchmarking_experimenting.services;
-using benchmarking_experimenting.database;
+using COMP702_WindTurbine;
+using COMP702_WindTurbine.services;
+using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
