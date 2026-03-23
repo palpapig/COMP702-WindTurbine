@@ -1,4 +1,4 @@
-namespace COMP702_WindTurbine.Models;
+namespace benchmarking_experimenting.models;
 
 public sealed class Alert
 {

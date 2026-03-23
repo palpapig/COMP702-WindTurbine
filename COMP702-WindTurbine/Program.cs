@@ -1,30 +1,26 @@
-using COMP702_WindTurbine.Alerting;
-using COMP702_WindTurbine.DataSources;
-using COMP702_WindTurbine.Infrastructure;
-using COMP702_WindTurbine.Pipeline;
-using COMP702_WindTurbine.Prediction;
-using COMP702_WindTurbine.Processing;
-using COMP702_WindTurbine.Workers;
+using benchmarking_experimenting;
+using benchmarking_experimenting.services;
+using benchmarking_experimenting.database;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddDbContext<MonitoringDbContext>(options =>
     options.UseInMemoryDatabase("MonitoringDb"));
+    //options.UseSqlServer(CONNECTION_STRING_HERE)); sql server not set up
 
-builder.Services.AddSingleton<IDataSource, MockDataSource>();
-builder.Services.AddSingleton<IDataFormatter, DefaultFormatter>();
-builder.Services.AddSingleton<IPredictionEngine, RulePredictionEngine>();
+    //e.g.
+    //options.UseSqlServer("Server=localhost;Database=MyDb;Trusted_Connection=True;"));
 
-builder.Services.AddSingleton<AlertManager>();
-builder.Services.AddSingleton<PipelineOrchestrator>();
+builder.Services.AddScoped<DbService>();
 
-builder.Services.AddSingleton<MetricsCollector>();
-builder.Services.AddSingleton<HealthService>();
-builder.Services.AddSingleton<RetryPolicy>();
-builder.Services.AddSingleton<PollingScheduler>();
-
+builder.Services.AddSingleton<DataInput>();
+builder.Services.AddSingleton<DataFormatter>();
+builder.Services.AddSingleton<Benchmarker>();
+builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
+
+
 
 var host = builder.Build();
 host.Run();
