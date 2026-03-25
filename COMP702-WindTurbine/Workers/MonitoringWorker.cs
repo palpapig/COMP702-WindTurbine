@@ -1,10 +1,11 @@
 namespace COMP702_WindTurbine;
 using COMP702_WindTurbine.services;
 using COMP702_WindTurbine.database;
+using COMP702_WindTurbine.DataSources;
 
 
 public sealed class MonitoringWorker(
-    DataInput dataInput,
+    IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
     FailureDetection FailureDetection,
@@ -21,9 +22,26 @@ public sealed class MonitoringWorker(
             {
 
                 logger.LogInformation("Processing new data started");
-                var rawData = dataInput.GetDataRow();
+                //fetch realistic raw data from the simulated source
+                var newRaw = await dataSource.FetchAsync(stoppingToken);
+                //map to the old RawData structure (the formatter expects the old one)
+                var oldRaw = new models.RawData
+                {
+                    TurbineId = newRaw.TurbineId,
+                    Timestamp = newRaw.Timestamp,
+                    //the properties WSSensor, etc., are computed from the new fields
+                    //we just need to create an instance; the computed properties will be used
+                };
+                var telemetry = dataFormatter.FormatData(oldRaw);
 
-                var telemetry = dataFormatter.FormatData(rawData);
+                //add the extra fields from the new raw data
+                telemetry.WindSpeed = newRaw.WindSpeed;
+                telemetry.RotorSpeed = newRaw.RotorSpeed;
+                telemetry.PowerOutput = newRaw.ActivePower;
+                telemetry.Vibration = newRaw.Vibration;
+                telemetry.Temperature = newRaw.Temperature;
+                telemetry.PitchAngle = newRaw.PitchAngle;
+                telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
 
                 telemetry = benchmarker.BenchmarkData(telemetry);
 
