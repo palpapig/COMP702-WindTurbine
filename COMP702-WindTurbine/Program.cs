@@ -4,13 +4,14 @@ using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
+var monitoringDbConnection =
+    Environment.GetEnvironmentVariable("ConnectionStrings__MonitoringDb")
+    ?? builder.Configuration.GetConnectionString("MonitoringDb")
+    ?? throw new InvalidOperationException(
+        "Missing database connection string. Set environment variable 'ConnectionStrings__MonitoringDb'.");
 
 builder.Services.AddDbContext<MonitoringDbContext>(options =>
-    options.UseInMemoryDatabase("MonitoringDb"));
-    //options.UseSqlServer(CONNECTION_STRING_HERE)); sql server not set up
-
-    //e.g.
-    //options.UseSqlServer("Server=localhost;Database=MyDb;Trusted_Connection=True;"));
+    options.UseNpgsql(monitoringDbConnection));
 
 builder.Services.AddScoped<DbService>();
 
@@ -23,4 +24,10 @@ builder.Services.AddHostedService<MonitoringWorker>();
 
 
 var host = builder.Build();
-host.Run();
+using (var scope = host.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MonitoringDbContext>();
+    await db.Database.MigrateAsync();
+}
+
+await host.RunAsync();

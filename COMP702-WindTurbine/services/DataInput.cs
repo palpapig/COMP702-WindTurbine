@@ -10,7 +10,7 @@ public sealed class DataInput
         var rawData = new RawData
         {
             TurbineId = "v0",
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             WSSensor = rand.Next(0,100),
             RSSensor = rand.Next(0,20),
             POSensor = rand.Next(0,20)
