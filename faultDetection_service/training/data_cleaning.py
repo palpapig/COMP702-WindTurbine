@@ -8,7 +8,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 # Default project folders
 DEFAULT_INPUT_FOLDER = PROJECT_ROOT / "data" / "raw"
 DEFAULT_OUTPUT_FOLDER = PROJECT_ROOT / "data" / "cleaned"
-SUMMARY_FILE = "cleaning_summary.csv"
+
+#SUMMARY_FILE = "cleaning_summary.csv"  >>>>   this inilitlise summery 
 
 # Kelmarsh / Greenbyte format
 CSV_SKIPROWS = 9
@@ -156,11 +157,11 @@ def clean_all_training_files(
                 "error": str(e),
             })
 
-    summary_df = pd.DataFrame(summaries)
-    summary_df.to_csv(output_dir / SUMMARY_FILE, index=False)
+# summary_df = pd.DataFrame(summaries)
+   # summary_df.to_csv(output_dir / SUMMARY_FILE, index=False)
 
-    print(f"\nDone. Cleaned files saved in: {output_dir.resolve()}")
-    print(f"Summary saved to: {(output_dir / SUMMARY_FILE).resolve()}")
+   # print(f"\nDone. Cleaned files saved in: {output_dir.resolve()}") >>>> this generate summery file
+   # print(f"Summary saved to: {(output_dir / SUMMARY_FILE).resolve()}") 
 
     return summary_df
 

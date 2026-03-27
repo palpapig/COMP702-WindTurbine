@@ -1,3 +1,19 @@
 {
-  "turbines": {}
+  "turbines": {
+    "Turbine_Data_Kelmarsh_1_2019-01-01_-_2020-01-01_228": {
+      "target_column": "Power (kW)",
+      "feature_columns": [
+        "Wind speed (m/s)",
+        "Drive train acceleration (mm/ss)",
+        "Gear oil inlet temperature (°C)",
+        "Transformer temperature (°C)",
+        "Front bearing temperature (°C)",
+        "Tower Acceleration y (mm/ss)",
+        "Nacelle temperature (°C)",
+        "Gear oil temperature (°C)"
+      ],
+      "status": "trained",
+      "last_trained_at_utc": "2026-03-27T10:00:04.748065+00:00"
+    }
+  }
 }
