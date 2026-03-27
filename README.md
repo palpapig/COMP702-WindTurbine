@@ -9,6 +9,7 @@ Monitoring loop:
 Input -> DataFormatter -> Prediction -> Alert Lifecycle -> Database
 
 Main components:
+
 - Worker: `Workers/MonitoringWorker.cs`
 - Alert lifecycle: `Alerting/AlertManager.cs`
 - EF Core DbContext: `Infrastructure/MonitoringDbContext.cs`
@@ -55,6 +56,7 @@ flowchart TD
 `Active -> Acknowledged -> Resolved -> Cleared`
 
 Current worker behavior:
+
 - Auto create `Active` when vibration > 8
 - Auto resolve when vibration recovers
 - Auto clear resolved alerts after configured hours
@@ -78,3 +80,33 @@ dotnet run --project COMP702-WindTurbine
 - Use feature branches: `feature/<name>`
 - Open PRs to `main`
 - Keep PRs focused and small
+
+# training & Testing (Quick Guide)
+
+1. Add Raw Data
+
+Put CSV files in:
+
+faultDetection_service/training/rawData/ 2. Clean Data
+
+Run:
+
+python trainingDataCleaning.py
+
+Cleaned files will be saved in:
+
+faultDetection_service/training/cleanData/ 3. Train Model
+
+Run:
+
+py -m training.Training_Model_Pipeline
+
+Model will be saved in:
+
+artifacts/<TURBINE_ID>/model.pkl 4. Test Prediction
+
+Run:
+
+python scripts/test_prediction.py
+
+This will load the model and test it on sample data.
