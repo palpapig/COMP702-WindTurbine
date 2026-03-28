@@ -12,6 +12,9 @@ public sealed class TurbineTelemetry
     public double? PowerOutput { get; set; }
     public double? Vibration { get; set; }
     public double? Temperature { get; set; }
+    // new fields for extended analysis
+    public double? PitchAngle { get; set; } // degrees
+    public double? GearboxOilTemp { get; set; } // °C
 
 
     public double? Efficiency { get; set; }
