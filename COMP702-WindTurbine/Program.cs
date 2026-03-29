@@ -1,30 +1,37 @@
-using COMP702_WindTurbine.Alerting;
+using COMP702_WindTurbine;
+using COMP702_WindTurbine.services;
+using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.DataSources;
-using COMP702_WindTurbine.Infrastructure;
-using COMP702_WindTurbine.Pipeline;
-using COMP702_WindTurbine.Prediction;
-using COMP702_WindTurbine.Processing;
-using COMP702_WindTurbine.Workers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
+var monitoringDbConnection =
+    Environment.GetEnvironmentVariable("ConnectionStrings__MonitoringDb")
+    ?? builder.Configuration.GetConnectionString("MonitoringDb")
+    ?? throw new InvalidOperationException(
+        "Missing database connection string. Set environment variable 'ConnectionStrings__MonitoringDb'.");
 
 builder.Services.AddDbContext<MonitoringDbContext>(options =>
-    options.UseInMemoryDatabase("MonitoringDb"));
+    options.UseNpgsql(monitoringDbConnection));
 
-builder.Services.AddSingleton<IDataSource, MockDataSource>();
-builder.Services.AddSingleton<IDataFormatter, DefaultFormatter>();
-builder.Services.AddSingleton<IPredictionEngine, RulePredictionEngine>();
-
-builder.Services.AddSingleton<AlertManager>();
-builder.Services.AddSingleton<PipelineOrchestrator>();
-
-builder.Services.AddSingleton<MetricsCollector>();
-builder.Services.AddSingleton<HealthService>();
-builder.Services.AddSingleton<RetryPolicy>();
-builder.Services.AddSingleton<PollingScheduler>();
-
+builder.Services.AddScoped<DbService>();
+//new data source (replaces DataInput)
+builder.Services.AddSingleton<IDataSource, SimulatedLiveDataSource>();
+//the config is automatically bound from appsetttings.json via the data source constructor
+builder.Services.AddSingleton<DataFormatter>();
+builder.Services.AddSingleton<Benchmarker>();
+builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
 
+
+
 var host = builder.Build();
-host.Run();
+using (var scope = host.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MonitoringDbContext>();
+    await db.Database.MigrateAsync();
+    await db.Database.ExecuteSqlRawAsync(
+        "SELECT setval(pg_get_serial_sequence('\"TurbineData\"','Id'), COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"TurbineData\";");
+}
+
+await host.RunAsync();

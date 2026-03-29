@@ -1,5 +1,4 @@
-namespace COMP702_WindTurbine.Models;
-
+namespace COMP702_WindTurbine.models;
 public sealed class Turbine
 {
     public required string TurbineId { get; set; }
@@ -8,6 +7,6 @@ public sealed class Turbine
     public required string Status { get; set; } // Running, Alarm, Offline
     public DateTime? LastTelemetryTime { get; set; } // UTC
 
-    public ICollection<TelemetryHistory> TelemetryHistories { get; set; } = new List<TelemetryHistory>();
+    public ICollection<TurbineTelemetry> TelemetryHistories { get; set; } = new List<TurbineTelemetry>();
     public ICollection<Alert> Alerts { get; set; } = new List<Alert>();
 }

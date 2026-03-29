@@ -1,114 +1,82 @@
-using System.Diagnostics;
-using COMP702_WindTurbine.Alerting;
-using COMP702_WindTurbine.Infrastructure;
-using COMP702_WindTurbine.Models;
-using Microsoft.EntityFrameworkCore;
+namespace COMP702_WindTurbine;
+using COMP702_WindTurbine.services;
+using COMP702_WindTurbine.database;
+using COMP702_WindTurbine.DataSources;
 
-namespace COMP702_WindTurbine.Workers;
 
-public sealed class MonitoringWorker : BackgroundService
+public sealed class MonitoringWorker(
+    IDataSource dataSource, // new: injected instead of DataInput
+    DataFormatter dataFormatter,
+    Benchmarker benchmarker,
+    FailureDetection FailureDetection,
+    ILogger<MonitoringWorker> logger,
+    IServiceScopeFactory scopeFactory ) : BackgroundService
+    //logger, etc. are automatically stored as private, readonly variables
 {
-    private const string WorkerId = "worker-01";
-    private readonly ILogger<MonitoringWorker> _logger;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly AlertManager _alertManager;
-    private readonly TimeSpan _interval;
-    private readonly Random _random = new();
-
-    public MonitoringWorker(
-        ILogger<MonitoringWorker> logger,
-        IServiceScopeFactory scopeFactory,
-        AlertManager alertManager,
-        IConfiguration configuration)
-    {
-        _logger = logger;
-        _scopeFactory = scopeFactory;
-        _alertManager = alertManager;
-        _interval = TimeSpan.FromSeconds(configuration.GetValue<int?>("Monitoring:IntervalSeconds") ?? 5);
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Monitoring worker started with interval {IntervalSeconds}s", _interval.TotalSeconds);
-
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            var startedAt = DateTime.UtcNow;
-            var stopwatch = Stopwatch.StartNew();
-            var alarmsTriggered = 0;
-
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                using var scope = _scopeFactory.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<MonitoringDbContext>();
 
-                var turbineId = $"WT-{_random.Next(1, 6):00}";
-                var telemetry = new TelemetryHistory
+                logger.LogInformation("Processing new data started");
+                //fetch realistic raw data from the simulated source
+                var newRaw = await dataSource.FetchAsync(stoppingToken);
+                //map to the old RawData structure (the formatter expects the old one)
+                var oldRaw = new models.RawData
                 {
-                    TurbineId = turbineId,
-                    Timestamp = startedAt,
-                    WindSpeed = Math.Round(3 + _random.NextDouble() * 22, 2),
-                    RotorSpeed = Math.Round(5 + _random.NextDouble() * 30, 2),
-                    PowerOutput = Math.Round(_random.NextDouble() * 5000, 2),
-                    Vibration = Math.Round(_random.NextDouble() * 12, 2),
-                    Temperature = Math.Round(35 + _random.NextDouble() * 70, 2)
+                    TurbineId = newRaw.TurbineId,
+                    Timestamp = newRaw.Timestamp,
+                    //the properties WSSensor, etc., are computed from the new fields
+                    //we just need to create an instance; the computed properties will be used
                 };
+                var telemetry = dataFormatter.FormatData(oldRaw);
 
-                var turbine = await db.Turbines.FirstOrDefaultAsync(t => t.TurbineId == turbineId, stoppingToken);
-                if (turbine is null)
+                //add the extra fields from the new raw data
+                telemetry.WindSpeed = newRaw.WindSpeed;
+                telemetry.RotorSpeed = newRaw.RotorSpeed;
+                telemetry.PowerOutput = newRaw.ActivePower;
+                telemetry.Vibration = newRaw.Vibration;
+                telemetry.Temperature = newRaw.Temperature;
+                telemetry.PitchAngle = newRaw.PitchAngle;
+                telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
+
+                telemetry = benchmarker.BenchmarkData(telemetry);
+
+                telemetry = FailureDetection.DetectFailure(telemetry);
+                logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
+                telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
+
+                using (var scope = scopeFactory.CreateScope())
                 {
-                    turbine = new Turbine
-                    {
-                        TurbineId = turbineId,
-                        Name = $"Turbine {turbineId}",
-                        Location = "Site-A",
-                        Status = "Running"
-                    };
-                    db.Turbines.Add(turbine);
+                    var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
+                    await dbService.AddTelemetryAsync(telemetry);
+                    await dbService.PrintDbAsync();
                 }
 
-                db.TelemetryHistories.Add(telemetry);
-
-                alarmsTriggered = await _alertManager.ProcessVibrationAlertAsync(
-                    db,
-                    turbineId,
-                    startedAt,
-                    telemetry.Vibration ?? 0,
-                    stoppingToken);
-                turbine.Status = alarmsTriggered > 0 || telemetry.Vibration > 8.0 ? "Alarm" : "Running";
-
-                turbine.LastTelemetryTime = startedAt;
-
-                var workerStatus = await db.WorkerStatuses.FirstOrDefaultAsync(w => w.WorkerId == WorkerId, stoppingToken);
-                if (workerStatus is null)
-                {
-                    workerStatus = new WorkerStatus { WorkerId = WorkerId, Status = "Healthy" };
-                    db.WorkerStatuses.Add(workerStatus);
-                }
-                workerStatus.LastHeartbeat = DateTime.UtcNow;
-                workerStatus.LastDataFetchTime = startedAt;
-                workerStatus.Status = "Healthy";
-                workerStatus.LastError = null;
-
-                stopwatch.Stop();
-                db.WorkerMetrics.Add(new WorkerMetrics
-                {
-                    WorkerId = WorkerId,
-                    Timestamp = DateTime.UtcNow,
-                    SignalsProcessed = 1,
-                    AlarmsTriggered = alarmsTriggered,
-                    PipelineLatencyMs = stopwatch.Elapsed.TotalMilliseconds
-                });
-
-                await db.SaveChangesAsync(stoppingToken);
-                _logger.LogInformation("Telemetry processed for turbine {TurbineId}", turbineId);
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
-            catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
-            {
-                _logger.LogError(ex, "Monitoring cycle failed");
-            }
+        }
+        catch (OperationCanceledException)
+        {
+            // When the stopping token is canceled, for example, a call made from services.msc,
+            // we shouldn't exit with a non-zero exit code. In other words, this is expected...
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "{Message}", ex.Message);
 
-            await Task.Delay(_interval, stoppingToken);
+            // Terminates this process and returns an exit code to the operating system.
+            // This is required to avoid the 'BackgroundServiceExceptionBehavior', which
+            // performs one of two scenarios:
+            // 1. When set to "Ignore": will do nothing at all, errors cause zombie services.
+            // 2. When set to "StopHost": will cleanly stop the host, and log errors.
+            //
+            // In order for the Windows Service Management system to leverage configured
+            // recovery options, we need to terminate the process with a non-zero exit code.
+            Environment.Exit(1);
         }
     }
 }
