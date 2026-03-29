@@ -30,6 +30,8 @@ using (var scope = host.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MonitoringDbContext>();
     await db.Database.MigrateAsync();
+    await db.Database.ExecuteSqlRawAsync(
+        "SELECT setval(pg_get_serial_sequence('\"TurbineData\"','Id'), COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"TurbineData\";");
 }
 
 await host.RunAsync();

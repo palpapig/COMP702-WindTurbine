@@ -1,7 +1,6 @@
 using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace COMP702_WindTurbine.services;
 
@@ -16,7 +15,25 @@ public sealed class DbService (
 
     public async Task AddTelemetryAsync(TurbineTelemetry telemetry)
     {
-        
+        var turbine = await db.Set<Turbine>().FindAsync(telemetry.TurbineId);
+        if (turbine is null)
+        {
+            turbine = new Turbine
+            {
+                TurbineId = telemetry.TurbineId,
+                Name = telemetry.TurbineId,
+                Location = "unknown",
+                Status = telemetry.StartedAlert == true ? "Alarm" : "Running",
+                LastTelemetryTime = telemetry.Timestamp
+            };
+            db.Set<Turbine>().Add(turbine);
+        }
+        else
+        {
+            turbine.LastTelemetryTime = telemetry.Timestamp;
+            turbine.Status = telemetry.StartedAlert == true ? "Alarm" : "Running";
+        }
+
         db.TurbineData.Add(telemetry);
         await db.SaveChangesAsync();
     }
