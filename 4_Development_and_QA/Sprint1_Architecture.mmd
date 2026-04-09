@@ -1,0 +1,20 @@
+flowchart LR
+    A[Program.cs Host Startup] --> B[DI Container]
+    B --> C[MonitoringWorker BackgroundService]
+
+    C --> D[IDataSource FetchAsync]
+    D --> E[SimulatedLiveDataSource\nReplay or Generative]
+    E --> F[RawData]
+
+    F --> G[DataFormatter\nRawData -> TurbineTelemetry]
+    G --> H[Enrichment in Worker\nVibration Temperature\nPitchAngle GearboxOilTemp]
+    H --> I[Benchmarker\nset Efficiency]
+    I --> J[FailureDetection\nset StartedAlert]
+
+    J --> K[DbService AddTelemetryAsync]
+    K --> L[(PostgreSQL TurbineData)]
+    K --> M[(PostgreSQL Turbines)]
+
+    J --> N[Structured Logs]
+    C --> O[Delay 30 seconds]
+    O --> C

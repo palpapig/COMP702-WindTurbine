@@ -1,80 +1,72 @@
 # COMP702 Wind Turbine Monitoring
 
-.NET 8 Worker Service for wind turbine monitoring.
+.NET 8 worker service for wind turbine telemetry simulation, processing, and persistence.
+
+## Overview
+The service runs a continuous monitoring loop:
+1. Fetch one telemetry sample from a simulated data source.
+2. Format and enrich telemetry fields.
+3. Calculate prototype metrics (`Efficiency`) and alert flag (`StartedAlert`).
+4. Persist telemetry and turbine status to PostgreSQL.
 
 ## Current architecture
-
-Monitoring loop:
-
-Input -> DataFormatter -> Prediction -> Alert Lifecycle -> Database
-
 Main components:
-- Worker: `Workers/MonitoringWorker.cs`
-- Alert lifecycle: `Alerting/AlertManager.cs`
-- EF Core DbContext: `Infrastructure/MonitoringDbContext.cs`
-- Models: `Models/*`
+- Worker: `COMP702-WindTurbine/Workers/MonitoringWorker.cs`
+- Data source: `COMP702-WindTurbine/DataSources/SimulatedLiveDataSource.cs`
+- Processing services:
+  - `COMP702-WindTurbine/services/DataFormatter.cs`
+  - `COMP702-WindTurbine/services/Benchmarker.cs`
+  - `COMP702-WindTurbine/services/FailureDetection.cs`
+- Persistence:
+  - `COMP702-WindTurbine/database/MonitoringDbContext.cs`
+  - `COMP702-WindTurbine/services/DbService.cs`
 
 ```mermaid
-flowchart TD
-    A[MonitoringWorker Start] --> B[Read Config and DI<br/>IntervalSeconds Logger ScopeFactory]
-    B --> C{{while not cancelled}}
-    C --> D[Start Cycle<br/>startedAt UTC stopwatch]
-    D --> E[Generate Mock Telemetry<br/>TurbineId WindSpeed RotorSpeed PowerOutput Vibration Temperature]
+flowchart LR
+    A[Program.cs Host Startup] --> B[DI Container]
+    B --> C[MonitoringWorker BackgroundService]
 
-    E --> F[Upsert Turbine]
-    F -->|DB write| DB1[(Turbines<br/>INSERT if missing<br/>UPDATE LastTelemetryTime Status)]
+    C --> D[IDataSource FetchAsync]
+    D --> E[SimulatedLiveDataSource\nReplay or Generative]
+    E --> F[RawData]
 
-    F --> G[Insert TelemetryHistory]
-    G -->|DB write| DB2[(TelemetryHistories<br/>INSERT)]
+    F --> G[DataFormatter\nRawData -> TurbineTelemetry]
+    G --> H[Enrichment in Worker\nVibration Temperature\nPitchAngle GearboxOilTemp]
+    H --> I[Benchmarker\nset Efficiency]
+    I --> J[FailureDetection\nset StartedAlert]
 
-    G --> H[Alert Lifecycle in AlertManager<br/>Rule Vibration > 8]
-    H -->|DB write| DB3[(Alerts<br/>INSERT Active<br/>UPDATE to Resolved<br/>UPDATE to Cleared)]
+    J --> K[DbService AddTelemetryAsync]
+    K --> L[(PostgreSQL TurbineData)]
+    K --> M[(PostgreSQL Turbines)]
 
-    H --> I[Update WorkerStatus<br/>worker-01 heartbeat]
-    I -->|DB write| DB4[(WorkerStatuses<br/>UPSERT)]
-
-    I --> J[Insert WorkerMetrics<br/>Signals Alarms Latency]
-    J -->|DB write| DB5[(WorkerMetrics<br/>INSERT)]
-
-    J --> K[SaveChangesAsync]
-    K --> L[Structured Log<br/>Telemetry processed for turbine TurbineId]
-    L --> M[Delay IntervalSeconds]
-    M --> C
+    J --> N[Structured Logs]
+    C --> O[Delay 30 seconds]
+    O --> C
 ```
 
-## Database tables
+Standalone diagram source:
+- `4_Development_and_QA/Sprint1_Architecture.mmd`
 
-- Turbines
-- TelemetryHistories
-- Alerts
-- WorkerStatuses
-- WorkerMetrics
-
-## Alert lifecycle
-
-`Active -> Acknowledged -> Resolved -> Cleared`
-
-Current worker behavior:
-- Auto create `Active` when vibration > 8
-- Auto resolve when vibration recovers
-- Auto clear resolved alerts after configured hours
+## Data source modes
+Configured in `COMP702-WindTurbine/appsettings.json` under `SimulatedDataSource`:
+- `Mode = Replay`: read from `data/turbine1_clean.csv`.
+- `Mode = Generative`: synthesize samples from configured distributions and power curve parameters.
+- `TurbineCount`: number of simulated turbine IDs (`WT-001`, `WT-002`, ...).
 
 ## Configuration
-
-`appsettings.json`
-
-- `Monitoring:IntervalSeconds` (default 5)
-- `Monitoring:AlertAutoClearHours` (default 24)
+- Connection string:
+  - Environment variable `ConnectionStrings__MonitoringDb` (recommended), or
+  - `ConnectionStrings:MonitoringDb` in `appsettings.json`
+- Monitoring loop:
+  - Worker currently delays `30` seconds between cycles in code (`MonitoringWorker.cs`).
 
 ## Run
-
 ```bash
 dotnet build
-dotnet run --project COMP702-WindTurbine
+dotnet run --project COMP702-WindTurbine/COMP702-WindTurbine.csproj
 ```
 
-## Team collaboration
-
-- Use feature branches: `feature/<name>`
-- Open PRs to `main`
-- Keep PRs focused and small
+## Current limitations
+- `Benchmarker` and `FailureDetection` use random prototype logic.
+- Monitoring interval is hardcoded to 30 seconds in worker code.
+- This project focuses on backend pipeline; UI/API consumption is separate.
