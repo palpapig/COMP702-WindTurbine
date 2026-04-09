@@ -23,3 +23,9 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# Frontend dependencies and build cache
+frontend/**/node_modules/
+frontend/**/.vite/
+frontend/**/.vite-temp/
+frontend/**/dist/
