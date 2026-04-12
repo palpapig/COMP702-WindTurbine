@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "months_back": 3,
+  "time_column": "timestamp",
+  "target_column": "gearOilTemp",
+  "feature_columns": [
+    "windSpeed",
+    "power",
+    "rotorSpeed"
+  ]
+}
