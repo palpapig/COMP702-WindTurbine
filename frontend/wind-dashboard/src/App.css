@@ -1,0 +1,158 @@
+:root {
+  --brand-blue: #06A2DF;
+  --brand-green: #82C340;
+  --brand-grey: #A0A2A6;
+  --brand-white: #FFFFFF;
+  --bg-light: #f4f7fc;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-light);
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  color: #1e2a3a;
+}
+
+.dashboard-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--brand-white);
+  padding: 1.2rem 2rem;
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  border-left: 6px solid var(--brand-blue);
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+}
+
+.header-text h1 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: #1a2c3e;
+  margin-bottom: 0.25rem;
+}
+
+.header-text p {
+  color: var(--brand-grey);
+  font-size: 0.95rem;
+}
+
+.toggle-history-btn {
+  background: var(--brand-blue);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: 40px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.toggle-history-btn:hover {
+  background: #0588c4;
+  transform: translateY(-1px);
+}
+
+.dashboard-section {
+  background: var(--brand-white);
+  border-radius: 28px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #eef2f5;
+  padding-bottom: 0.75rem;
+}
+
+.section-title h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #1a2c3e;
+}
+
+.graph-wrapper {
+  width: 100%;
+  min-height: 550px;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 40px;
+}
+
+.table-container {
+  border-radius: 20px;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.telemetry-table {
+  width: 100%;
+  min-width: 1300px;
+  border-collapse: collapse;
+}
+
+.telemetry-table th {
+  background-color: var(--brand-blue);
+  color: white;
+  font-weight: 600;
+  padding: 12px 12px;
+  white-space: nowrap;
+}
+
+.telemetry-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.telemetry-table tbody tr:hover {
+  background-color: #f1f9ff;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  .dashboard-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+  .section-title h2 {
+    font-size: 1.3rem;
+  }
+  .graph-wrapper {
+    min-height: 460px;
+  }
+}

@@ -1,0 +1,45 @@
+.table-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.table-page h1 {
+  margin-bottom: 20px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.telemetry-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1400px;
+}
+
+.telemetry-table th,
+.telemetry-table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.telemetry-table th {
+  background-color: #444444;
+  font-weight: bold;
+}
+
+
+
+.telemetry-table tbody tr:hover {
+  background-color: #c7c7c7;
+}
+
+.error-text {
+  color: red;
+  font-weight: bold;
+}
