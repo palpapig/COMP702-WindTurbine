@@ -2,6 +2,7 @@ using COMP702_WindTurbine;
 using COMP702_WindTurbine.services;
 using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.DataSources;
+using COMP702_WindTurbine.ModelTraining;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -22,6 +23,14 @@ builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
 builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
+
+builder.Services.AddSingleton<TrainingScheduleService>();
+builder.Services.Configure<ModelTrainingOptions>(
+    builder.Configuration.GetSection("ModelTraining"));
+builder.Services.AddHttpClient<ModelTrainingService>(client =>
+{
+    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
+});
 
 
 
