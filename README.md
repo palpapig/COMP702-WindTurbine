@@ -110,3 +110,34 @@ Run:
 python scripts/test_prediction.py
 
 This will load the model and test it on sample data.
+
+
+# Auto retraining helper files
+
+Added files:
+- `auto_retrain.py`
+- `training_config_service.py`
+- `dotnet_data_client.py`
+- `model_trainer.py`
+- `retrain_service.py`
+- `config/training/default.json`
+
+These files let the Python service:
+1. Read training settings from config
+2. Ask the .NET API for the last N months of required columns
+3. Pass returned rows into `training.Training_Model_Pipeline.run_training_pipeline(...)`
+
+Expected .NET request payload:
+```json
+{
+  "turbineId": "T1",
+  "monthsBack": 3,
+  "columns": ["timestamp", "gearOilTemp", "windSpeed", "power", "rotorSpeed"]
+}
+```
+
+Run:
+```bash
+python auto_retrain.py
+```
+
