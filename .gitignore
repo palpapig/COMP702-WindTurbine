@@ -29,3 +29,8 @@ faultDetection_service/data/**/*.csv
 
 # Ignore all pkl models
 faultDetection_service/artifacts/**/*.pkl
+# Frontend dependencies and build cache
+frontend/**/node_modules/
+frontend/**/.vite/
+frontend/**/.vite-temp/
+frontend/**/dist/

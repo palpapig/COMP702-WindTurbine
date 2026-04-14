@@ -1,4 +1,4 @@
-using COMP702_WindTurbine.Models;
+using COMP702_WindTurbine.models;
 
 namespace COMP702_WindTurbine.DataSources;
 
