@@ -65,6 +65,16 @@ Current worker behavior:
 - Auto create `Active` when vibration > 8
 - Auto resolve when vibration recovers
 - Auto clear resolved alerts after configured hours
+  Standalone diagram source:
+- `4_Development_and_QA/Sprint1_Architecture.mmd`
+
+## Data source modes
+
+Configured in `COMP702-WindTurbine/appsettings.json` under `SimulatedDataSource`:
+
+- `Mode = Replay`: read from `data/turbine1_clean.csv`.
+- `Mode = Generative`: synthesize samples from configured distributions and power curve parameters.
+- `TurbineCount`: number of simulated turbine IDs (`WT-001`, `WT-002`, ...).
 
 ## Configuration
 
@@ -81,8 +91,8 @@ dotnet build
 dotnet run --project COMP702-WindTurbine/COMP702-WindTurbine.csproj
 ```
 
-## Team collaboration
+## Current limitations
 
-- Use feature branches: `feature/<name>`
-- Open PRs to `main`
-- Keep PRs focused and small
+- `Benchmarker` and `FailureDetection` use random prototype logic.
+- Monitoring interval is hardcoded to 30 seconds in worker code.
+- This project focuses on backend pipeline; UI/API consumption is separate.
