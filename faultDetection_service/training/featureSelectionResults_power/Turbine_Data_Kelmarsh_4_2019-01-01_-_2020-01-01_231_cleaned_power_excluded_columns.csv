@@ -1,0 +1,85 @@
+excluded_columns
+# Date and time
+Available Capacity for Production (Planned) (kW)
+Available Capacity for Production (kW)
+Capacity factor
+Cascading potential power (kW)
+Cascading potential power for performance (kW)
+Compensated Lost Production (kWh)
+Data Availability
+Energy Budget - Default (kWh)
+Energy Export (kWh)
+Energy Export counter (kWh)
+Energy Import (kWh)
+Energy Import counter (kWh)
+Energy Theoretical (kWh)
+Equivalent Full Load Hours (s)
+Equivalent Full Load Hours counter (s)
+Lost Production (Contractual Custom) (kWh)
+Lost Production (Contractual Global) (kWh)
+Lost Production (Contractual) (kWh)
+Lost Production (Production-based IEC B.2.2) (kWh)
+Lost Production (Production-based IEC B.2.3) (kWh)
+Lost Production (Production-based IEC B.3.2) (kWh)
+Lost Production (Time-based IEC B.2.2) (kWh)
+Lost Production (Time-based IEC B.2.3) (kWh)
+Lost Production (Time-based IEC B.2.4) (kWh)
+Lost Production (Time-based IEC B.3.2) (kWh)
+Lost Production Total (kWh)
+Lost Production to Curtailment (Bats) (kWh)
+Lost Production to Curtailment (Birds) (kWh)
+Lost Production to Curtailment (Boat Action) (kWh)
+Lost Production to Curtailment (Grid Constraint) (kWh)
+Lost Production to Curtailment (Grid) (kWh)
+Lost Production to Curtailment (Ice) (kWh)
+Lost Production to Curtailment (Marketing) (kWh)
+Lost Production to Curtailment (Noise) (kWh)
+Lost Production to Curtailment (Sector Management) (kWh)
+Lost Production to Curtailment (Shadow) (kWh)
+Lost Production to Curtailment (Technical) (kWh)
+Lost Production to Curtailment (Total) (kWh)
+Lost Production to Downtime (kWh)
+Lost Production to Downtime and Curtailment Total (kWh)
+Lost Production to Performance (kWh)
+Metal particle count counter
+Performance Index
+Potential power MPC (kW)
+Potential power default PC (kW)
+Potential power estimated (kW)
+Potential power learned PC (kW)
+Potential power met mast anemometer (kW)
+Potential power met mast anemometer MPC (kW)
+Potential power primary reference turbines (kW)
+Potential power reference turbines (kW)
+Potential power secondary reference turbines (kW)
+Power (kW)
+"Power, Maximum (kW)"
+"Power, Minimum (kW)"
+"Power, Standard deviation (kW)"
+Production Factor
+Production-based Contractual Avail.
+Production-based Contractual Avail. (Custom)
+Production-based Contractual Avail. (Global)
+Production-based IEC B.2.2 (Users View)
+Production-based IEC B.2.3 (Users View)
+Production-based IEC B.3.2 (Manufacturers View)
+Production-based System Avail.
+Production-based System Avail. (virtual)
+Reactive Energy Export (kvarh)
+Reactive Energy Export counter (kvarh)
+Reactive Energy Import (kvarh)
+Reactive Energy Import counter (kvarh)
+Time-based Contractual Avail.
+Time-based Contractual Avail. (Custom)
+Time-based Contractual Avail. (Global)
+Time-based IEC B.2.2 (Users View)
+Time-based IEC B.2.3 (Users View)
+Time-based IEC B.2.4 (Users View)
+Time-based IEC B.3.2 (Manufacturers View)
+Time-based System Avail.
+Time-based System Avail. (Planned)
+Turbine Power setpoint (kW)
+"Turbine Power setpoint, Max (kW)"
+"Turbine Power setpoint, Min (kW)"
+"Turbine Power setpoint, StdDev (kW)"
+Virtual Production (kWh)
