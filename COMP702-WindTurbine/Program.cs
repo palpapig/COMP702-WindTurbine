@@ -13,7 +13,8 @@ var monitoringDbConnection =
 
 builder.Services.AddDbContext<MonitoringDbContext>(options =>
     options.UseNpgsql(monitoringDbConnection));
-
+//registers SupabaseService as a singleton
+builder.Services.AddSingleton<SupabaseService>();
 builder.Services.AddScoped<DbService>();
 //new data source (replaces DataInput)
 builder.Services.AddSingleton<IDataSource, SimulatedLiveDataSource>();

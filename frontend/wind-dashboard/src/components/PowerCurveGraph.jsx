@@ -3,19 +3,19 @@ this file creates a scatter plot of power output vs wind speed.
 it overlays the theoretical power curve (blue line) so we can see
 how actual turbine performance compares to the ideal.
 green if normal. the graph helps spot underperformance visually.
-we fetch the last 500 telemetry rows from supabase for performance.
+we fetch the last 1000 telemetry rows from supabase for performance.
 the expected curve uses the same piecewise linear parameters as
 our benchmarker in the windows service. */
 
 import { useState, useEffect } from 'react'
-import { supabase } from './utils/supabase'
+import { supabase } from '../utils/supabase'
 import {
-  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, Line,
+  Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, Line,
   ResponsiveContainer
 } from 'recharts'
 import { FaLightbulb } from 'react-icons/fa'
 
-function PowerCurveGraph() {
+function PowerCurveGraph({ turbineId }) {
   //state for the scatter data points, loading flag & any error messages
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -60,16 +60,21 @@ function PowerCurveGraph() {
 
   //fetch telemetry from supabase when the component mounts
   useEffect(() => {
+    //guard: if no turbine selected, clear data and stop loading
+    if (!turbineId) {
+      setData([]);
+      setLoading(false);
+      return;
+    }
     async function fetchData() {
       setLoading(true)
       setError('')
-      //get the 500 most recent rows – this is enough for a good scatter plot
-      //and avoids loading thousands of rows unnecessarily.
       const { data: telemetry, error: fetchError } = await supabase
         .from('TurbineData')
         .select('WindSpeed, PowerOutput, StartedAlert')
+        .eq('TurbineId', turbineId) 
         .order('Timestamp', { ascending: false })
-        .limit(500)
+        .limit(1000)
 
       if (fetchError) {
         setError(fetchError.message)
@@ -88,7 +93,7 @@ function PowerCurveGraph() {
       setLoading(false)
     }
     fetchData()
-  }, []) //empty dependency array means this runs only once on mount
+  }, [turbineId]) //depend on prop
 
   //simple loading & error states
   if (loading) return <p>Loading power curve data...</p>
@@ -110,8 +115,8 @@ function PowerCurveGraph() {
             unit=" m/s"
             domain={[0, 25]}
             label={{ value: 'Wind Speed (m/s)', position: 'insideBottom', offset: -10 }}
-            tick={{ fontSize: 9 }}                     //smaller font so labels dont overlap
-            tickFormatter={(value) => value.toFixed(1)} //1 decimal is enough, reduces clutter
+            tick={{ fontSize: 12 }}   
+            tickFormatter={(value) => Math.round(value)}
             height={50}                                //reserve space for rotated labels (though didnt rotate)
             tickMargin={10}                            //extra space between tick mark and label
           />
@@ -121,7 +126,7 @@ function PowerCurveGraph() {
             name="Power Output"
             unit=" kW"
             domain={[0, 2500]}   //safe upper limit (rated power is 2050 kW, 2500 gives headroom)
-            label={{ value: 'Power Output (kW)', angle: -90, position: 'insideLeft', dy: 70 }}
+            label={{ value: 'Power Output (kW)', angle: -90, position: 'insideLeft', dy: 70, dx: -10 }}
             tick={{ fontSize: 10 }}
             tickFormatter={(value) => {
               //round to nearest integer & format without scientific notation
@@ -195,7 +200,7 @@ function PowerCurveGraph() {
       }}>
         <FaLightbulb  
         color="#FFD700" 
-        style={{ fontSize: '0.9rem', marginRight: '6px', verticalAlign: 'middle' }}
+        style={{ fontSize: '0.9rem', marginRight: '6px', verticalAlign: 'left' }}
         />
         The blue line is the ideal power curve. Normal operation (green) can still be below this line due to real‑world conditions. Significant and persistent underperformance (red) indicates faults.
       </div>

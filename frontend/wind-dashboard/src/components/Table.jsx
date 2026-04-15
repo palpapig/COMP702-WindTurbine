@@ -7,7 +7,7 @@ the table includes all columns stored in supabase, including the internal Id.
 */
 
 import { useState, useEffect } from 'react'
-import { supabase } from './utils/supabase'
+import { supabase } from '../utils/supabase'
 import './Table.css'
 
 function Table() {
@@ -53,6 +53,7 @@ function Table() {
       {errorMessage && <p className="error-text">Error: {errorMessage}</p>}
 
       {!loading && !errorMessage && (
+        <>
         <div className="table-container">
           <table className="telemetry-table">
             <thead>
@@ -91,7 +92,24 @@ function Table() {
             </tbody>
           </table>
         </div>
-      )}
+        <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            style={{
+              display: 'block',
+              margin: '1.5rem auto 0',
+              padding: '0.5rem 1rem',
+              backgroundColor: 'var(--brand-blue)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '40px',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            ↑ Back to Top
+          </button>
+        </>
+      )}        
     </div>
   )
 }
