@@ -14,7 +14,7 @@
   "test_size": 0.2,
   "random_state": 42,
   "scale_features": true,
-  "minimum_training_rows": 200,
+  "minimum_training_rows": 4, 
   "retrain_interval_days": 90,
   "alarm": {
     "ewma_lambda": 0.2,

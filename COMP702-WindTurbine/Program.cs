@@ -24,14 +24,13 @@ builder.Services.AddSingleton<Benchmarker>();
 builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
 
+builder.Services.AddSingleton<ModelTrainingConfigService>();
 builder.Services.AddSingleton<TrainingScheduleService>();
-builder.Services.Configure<ModelTrainingOptions>(
-    builder.Configuration.GetSection("ModelTraining"));
+
 builder.Services.AddHttpClient<ModelTrainingService>(client =>
 {
     client.BaseAddress = new Uri("http://127.0.0.1:8000/");
 });
-
 
 
 var host = builder.Build();

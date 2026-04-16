@@ -1,44 +1,60 @@
-using Microsoft.Extensions.Options;
-
 namespace COMP702_WindTurbine.ModelTraining
 {
     public class TrainingScheduleService
     {
-        private readonly ModelTrainingOptions _options;
+        private readonly ModelTrainingConfigService _configService;
 
-        public TrainingScheduleService(IOptions<ModelTrainingOptions> options)
+        public TrainingScheduleService(ModelTrainingConfigService configService)
         {
-            _options = options.Value;
+            _configService = configService;
         }
 
         public bool IsTrainingEnabled()
         {
-            return _options.Enabled;
-        }
-
-        public bool IsRetrainingDue()
-        {
-            if (!_options.Enabled)
-                return false;
-
-            if (string.IsNullOrWhiteSpace(_options.LastTrainingUtc))
-                return true;
-
-            if (!DateTime.TryParse(_options.LastTrainingUtc, out var lastTrainingUtc))
-                return true;
-
-            var nextTrainingUtc = lastTrainingUtc.AddMonths(_options.IntervalMonths);
-            return DateTime.UtcNow >= nextTrainingUtc;
-        }
-
-        public string GetTurbineId()
-        {
-            return _options.TurbineId;
+            return _configService.Load().Enabled;
         }
 
         public string GetPythonTrainEndpoint()
         {
-            return _options.PythonTrainEndpoint;
+            return _configService.Load().PythonTrainEndpoint;
+        }
+
+        public List<string> GetTurbinesDueForTraining()
+        {
+            var options = _configService.Load();
+            var due = new List<string>();
+
+            if (!options.Enabled)
+                return due;
+
+            foreach (var turbine in options.Turbines)
+            {
+                if (string.IsNullOrWhiteSpace(turbine.LastTrainingUtc))
+                {
+                    due.Add(turbine.TurbineId);
+                    continue;
+                }
+
+                if (!DateTime.TryParse(turbine.LastTrainingUtc, out var lastTrainingUtc))
+                {
+                    due.Add(turbine.TurbineId);
+                    continue;
+                }
+
+                var nextTrainingUtc = lastTrainingUtc.AddMonths(options.IntervalMonths);
+
+                if (DateTime.UtcNow >= nextTrainingUtc)
+                {
+                    due.Add(turbine.TurbineId);
+                }
+            }
+
+            return due;
+        }
+
+        public ModelTrainingOptions GetOptions()
+        {
+            return _configService.Load();
         }
     }
 }

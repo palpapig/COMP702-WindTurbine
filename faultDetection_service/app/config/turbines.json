@@ -14,6 +14,24 @@
       ],
       "status": "trained",
       "last_trained_at_utc": "2026-03-27T10:00:04.748065+00:00"
+    },
+    "T1": {
+      "target_column": "gearOilTemp",
+      "feature_columns": [
+        "windSpeed",
+        "power"
+      ],
+      "status": "trained",
+      "last_trained_at_utc": "2026-04-16T03:39:57.839344+00:00"
+    },
+    "T2": {
+      "target_column": "gearOilTemp",
+      "feature_columns": [
+        "windSpeed",
+        "power"
+      ],
+      "status": "trained",
+      "last_trained_at_utc": "2026-04-16T03:41:00.993818+00:00"
     }
   }
 }

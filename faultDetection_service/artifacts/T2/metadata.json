@@ -1,0 +1,16 @@
+{
+  "turbine_id": "T2",
+  "trained_at_utc": "2026-04-16T03:41:00.993818+00:00",
+  "model_type": "knn_bagging",
+  "target_column": "gearOilTemp",
+  "feature_columns": [
+    "windSpeed",
+    "power"
+  ],
+  "rows_used": 50,
+  "metrics": {
+    "rmse": 0.31110430880593865,
+    "r2": 0.9876153690393319,
+    "residual_std": 0.2945392926388108
+  }
+}

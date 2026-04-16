@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "interval_months": 3,
+  "python_train_endpoint": "train",
+  "turbines": [
+    {
+      "turbine_id": "T1",
+      "last_training_utc": "2026-01-01T00:00:00Z"
+    }
+  ]
+}

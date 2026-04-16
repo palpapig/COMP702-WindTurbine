@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace COMP702_WindTurbine.ModelTraining
 {
@@ -10,37 +9,24 @@ namespace COMP702_WindTurbine.ModelTraining
     {
         private readonly MonitoringDbContext _context;
         private readonly TrainingScheduleService _scheduleService;
+        private readonly ModelTrainingConfigService _configService;
         private readonly HttpClient _httpClient;
-        private readonly ModelTrainingOptions _options;
 
         public ModelTrainingService(
             MonitoringDbContext context,
             TrainingScheduleService scheduleService,
-            HttpClient httpClient,
-            IOptions<ModelTrainingOptions> options)
+            ModelTrainingConfigService configService,
+            HttpClient httpClient)
         {
             _context = context;
             _scheduleService = scheduleService;
+            _configService = configService;
             _httpClient = httpClient;
-            _options = options.Value;
         }
 
-        public async Task<bool> RunTrainingIfDueAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> RunTrainingForTurbineAsync(string turbineId, CancellationToken cancellationToken = default)
         {
-            if (!_scheduleService.IsTrainingEnabled())
-            {
-                Console.WriteLine("Model training is disabled.");
-                return false;
-            }
-
-            if (!_scheduleService.IsRetrainingDue())
-            {
-                Console.WriteLine("Model retraining is not due yet.");
-                return false;
-            }
-
-            var turbineId = _scheduleService.GetTurbineId();
-            var fromDate = GetFromDateUtc();
+            var fromDate = GetFromDateUtc(turbineId);
 
             var data = await _context.TurbineData
                 .Where(x => x.TurbineId == turbineId && x.Timestamp >= fromDate)
@@ -74,6 +60,7 @@ namespace COMP702_WindTurbine.ModelTraining
             var endpoint = _scheduleService.GetPythonTrainEndpoint();
 
             Console.WriteLine($"Starting model training for {turbineId} with {rows.Count} rows.");
+
             var response = await _httpClient.PostAsJsonAsync(endpoint, request, cancellationToken);
 
             Console.WriteLine($"Python /train response: {(int)response.StatusCode} {response.StatusCode}");
@@ -94,24 +81,28 @@ namespace COMP702_WindTurbine.ModelTraining
 
             if (result.Success)
             {
-                Console.WriteLine("Training completed successfully.");
+                _configService.UpdateLastTrainingUtc(turbineId, DateTime.UtcNow);
+                Console.WriteLine($"Training completed successfully for turbine {turbineId}.");
                 return true;
             }
 
-            Console.WriteLine("Python training API returned unsuccessful result.");
+            Console.WriteLine($"Python training API returned unsuccessful result for turbine {turbineId}.");
             return false;
         }
 
-        private DateTime GetFromDateUtc()
+        private DateTime GetFromDateUtc(string turbineId)
         {
-            if (string.IsNullOrWhiteSpace(_options.LastTrainingUtc))
+            var options = _scheduleService.GetOptions();
+            var turbine = options.Turbines.FirstOrDefault(t => t.TurbineId == turbineId);
+
+            if (turbine is null || string.IsNullOrWhiteSpace(turbine.LastTrainingUtc))
             {
-                return DateTime.UtcNow.AddMonths(-_options.IntervalMonths);
+                return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
             }
 
-            if (!DateTime.TryParse(_options.LastTrainingUtc, out var lastTrainingUtc))
+            if (!DateTime.TryParse(turbine.LastTrainingUtc, out var lastTrainingUtc))
             {
-                return DateTime.UtcNow.AddMonths(-_options.IntervalMonths);
+                return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
             }
 
             return lastTrainingUtc;
