@@ -43,10 +43,24 @@ namespace COMP702_WindTurbine.ModelTraining
             File.WriteAllText(_configPath, json);
         }
 
-        public void UpdateLastTrainingUtc(DateTime utcTime)
+        public void UpdateLastTrainingUtc(string turbineId, DateTime utcTime)
         {
             var options = Load();
-            options.LastTrainingUtc = utcTime.ToString("O");
+
+            var turbine = options.Turbines.FirstOrDefault(t => t.TurbineId == turbineId);
+            if (turbine is null)
+            {
+                options.Turbines.Add(new TurbineTrainingInfo
+                {
+                    TurbineId = turbineId,
+                    LastTrainingUtc = utcTime.ToString("O")
+                });
+            }
+            else
+            {
+                turbine.LastTrainingUtc = utcTime.ToString("O");
+            }
+
             Save(options);
         }
     }
