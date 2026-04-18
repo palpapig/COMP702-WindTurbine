@@ -43,7 +43,7 @@ public sealed class MonitoringWorker(
                 telemetry.PitchAngle = newRaw.PitchAngle;
                 telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
 
-                telemetry = benchmarker.BenchmarkData(telemetry);
+                telemetry = benchmarker.DummyBenchmark(telemetry);
 
                 telemetry = FailureDetection.DetectFailure(telemetry);
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
