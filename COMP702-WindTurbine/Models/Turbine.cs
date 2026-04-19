@@ -3,7 +3,7 @@ public sealed class Turbine
 {
     public required string TurbineId { get; set; }
     public required string Name { get; set; }
-    public required TurbineModel Model { get; set; }
+    public TurbineModel? Model { get; set; } //TODO have a way to add turbine model details to database. Also an error when trying to benchmark but no model is provided.
     public required string Location { get; set; }
     public required string Status { get; set; } // Running, Alarm, Offline
 
@@ -15,4 +15,6 @@ public sealed class Turbine
 
 
     public DegradationModelDetails? DegradationModel { get; set; }
+    public ICollection<BenchmarkResult> BenchmarkResult { get; set; } = new List<BenchmarkResult>();
+    public ICollection<DegradationResult> DegradationResult { get; set; } = new List<DegradationResult>();
 }

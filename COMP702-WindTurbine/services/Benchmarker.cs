@@ -2,7 +2,9 @@ namespace COMP702_WindTurbine.services;
 using COMP702_WindTurbine.models;
 
 
-public sealed class Benchmarker
+public sealed class Benchmarker (
+    ILogger<MonitoringWorker> logger
+)
 {
     public TurbineTelemetry DummyBenchmark(TurbineTelemetry telemetry)
     {
@@ -11,51 +13,64 @@ public sealed class Benchmarker
         return telemetry;
     }
 
-    public void Benchmark(ICollection<TurbineTelemetry> telemetry, TurbineModel turbineModel)
+    public void Benchmark(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
     {
+        if (turbine.Model is null)
+        {
+            logger.LogError("Attempted to benchmark a turbine with no assigned TurbineModel");
+            return;
+        }
+        TurbineModel turbineModel = turbine.Model;
+
         telemetry = Preprocess(telemetry);
-        Dictionary<float, float> actualBins = BinTelemetry(telemetry, turbineModel.CutInWindSpeed, turbineModel.CutOutWindSpeed); 
+
+        //These bins have windspeed as the key and Power and Frequency as the values respectively
+        var (actualBins, frequencyBins) = BinTelemetry(telemetry, turbineModel.CutInWindSpeed, turbineModel.CutOutWindSpeed); 
 
 
         ICollection<PowerCurveBin> expectedBins = turbineModel.PowerCurveBins;
         ICollection<PowerCurveBin> deviationBins = [];
+        float weightedTotalDeviation = 0f;
 
-        foreach (PowerCurveBin expectedBin in expectedBins)
+        //for each bin, get the ratio between actual power and expected power.
+        //Scale that deviation ratio by the bin's frequency and add it to a running total.
+        foreach (float windSpeed in actualBins.Keys)
         {   
             try
             {
-                float bin = expectedBin.WindSpeedMs;
-                float actualPower = actualBins[bin]; 
-                float deviation = actualPower - expectedBin.PowerKw;
+                float expectedPower = expectedBins.First(bin => bin.WindSpeed == windSpeed).Power;
+                float actualPower = actualBins[windSpeed]; 
+                float deviationRatio = actualPower / expectedPower;
 
                 deviationBins.Add(new PowerCurveBin
                 {
-                    WindSpeedMs = bin,
-                    PowerKw = deviation
+                    WindSpeed = windSpeed,
+                    Power = deviationRatio
                 });
-            } catch
-            {
-                
-            }
+
+                float binWeight = frequencyBins[windSpeed] / telemetry.Count;
+                weightedTotalDeviation += binWeight * deviationRatio;
+            } catch {}
         }
 
+        //convert dictionary to PowerCurveBin list
+        ICollection<PowerCurveBin> actualPowerBins = (ICollection<PowerCurveBin>)actualBins.Select(pair => new PowerCurveBin { WindSpeed = pair.Key, Power = pair.Value });
+        
         BenchmarkResult result = new BenchmarkResult
         {
-            DeviationScore = 0,
+            DeviationScore = weightedTotalDeviation,
             DeviationBins = deviationBins,
-            PowerBins = 0,
-            
-            
-        }
+            PowerBins = actualPowerBins,
+            TimeRangeStart = telemetry.Min(row => row.Timestamp),
+            TimeRangeEnd = telemetry.Max(row => row.Timestamp),
+            TurbineId = turbine.TurbineId
+        };
 
 
-
-        //PowerCurveBin expectedBins = turbineModel.PowerCurveBins.First(bin => bin.WindSpeedMs == 0.5f);
-        //float expectedPower = expectedBin.PowerKw;
 
     }
 
-    private ICollection<TurbineTelemetry> Preprocess(ICollection<TurbineTelemetry> telemetry, bool hasCorrectedWindSpeed = true)
+    private static ICollection<TurbineTelemetry> Preprocess(ICollection<TurbineTelemetry> telemetry, bool hasCorrectedWindSpeed = true)
     {
         //remove rows with negative minimum power output.
         telemetry = [.. telemetry.Where(row => row.MinimumPowerOutput > 0)];
@@ -70,11 +85,12 @@ public sealed class Benchmarker
         return telemetry;
     }
 
-    private Dictionary<float, float> BinTelemetry(ICollection<TurbineTelemetry> telemetry, float minBin, float maxBin, float binInterval = 0.5f)
+    private static (Dictionary<float, float>, Dictionary<float, int>) BinTelemetry(ICollection<TurbineTelemetry> telemetry, float minBin, float maxBin, float binInterval = 0.5f)
     {
 
 
-        Dictionary<float, float> binnedTelemetry = new();
+        Dictionary<float, float> binnedTelemetry = [];
+        Dictionary<float, int> binnedFrequency = [];
         
 
         for (float i = minBin; i <= maxBin; i += binInterval)
@@ -87,9 +103,10 @@ public sealed class Benchmarker
 
             float binnedPower = (float) binRows.Average(row => row.PowerOutput);
             binnedTelemetry[i] = binnedPower;
+            binnedFrequency[i] = binRows.Count;
         }
 
-        return binnedTelemetry;
+        return (binnedTelemetry, binnedFrequency);
     }
 
 }
