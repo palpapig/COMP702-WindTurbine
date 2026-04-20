@@ -1,0 +1,40 @@
+.dashboard-shell {
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  padding-bottom: 90px;
+}
+
+.bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(20, 20, 20, 0.95);
+  border-top: 1px solid #333;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background-color: #2d2d2d;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  background-color: #444;
+}
+
+.tab-btn.active {
+  background-color: #2563eb;
+}

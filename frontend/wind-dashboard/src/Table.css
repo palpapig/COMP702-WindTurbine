@@ -43,3 +43,11 @@
   color: red;
   font-weight: bold;
 }
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background-color: #e6f0ff;
+}
