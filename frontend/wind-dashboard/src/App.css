@@ -40,9 +40,19 @@ body {
   border-left: 6px solid var(--brand-blue);
 }
 
-.header-icon {
+.header-logo-text {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.header-text {
+  text-align: left;
+}
+
+.header-logo-text img {
+  height: 64px;
+  width: auto;
 }
 
 .header-text h1 {
@@ -83,6 +93,7 @@ body {
   padding: 1.8rem;
   margin-bottom: 2rem;
   box-shadow: var(--shadow);
+  border-left: 6px solid var(--brand-blue);
 }
 
 .section-title {
@@ -142,10 +153,6 @@ body {
   .dashboard-container {
     padding: 1rem;
   }
-  .dashboard-header {
-    flex-direction: column;
-    text-align: center;
-  }
   .header-text h1 {
     font-size: 1.5rem;
   }
@@ -154,5 +161,8 @@ body {
   }
   .graph-wrapper {
     min-height: 460px;
+  }
+  .header-logo-text img {
+    height: 48px;
   }
 }

@@ -7,7 +7,7 @@ the table shows key metrics like wind speed, rotor speed, power output,
 efficiency (benchmark) & fault status with coloured icons. */
 
 import { useState, useEffect } from 'react'
-import { supabase } from './utils/supabase'
+import { supabase } from '../utils/supabase'
 import { FaExclamationTriangle, FaCheckCircle } from 'react-icons/fa' 
 import './Table.css'   //reuse the same styling as the full history table
 

@@ -3,61 +3,43 @@ this component shows a line graph of efficiency (%) over time for a single turbi
 the user selects a turbine from a dropdown & the graph fetches all efficiency
 records for that turbine from supabase. i chose a line chart because it clearly
 shows trends and degradation over time. the x‑axis labels are rotated 45 degrees
-to avoid overlap. also set a fixed width of 800px & horizontal scroll for
-responsiveness. */
+to avoid overlap. 
+*/
 
 import { useState, useEffect } from 'react'
-import { supabase } from './utils/supabase'
+import { supabase } from '../utils/supabase'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts'
+import { FaLightbulb } from 'react-icons/fa'
 
-function EfficiencyGraph() {
-  //list of all turbine ids, currently selected turbine, chart data, loading & error states
-  const [turbines, setTurbines] = useState([])
-  const [selectedTurbine, setSelectedTurbine] = useState('')
+function EfficiencyGraph({ turbineId }) {
+  //accept turbineId as a prop
   const [chartData, setChartData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  //fetch distinct turbine ids from supabase on component mount
-  useEffect(() => {
-    async function fetchTurbineIds() {
-      const { data, error } = await supabase
-        .from('TurbineData')
-        .select('TurbineId')
-        .order('TurbineId')
-      if (error) {
-        setError(error.message)
-        return
-      }
-      //supabase may return duplicates? but .select('TurbineId') should be distinct
-      //i used a map anyway to be safe
-      const unique = [...new Map(data.map(row => [row.TurbineId, row])).values()]
-      setTurbines(unique)
-      //automatically select the first turbine as default
-      if (unique.length > 0) setSelectedTurbine(unique[0].TurbineId)
-    }
-    fetchTurbineIds()
-  }, [])
+  // power curve parameters (from appsettings.json) – used for efficiency calculation explanation
+  const cutIn = 2.75
+  const ratedWind = 11.25
+  const ratedPower = 2050.0
 
-  //when selected turbine changes, fetch its efficiency history
+  //when turbineId changes, fetch its efficiency history
   useEffect(() => {
-    if (!selectedTurbine) return
+    if (!turbineId) return
     async function fetchEfficiencyHistory() {
       setLoading(true)
       setError('')
       const { data, error } = await supabase
         .from('TurbineData')
         .select('Timestamp, Efficiency')
-        .eq('TurbineId', selectedTurbine)
-        .order('Timestamp', { ascending: true }) //oldest first so the line goes left to right
+        .eq('TurbineId', turbineId)
+        .order('Timestamp', { ascending: true })
       if (error) {
         setError(error.message)
         setLoading(false)
         return
       }
-      //to format timestamp as a readable string for the x‑axis
       const formatted = (data || []).map(row => ({
         timestamp: new Date(row.Timestamp).toLocaleString(),
         efficiency: row.Efficiency ?? 0
@@ -66,40 +48,17 @@ function EfficiencyGraph() {
       setLoading(false)
     }
     fetchEfficiencyHistory()
-  }, [selectedTurbine])
+  }, [turbineId])  //depend on prop
 
-  const handleTurbineChange = (e) => {
-    setSelectedTurbine(e.target.value)
-  }
+  //simple loading, error & empty states
+  if (loading) return <p>loading efficiency history...</p>
+  if (error) return <p className="error-text">error: {error}</p>
+  if (!turbineId) return <p>select a turbine to view efficiency trend.</p>
+  if (chartData.length === 0) return <p>no efficiency data for this turbine yet.</p>
 
-  return (
-    <div className="table-page">
-      {/* dropdown for turbine selection */}
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="turbineSelect" style={{ fontWeight: 500, marginRight: '0.5rem' }}>
-          Select Turbine:
-        </label>
-        <select
-          id="turbineSelect"
-          value={selectedTurbine}
-          onChange={handleTurbineChange}
-          style={{ padding: '0.3rem 0.8rem', borderRadius: '8px', border: '1px solid #ccc' }}
-        >
-          {turbines.map(t => (
-            <option key={t.TurbineId} value={t.TurbineId}>{t.TurbineId}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* loading, error & empty states */}
-      {loading && <p>Loading efficiency history...</p>}
-      {error && <p className="error-text">Error: {error}</p>}
-      {!loading && !error && chartData.length === 0 && (
-        <p>No efficiency data for this turbine yet.</p>
-      )}
-      {!loading && !error && chartData.length > 0 && (
-        //scrollable container in case the chart is wider than the viewport
-        <div style={{ width: '100%', overflowX: 'auto' }}>
+      return (        
+        <div style={{ width: '100%' }}>
+          <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
           <LineChart
             width={800}
             height={400}
@@ -141,9 +100,32 @@ function EfficiencyGraph() {
             />
           </LineChart>
         </div>
-      )}
-    </div>
-  )
+      {/* explanatory note – explains efficiency calculation and what to look for */}
+      <div style={{
+        textAlign: 'left',
+        fontSize: '0.8rem',
+        color: '#666',
+        fontStyle: 'italic',
+        marginTop: '12px',
+        borderTop: '1px solid #e0e0e0',
+        paddingTop: '10px',
+        maxWidth: '80%',
+        marginLeft: 'auto',
+        marginRight: 'auto'
+      }}>
+        <FaLightbulb
+          color="#FFD700"
+          style={{ fontSize: '0.9rem', marginRight: '6px', verticalAlign: 'middle' }}
+        />
+        <ul style={{ marginTop: '8px', marginBottom: '0', paddingLeft: '20px' }}>
+          <li>Efficiency = (actual power / expected power) × 100%.</li>
+          <li>Expected power comes from the theoretical power curve (cut‑in {cutIn} m/s, rated wind {ratedWind} m/s, rated power {ratedPower} kW).</li>
+          <li>Values below 70% in the tables – persistent low efficiency may indicate blade wear, pitch misalignment, or other performance degradation.</li>
+        </ul>
+        </div>
+      </div>
+    )
 }
+
 
 export default EfficiencyGraph

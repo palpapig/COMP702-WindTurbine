@@ -6,74 +6,52 @@ i used react‑icons for a clean, professional look with the client's brand colo
 the explanation paragraph under the table heading was added to help non‑technical
 users understand what "most recent" means. 
 */
-
-import { useState } from 'react'
-import { WiDayWindy, WiStrongWind } from 'react-icons/wi'
-import { FiActivity, FiDatabase, FiTrendingUp } from 'react-icons/fi'
-import MostRecentTable from './MostRecentTable'
-import EfficiencyGraph from './EfficiencyGraph'
-import FullHistoryTable from './Table'
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { FiBarChart2, FiActivity, FiSettings, FiDownload } from 'react-icons/fi'
+import DashboardPage from './pages/DashboardPage'
+import TablesPage from './pages/TablesPage'
+import ConfigPage from './pages/ConfigPage'
+import ExportPage from './pages/ExportPage'
 import './App.css'
-import PowerCurveGraph from './PowerCurveGraph'
+import './Navigation.css'
+import logo from './assets/WindTurbineLogo.png'
 
 function App() {
-  //state to determine whether we show the full history table or the most recent one
-  const [showFullHistory, setShowFullHistory] = useState(false)
-
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="header-icon">
-          <WiDayWindy size={48} color="#06A2DF" />
-        </div>
-        <div className="header-text">
-          <h1>Wind Turbine Monitoring Dashboard</h1>
-          <p>Live benchmark & fault status | historical efficiency trends</p>
-        </div>
-        {/* button toggles between showing most recent & full history */}
-        <button
-          onClick={() => setShowFullHistory(!showFullHistory)}
-          className="toggle-history-btn"
-        >
-          {showFullHistory ? <FiDatabase /> : <FiTrendingUp />}
-          {showFullHistory ? ' Show Most Recent Data' : ' Show Full History (All Rows)'}
-        </button>
-      </header>
+    <BrowserRouter>
+      <div className="dashboard-container">
+        <header className="dashboard-header">
+          <div className="header-logo-text">
+            <img src={logo} alt="Wind Turbine Logo"/>
+            <div className="header-text">
+              <h1>Wind Turbine Monitoring Dashboard</h1>
+              <p>Live benchmark & fault status | historical efficiency trends</p>
+            </div>
+          </div>
+          <nav className="nav-bar">
+            <NavLink to="/" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiBarChart2 /> Dashboard
+            </NavLink>
+            <NavLink to="/tables" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiActivity /> Tables
+            </NavLink>
+            <NavLink to="/config" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiSettings /> Config
+            </NavLink>
+            <NavLink to="/export" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiDownload /> Export
+            </NavLink>
+          </nav>
+        </header>
 
-      {/* section that contains either the most recent table or the full history table */}
-      <section className="dashboard-section">
-        <div className="section-title">
-          <FiActivity color="#82C340" size={24} />
-          <h2>{showFullHistory ? 'Complete Telemetry History' : 'Current Turbine Status – Most Recent'}</h2>
-        </div>
-        {/* added a plain‑english explanation of how "most recent" is determined */}
-        <p style={{ fontSize: '0.9rem', color: '#2c3e50', marginBottom: '1rem' }}>
-          <strong>Most recent data per turbine:</strong> For each turbine, this table shows the very latest measurement – the newest timestamp available in the database.
-          It automatically updates as new data arrives, giving a live snapshot of every turbine's current status.
-        </p>
-        {showFullHistory ? <FullHistoryTable /> : <MostRecentTable />}
-      </section>
-
-      {/* efficiency graph section */}
-      <section className="dashboard-section">
-        <div className="section-title">
-          <WiStrongWind color="#06A2DF" size={24} />
-          <h2>Efficiency Over Time</h2>
-        </div>
-        <div className="graph-wrapper">
-          <EfficiencyGraph />
-        </div>
-      </section>
-
-      {/* power curve graph section – added as an extra diagnostic tool */}
-      <section className="dashboard-section">
-        <div className="section-title">
-          <WiStrongWind color="#06A2DF" size={24} />
-          <h2>Power Curve Analysis</h2>
-        </div>
-        <PowerCurveGraph />
-      </section>
-    </div>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/tables" element={<TablesPage />} />
+          <Route path="/config" element={<ConfigPage />} />
+          <Route path="/export" element={<ExportPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   )
 }
 
