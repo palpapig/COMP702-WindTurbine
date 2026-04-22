@@ -1,7 +1,7 @@
 namespace COMP702_WindTurbine.models;
-public sealed class PowerCurveBin
+public sealed class PowerBinExpected
 {
-    public required BenchmarkResult Benchmark { get; set; }
+    public long Id { get; set; }
     public required float WindSpeed { get; set; }
     public required float Power { get; set; }
 }
