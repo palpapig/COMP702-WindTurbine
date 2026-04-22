@@ -23,8 +23,10 @@ public sealed class MonitoringWorker(
             DateTime lastTrainingCheckUtc = DateTime.MinValue;
 
 
-            // testing auto training start
 
+
+            // testing auto training start
+            /*
             Boolean initialTrainingRun = false;
 
             if (!initialTrainingRun)
@@ -39,11 +41,10 @@ public sealed class MonitoringWorker(
 
                     var modelTrainingService = trainingScope.ServiceProvider.GetRequiredService<ModelTrainingService>();
 
-                    var turbineId = "WT-001";
+                    var turbineId = "WT-007";
 
                     logger.LogInformation("One-time model training test for turbine {TurbineId}", turbineId);
 
-                    logger.LogInformation("/n/n/n/n/n/n/n/n/n/n/nn/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n/n");
 
                     bool success = await modelTrainingService.RunTrainingForTurbineAsync(turbineId, stoppingToken);
 
@@ -58,23 +59,7 @@ public sealed class MonitoringWorker(
                 }
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            */
             // testing auto trianing end
 
 
@@ -82,7 +67,7 @@ public sealed class MonitoringWorker(
 
 
             // remeber to put back the wile loop 
-            // while (!stoppingToken.IsCancellationRequested)
+            while (!stoppingToken.IsCancellationRequested)
             {
 
                 logger.LogInformation("Processing new data started");

@@ -40,6 +40,7 @@ class TrainResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     turbine_id: str = Field(..., alias="turbineId")
+    success: bool
     model_status: str = Field(..., alias="modelStatus")
     rows_used: int = Field(..., alias="rowsUsed")
     target_column: str = Field(..., alias="targetColumn")

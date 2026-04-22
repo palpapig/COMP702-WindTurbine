@@ -29,13 +29,12 @@ namespace COMP702_WindTurbine.ModelTraining
         {
             var fromDate = GetFromDateUtc(turbineId);
 
-
             var data = await _context.TurbineData
                 .Where(x => x.TurbineId == turbineId && x.Timestamp >= fromDate)
                 .OrderBy(x => x.Timestamp)
                 .ToListAsync(cancellationToken);
 
-            Console.WriteLine(" ***************************  step 2 **********************");
+
 
             if (data.Count == 0)
             {
@@ -43,35 +42,51 @@ namespace COMP702_WindTurbine.ModelTraining
                 return false;
             }
 
-            var rows = data.Select(d => new Dictionary<string, object?>
+            var rows = data.Select(d => new
             {
-                { "timestamp", d.Timestamp },
-                { "windSpeed", d.WindSpeed },
-                { "rotorSpeed", d.RotorSpeed },
-                { "power", d.PowerOutput },
-                { "vibration", d.Vibration },
-                { "temperature", d.Temperature },
-                { "pitchAngle", d.PitchAngle },
-                { "gearOilTemp", d.GearboxOilTemp }
+                timestamp = d.Timestamp,
+                values = new Dictionary<string, object?>
+        {
+            { "windSpeed", d.WindSpeed },
+            { "rotorSpeed", d.RotorSpeed },
+            { "power", d.PowerOutput },
+            { "vibration", d.Vibration },
+            { "temperature", d.Temperature },
+            { "pitchAngle", d.PitchAngle },
+            { "gearOilTemp", d.GearboxOilTemp }
+        }
             }).ToList();
 
             var request = new
             {
-                turbine_id = turbineId,
-                rows = rows
+                turbineId = turbineId,
+                rows = rows,
+                targetColumn = "power", // chnage to gear temp if needed but then remove ear temp from feature coloumns
+                featureColumns = new[]
+                {
+            "windSpeed",
+            "rotorSpeed",
+            "vibration",
+            "temperature",
+            "pitchAngle",
+            "gearOilTemp"
+        },
+                forceRetrain = false
             };
 
             var endpoint = _scheduleService.GetPythonTrainEndpoint();
 
             Console.WriteLine($"Starting model training for {turbineId} with {rows.Count} rows.");
+            Console.WriteLine($"Training endpoint: {endpoint}");
 
             var response = await _httpClient.PostAsJsonAsync(endpoint, request, cancellationToken);
 
-            Console.WriteLine($"Python /train response: {(int)response.StatusCode} {response.StatusCode}");
-            response.EnsureSuccessStatusCode();
-
             var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            Console.WriteLine($"Python /train response: {(int)response.StatusCode} {response.StatusCode}");
             Console.WriteLine($"Raw /train response JSON: {rawJson}");
+
+            response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PythonTrainResponse>(
                 rawJson,
@@ -85,12 +100,15 @@ namespace COMP702_WindTurbine.ModelTraining
 
             if (result.Success)
             {
+
+
                 _configService.UpdateLastTrainingUtc(turbineId, DateTime.UtcNow);
                 Console.WriteLine($"Training completed successfully for turbine {turbineId}.");
                 return true;
             }
 
             Console.WriteLine($"Python training API returned unsuccessful result for turbine {turbineId}.");
+
             return false;
         }
 
