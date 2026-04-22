@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace COMP702_WindTurbine.ModelTraining
 {
@@ -28,10 +29,13 @@ namespace COMP702_WindTurbine.ModelTraining
         {
             var fromDate = GetFromDateUtc(turbineId);
 
+
             var data = await _context.TurbineData
                 .Where(x => x.TurbineId == turbineId && x.Timestamp >= fromDate)
                 .OrderBy(x => x.Timestamp)
                 .ToListAsync(cancellationToken);
+
+            Console.WriteLine(" ***************************  step 2 **********************");
 
             if (data.Count == 0)
             {
@@ -96,16 +100,20 @@ namespace COMP702_WindTurbine.ModelTraining
             var turbine = options.Turbines.FirstOrDefault(t => t.TurbineId == turbineId);
 
             if (turbine is null || string.IsNullOrWhiteSpace(turbine.LastTrainingUtc))
+                return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
+
+            if (!DateTimeOffset.TryParse(
+                    turbine.LastTrainingUtc,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal,
+                    out var dto))
             {
                 return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
             }
 
-            if (!DateTime.TryParse(turbine.LastTrainingUtc, out var lastTrainingUtc))
-            {
-                return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
-            }
-
-            return lastTrainingUtc;
+            var utc = dto.UtcDateTime;
+            Console.WriteLine($"GetFromDateUtc => {utc:o}, Kind={utc.Kind}");
+            return utc;
         }
     }
 }
