@@ -20,6 +20,7 @@ public sealed class Benchmarker (
 
     public BenchmarkResult Benchmark(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
     {
+        logger.LogInformation("Now Benchmarking Turbine {TurbineId}", turbine.TurbineId);
         //Check if turbine model specs exist to benchmark against
         if (turbine.TurbineModel is null)
         {
@@ -53,35 +54,34 @@ public sealed class Benchmarker (
         //Scale that deviation ratio by the bin's frequency and add it to a running total.
         foreach (float windSpeed in measuredPowerBins.Keys)
         {   
-            try
+            float expectedPower = expectedPowerBins[windSpeed];
+            float measuredPower = measuredPowerBins[windSpeed]; 
+            float deviationRatio =  measuredPower / expectedPower;
+            float deviationDifference =  measuredPower - expectedPower;
+
+            deviationPowerBins.Add(new PowerBinDeviation
             {
-                float expectedPower = expectedPowerBins[windSpeed];
-                float measuredPower = measuredPowerBins[windSpeed]; 
-                float deviationRatio =  measuredPower / expectedPower;
-                float deviationDifference =  measuredPower - expectedPower;
+                BenchmarkResult = result,
+                WindSpeed = windSpeed,
+                PowerRatio = deviationRatio,
+                PowerDifference = deviationDifference
+            });
 
-                deviationPowerBins.Add(new PowerBinDeviation
-                {
-                    BenchmarkResult = result,
-                    WindSpeed = windSpeed,
-                    PowerRatio = deviationRatio,
-                    PowerDifference = deviationDifference
-                });
 
-                float binWeight = frequencyBins[windSpeed] / telemetry.Count;
-                weightedTotalDeviation += binWeight * deviationRatio;
-            } catch {}
+            float binWeight = (float)frequencyBins[windSpeed] / telemetry.Count;
+            weightedTotalDeviation += binWeight * deviationRatio;
+
         }
 
         //convert dictionary to PowerBin list
-        ICollection<PowerBinMeasured> convertedMeasuredPowerBins = (ICollection<PowerBinMeasured>)measuredPowerBins.Select(pair => new PowerBin { WindSpeed = pair.Key, Power = pair.Value });
+        ICollection<PowerBinMeasured> convertedMeasuredPowerBins = [.. measuredPowerBins.Select(pair => new PowerBinMeasured { WindSpeed = pair.Key, Power = pair.Value, BenchmarkResult = result })];
         
         //fill in benchmark results
         result.DeviationBins = deviationPowerBins;
         result.PowerBins = convertedMeasuredPowerBins;
         result.DeviationScore = weightedTotalDeviation;
 
-
+        logger.LogInformation("Benchmark of Turbine {turbineId} successful", turbine.TurbineId);
         return result;
     }
 
@@ -100,7 +100,7 @@ public sealed class Benchmarker (
         return telemetry;
     }
 
-    private static (Dictionary<float, float>, Dictionary<float, int>) BinTelemetry(ICollection<TurbineTelemetry> telemetry, float minBin, float maxBin, float binInterval = 0.5f)
+    private (Dictionary<float, float>, Dictionary<float, int>) BinTelemetry(ICollection<TurbineTelemetry> telemetry, float minBin, float maxBin, float binInterval = 0.5f)
     {
 
 
@@ -114,7 +114,12 @@ public sealed class Benchmarker (
             float upperBound = i + (binInterval/2);
             
             //filter for rows in bin (where windspeed is in range)
-            ICollection<TurbineTelemetry> binRows = [.. telemetry.Where(row => lowerBound < row.CorrectedWindSpeed && row.CorrectedWindSpeed < upperBound )];
+            ICollection<TurbineTelemetry> binRows = [.. telemetry.Where(row => lowerBound <= row.CorrectedWindSpeed && row.CorrectedWindSpeed < upperBound )];
+
+            if (binRows.Count == 0)
+            {
+                continue;
+            }
 
             //store average power and # of rows for that windspeed
             float binnedPower = (float) binRows.Average(row => row.PowerOutput);

@@ -7,6 +7,5 @@ public sealed class PowerBinDeviation
     public required float PowerRatio { get; set; } //ratio of measured from expected power
     
     
-    
     public required BenchmarkResult BenchmarkResult { get; set; }
 }

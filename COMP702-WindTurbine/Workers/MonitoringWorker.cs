@@ -2,7 +2,7 @@ namespace COMP702_WindTurbine;
 using COMP702_WindTurbine.services;
 using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.DataSources;
-
+using COMP702_WindTurbine.models;
 
 public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
@@ -18,8 +18,29 @@ public sealed class MonitoringWorker(
     {
         try
         {
+
+            //######## TEMPORARY CODE ########
+            //runs benchmarking on a single turbine for a given time period
+            using (var tempScope = scopeFactory.CreateScope())
+            {
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+
+                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+                List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
+                logger.LogInformation("turbine name: {tname}", turbine.Name);
+                
+                BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
+                await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+                logger.LogInformation("Successfully written benchmark results to database");
+
+            }
+
+
+
             while (!stoppingToken.IsCancellationRequested)
             {
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+
 
                 logger.LogInformation("Processing new data started");
                 //fetch realistic raw data from the simulated source
