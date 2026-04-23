@@ -8,6 +8,6 @@ public sealed class DegradationModelDetails
 
 
 
-[ForeignKey("TurbineId")] //Says that this is the child in the one-to-one relationship
-    public required Turbine Turbine { get; set; }
+[ForeignKey("TurbineId")] //Says that this is the child in the one-to-one relationship and should hold the Foreign Key
+    public required Turbine Turbine { get; set; } //FK
 }

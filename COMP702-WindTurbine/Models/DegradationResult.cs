@@ -11,6 +11,6 @@ public sealed class DegradationResult
 
 
 
-    public required Turbine Turbine { get; set; }
+    public required Turbine Turbine { get; set; } //FK
 
 }

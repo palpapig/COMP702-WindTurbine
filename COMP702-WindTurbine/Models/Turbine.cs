@@ -16,8 +16,9 @@ public sealed class Turbine
 
 
 
-    public TurbineModel? TurbineModel { get; set; } //TODO have a way to add turbine model details to database. Just manually through supabase?
-    public DegradationModelDetails? DegradationModelDetails { get; set; }
-    public ICollection<BenchmarkResult> BenchmarkResults { get; set; } = [];
-    public ICollection<DegradationResult> DegradationResults { get; set; } = [];
+    public TurbineModel? TurbineModel { get; set; } //FK
+    //TODO have a way to add turbine model details to database. Just manually through supabase?
+    public DegradationModelDetails? DegradationModelDetails { get; set; } //reference for convenience, not a real foreign key
+    public ICollection<BenchmarkResult> BenchmarkResults { get; set; } = []; //reference for convenience, not a real foreign key
+    public ICollection<DegradationResult> DegradationResults { get; set; } = []; //reference for convenience, not a real foreign key
 }

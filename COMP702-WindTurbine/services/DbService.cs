@@ -38,6 +38,12 @@ public sealed class DbService (
         await db.SaveChangesAsync();
     }
 
+    public async Task AddBenchmarkResultAsync(BenchmarkResult result)
+    {
+        db.Set<BenchmarkResult>().Add(result);
+        await db.SaveChangesAsync();
+    }
+
     public async Task PrintDbAsync()
     {
         var data = await db.TurbineData.ToListAsync();

@@ -11,6 +11,6 @@ public sealed class TurbineModel
     
     
     
-    public required ICollection<PowerBinExpected> ExpectedPowerBins { get; set; } 
-    public required ICollection<Turbine> Turbines { get; set; } = [];
+    public  ICollection<PowerBinExpected> ExpectedPowerBins { get; set; } = []; //reference for convenience, not a real foreign key
+    public  ICollection<Turbine> Turbines { get; set; } = []; //reference for convenience, not a real foreign key
 }
