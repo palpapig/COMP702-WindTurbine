@@ -1,3 +1,4 @@
+
 /*  MostRecentTable
 this component displays the latest telemetry record for each turbine.
 it works by fetching all rows from supabase, ordering them by timestamp descending,
