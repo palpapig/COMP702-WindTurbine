@@ -4,6 +4,10 @@ import { supabase } from '../utils/supabase'
 import EfficiencyGraph from '../components/EfficiencyGraph'
 import PowerCurveGraph from '../components/PowerCurveGraph'
 import RotorSpeedCurveGraph from '../components/RotorSpeedCurveGraph'
+import WindSpeedGraph from '../components/WindSpeedGraph'
+import RotorSpeedGraph from '../components/RotorSpeedGraph'
+import PowerOutputGraph from '../components/PowerOutputGraph'
+import VibrationGraph from '../components/VibrationGraph'
 import { FiTrendingUp, FiZap } from 'react-icons/fi'
 import { GiGears } from 'react-icons/gi'
 
@@ -86,6 +90,29 @@ function DashboardPage() {
         </div>
         <div className="graph-wrapper">
           <RotorSpeedCurveGraph turbineId={selectedTurbine} />
+        </div>
+      </section>
+
+            <section className="dashboard-section">
+        <div className="section-title">
+          <GiGears color="#06A2DF" size={24} /> 
+          <h2>Turbine Details</h2>
+        </div>
+
+        <div className="graph-wrapper">
+          <WindSpeedGraph turbineId={selectedTurbine} />
+        </div>
+
+        <div className="graph-wrapper">
+          <RotorSpeedGraph turbineId={selectedTurbine} />
+        </div>
+
+        <div className="graph-wrapper">
+          <PowerOutputGraph turbineId={selectedTurbine} />
+        </div>
+
+        <div className="graph-wrapper">
+          <VibrationGraph turbineId={selectedTurbine} />
         </div>
       </section>
     </>
