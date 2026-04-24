@@ -168,6 +168,3 @@ def clean_all_training_files(
 
 if __name__ == "__main__":
     clean_all_training_files()
-
-
-    
