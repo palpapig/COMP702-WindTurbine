@@ -38,6 +38,7 @@ Generator bearing front temperature, Max (°C)                 0.518266         
 
 Top 15 Correlations With Target:
 Gear oil temperature, Max (°C)             0.989478 x
+Gear oil temperature, Min (°C)             0.987912 x
 Rear bearing temperature (°C)              0.830717
 Rear bearing temperature, Max (°C)         0.827051 x
 Rear bearing temperature, Min (°C)         0.824478 x
