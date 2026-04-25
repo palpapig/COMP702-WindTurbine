@@ -64,7 +64,7 @@ namespace COMP702_WindTurbine.ModelTraining
                 targetColumn = "power", // chnage to gear temp if needed but then remove ear temp from feature coloumns
                 featureColumns = new[]
                 {
-            "windSpeed",
+            "windSpeed", // these features to be changed
             "rotorSpeed",
             "vibration",
             "temperature",
