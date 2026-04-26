@@ -50,7 +50,6 @@ namespace COMP702_WindTurbine.ModelTraining
             { "windSpeed", d.WindSpeed },
             { "rotorSpeed", d.RotorSpeed },
             { "power", d.PowerOutput },
-           // { "vibration", d.Vibration }, vobration is not in kalmarsh data
             { "temperature", d.Temperature },
             { "pitchAngle", d.PitchAngle },
             { "gearOilTemp", d.GearboxOilTemp }
@@ -66,7 +65,6 @@ namespace COMP702_WindTurbine.ModelTraining
                 {
             "windSpeed", // these features to be changed
             "rotorSpeed",
-            "vibration",
             "temperature",
             "pitchAngle",
             "gearOilTemp"
