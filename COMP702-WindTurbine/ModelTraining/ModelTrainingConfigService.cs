@@ -47,6 +47,8 @@ namespace COMP702_WindTurbine.ModelTraining
         {
             var options = Load();
 
+            options.Turbines ??= new List<TurbineTrainingInfo>();
+
             var turbine = options.Turbines.FirstOrDefault(t => t.TurbineId == turbineId);
             if (turbine is null)
             {
@@ -55,10 +57,13 @@ namespace COMP702_WindTurbine.ModelTraining
                     TurbineId = turbineId,
                     LastTrainingUtc = utcTime.ToString("O")
                 });
+
+                Console.WriteLine($"Added new turbine: {turbineId}");
             }
             else
             {
                 turbine.LastTrainingUtc = utcTime.ToString("O");
+                Console.WriteLine($"Updated existing turbine: {turbineId}");
             }
 
             Save(options);

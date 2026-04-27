@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace COMP702_WindTurbine.ModelTraining
 {
@@ -33,41 +34,59 @@ namespace COMP702_WindTurbine.ModelTraining
                 .OrderBy(x => x.Timestamp)
                 .ToListAsync(cancellationToken);
 
+
+
             if (data.Count == 0)
             {
                 Console.WriteLine($"No training rows found for turbine {turbineId}.");
                 return false;
             }
 
-            var rows = data.Select(d => new Dictionary<string, object?>
+            var rows = data.Select(d => new
             {
-                { "timestamp", d.Timestamp },
-                { "windSpeed", d.WindSpeed },
-                { "rotorSpeed", d.RotorSpeed },
-                { "power", d.PowerOutput },
-                { "vibration", d.Vibration },
-                { "temperature", d.Temperature },
-                { "pitchAngle", d.PitchAngle },
-                { "gearOilTemp", d.GearboxOilTemp }
+                timestamp = d.Timestamp,
+                values = new Dictionary<string, object?>
+        {
+            { "windSpeed", d.WindSpeed },
+            { "rotorSpeed", d.RotorSpeed },
+            { "power", d.PowerOutput },
+           // { "vibration", d.Vibration }, vobration is not in kalmarsh data
+            { "temperature", d.Temperature },
+            { "pitchAngle", d.PitchAngle },
+            { "gearOilTemp", d.GearboxOilTemp }
+        }
             }).ToList();
 
             var request = new
             {
-                turbine_id = turbineId,
-                rows = rows
+                turbineId = turbineId,
+                rows = rows,
+                targetColumn = "power", // chnage to gear temp if needed but then remove ear temp from feature coloumns
+                featureColumns = new[]
+                {
+            "windSpeed", // these features to be changed
+            "rotorSpeed",
+            "vibration",
+            "temperature",
+            "pitchAngle",
+            "gearOilTemp"
+        },
+                forceRetrain = false
             };
 
             var endpoint = _scheduleService.GetPythonTrainEndpoint();
 
             Console.WriteLine($"Starting model training for {turbineId} with {rows.Count} rows.");
+            Console.WriteLine($"Training endpoint: {endpoint}");
 
             var response = await _httpClient.PostAsJsonAsync(endpoint, request, cancellationToken);
 
-            Console.WriteLine($"Python /train response: {(int)response.StatusCode} {response.StatusCode}");
-            response.EnsureSuccessStatusCode();
-
             var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            Console.WriteLine($"Python /train response: {(int)response.StatusCode} {response.StatusCode}");
             Console.WriteLine($"Raw /train response JSON: {rawJson}");
+
+            response.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PythonTrainResponse>(
                 rawJson,
@@ -81,12 +100,15 @@ namespace COMP702_WindTurbine.ModelTraining
 
             if (result.Success)
             {
+
+
                 _configService.UpdateLastTrainingUtc(turbineId, DateTime.UtcNow);
                 Console.WriteLine($"Training completed successfully for turbine {turbineId}.");
                 return true;
             }
 
             Console.WriteLine($"Python training API returned unsuccessful result for turbine {turbineId}.");
+
             return false;
         }
 
@@ -96,16 +118,20 @@ namespace COMP702_WindTurbine.ModelTraining
             var turbine = options.Turbines.FirstOrDefault(t => t.TurbineId == turbineId);
 
             if (turbine is null || string.IsNullOrWhiteSpace(turbine.LastTrainingUtc))
+                return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
+
+            if (!DateTimeOffset.TryParse(
+                    turbine.LastTrainingUtc,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal,
+                    out var dto))
             {
                 return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
             }
 
-            if (!DateTime.TryParse(turbine.LastTrainingUtc, out var lastTrainingUtc))
-            {
-                return DateTime.UtcNow.AddMonths(-options.IntervalMonths);
-            }
-
-            return lastTrainingUtc;
+            var utc = dto.UtcDateTime;
+            Console.WriteLine($"GetFromDateUtc => {utc:o}, Kind={utc.Kind}");
+            return utc;
         }
     }
 }

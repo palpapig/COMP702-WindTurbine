@@ -109,6 +109,7 @@ class ModelTrainer:
         return {
             "turbineId": turbine_id,
             "modelStatus": "trained",
+            "success": True,
             "rowsUsed": int(len(work_df)),
             "targetColumn": target_column,
             "featureColumns": feature_columns,

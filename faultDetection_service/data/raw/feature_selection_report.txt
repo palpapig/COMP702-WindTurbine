@@ -1,0 +1,133 @@
+FEATURE SELECTION REPORT
+========================
+
+Preferred Target Variable:
+Gear oil temperature (°C)
+
+Resolved Target Variable:
+Gear oil temperature (°C)
+
+Correlation Threshold Used: 0.5
+Multicollinearity Threshold Used: 0.95
+
+Features selected by PCC (|r| > 0.5) with correlation values:
+                                      feature  correlation_with_target  abs_correlation_with_target
+               Gear oil temperature, Max (°C)                 0.989478                     0.989478
+               Gear oil temperature, Min (°C)                 0.987912                     0.987912
+                Rear bearing temperature (°C)                 0.830717                     0.830717
+           Rear bearing temperature, Max (°C)                 0.827051                     0.827051
+           Rear bearing temperature, Min (°C)                 0.824478                     0.824478
+              Gear oil inlet temperature (°C)                 0.750933                     0.750933
+          Front bearing temperature, Max (°C)                 0.744757                     0.744757
+               Front bearing temperature (°C)                 0.740548                     0.740548
+          Front bearing temperature, Min (°C)                 0.729984                     0.729984
+                        Power factor (cosphi)                -0.626561                     0.626561
+      Blade angle (pitch position) A, Max (°)                -0.625301                     0.625301
+      Blade angle (pitch position) C, Max (°)                -0.625276                     0.625276
+      Blade angle (pitch position) B, Max (°)                -0.625191                     0.625191
+                   Power factor (cosphi), Min                -0.620120                     0.620120
+           Blade angle (pitch position) C (°)                -0.613164                     0.613164
+           Blade angle (pitch position) A (°)                -0.613158                     0.613158
+           Blade angle (pitch position) B (°)                -0.613101                     0.613101
+      Blade angle (pitch position) A, Min (°)                -0.604363                     0.604363
+      Blade angle (pitch position) C, Min (°)                -0.604346                     0.604346
+      Blade angle (pitch position) B, Min (°)                -0.604299                     0.604299
+            Time-based IEC B.2.2 (Users View)                 0.568435                     0.568435
+                   Power factor (cosphi), Max                -0.556561                     0.556561
+Generator bearing front temperature, Max (°C)                 0.518266                     0.518266
+
+Top 15 Correlations With Target:
+Gear oil temperature, Max (°C)             0.989478 x
+Gear oil temperature, Min (°C)             0.987912 x
+Rear bearing temperature (°C)              0.830717
+Rear bearing temperature, Max (°C)         0.827051 x
+Rear bearing temperature, Min (°C)         0.824478 x
+Gear oil inlet temperature (°C)            0.750933
+Front bearing temperature, Max (°C)        0.744757 x
+Front bearing temperature (°C)             0.740548
+Front bearing temperature, Min (°C)        0.729984 x
+Power factor (cosphi)                     -0.626561
+Blade angle (pitch position) A, Max (°)   -0.625301
+Blade angle (pitch position) C, Max (°)   -0.625276
+Blade angle (pitch position) B, Max (°)   -0.625191
+Power factor (cosphi), Min                -0.620120
+Blade angle (pitch position) C (°)        -0.613164
+
+Features removed for multicollinearity (>0.95):
+- Gear oil temperature, Min (°C)
+- Rear bearing temperature, Max (°C)
+- Rear bearing temperature, Min (°C)
+- Front bearing temperature, Max (°C)
+- Front bearing temperature (°C)
+- Front bearing temperature, Min (°C)
+- Blade angle (pitch position) C, Max (°)
+- Blade angle (pitch position) B, Max (°)
+- Blade angle (pitch position) A (°)
+- Blade angle (pitch position) B (°)
+- Blade angle (pitch position) C, Min (°)
+- Blade angle (pitch position) B, Min (°)
+
+Features removed due to target leakage:
+- Gear oil temperature, Max (°C)
+
+Final Features Used for Training:
+- Rear bearing temperature (°C)
+- Gear oil inlet temperature (°C)
+- Power factor (cosphi)
+- Blade angle (pitch position) A, Max (°)
+- Power factor (cosphi), Min
+- Blade angle (pitch position) C (°)
+- Blade angle (pitch position) A, Min (°)
+- Time-based IEC B.2.2 (Users View)
+- Power factor (cosphi), Max
+- Generator bearing front temperature, Max (°C)
+
+dataset shape: (52488, 11)
+
+DCs avg 0.6 not sure /drive controol system
+Gb1t avg 0.9 * /
+Ds avg 0.6 not sure / Drive Shaft (System / Speed signal, Average)
+Db1t avg 0.8 not sure / Drive Bearing 1 Temperature
+Db2t avg 0.8 not sure / Drive Bearing 2 Temperature
+Dst avg 0.8 not sure / Drive Shaft Temperature
+Gb2t avg 0.9 multicollinearity with Gb1t avg
+git av 1.0 target
+gost avg 1.0 x 
+yt avg 0.5 <5
+rs avg 0.6 *
+rbt avg 0.7 *
+
+Final final Features
+
+Rotor bearing temp (Â°C)
+Rotor speed (RPM)
+Rear bearing temperature (Â°C)
+Gear oil inlet temperature (Â°C)
+Generator bearing front temperature (Â°C) 
+
+
+
+
+
+
+
+
+
+
+Db1t
+→ Drive Bearing 1 Temperature
+Db2t
+→ Drive Bearing 2 Temperature
+Gb1t
+→ Gearbox Bearing 1 Temperature (Front / input-side bearing)
+Gb2t
+→ Gearbox Bearing 2 Temperature (Rear / output-side bearing)
+Dst
+→ Drive Shaft Temperature
+Git
+→ Gearbox Oil Inlet Temperature (oil entering gearbox)
+Gost
+→ Gearbox Oil Sump Temperature (oil inside gearbox — usually target)
+Rbt
+→ Rotor Bearing Temperature
+
