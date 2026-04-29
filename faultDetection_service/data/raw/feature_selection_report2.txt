@@ -104,6 +104,19 @@ Rotor speed (RPM)
 Rear bearing temperature (Â°C)
 Gear oil inlet temperature (Â°C)
 Generator bearing front temperature (Â°C) 
+feature,correlation_with_target,abs_correlation
+
+
+
+
+Gear oil inlet temperature (°C),0.7743166610525086,0.7743166610525086
+Rear bearing temperature (°C),0.6726931151256444,0.6726931151256444
+Gear oil pump pressure (bar),-0.6084030594140797,0.6084030594140797
+Generator bearing front temperature (°C),0.5888216665568682,0.5888216665568682
+Gear oil inlet pressure (bar),-0.545033985262965,0.545033985262965
+Nacelle temperature (°C),0.5125034986263493,0.5125034986263493
+
+
 
 
 

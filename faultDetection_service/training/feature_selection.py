@@ -1,433 +1,69 @@
-import os
+from pathlib import Path
 import pandas as pd
-import numpy as np
 
-# =========================
-# CONFIG
-# =========================
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FOLDER_PATH = os.path.join(BASE_DIR, "data", "raw")
+BASE_DIR = Path(__file__).resolve().parent.parent
+FOLDER_PATH = BASE_DIR / "data" / "cleaned"
 
 TARGET_COLUMN = "Gear oil temperature (°C)"
 
-CORR_THRESHOLD = 0.5
-MULTICOL_THRESHOLD = 0.95
 
-
-# =========================
-# HELPERS
-# =========================
-def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
-    df.columns = (
-        df.columns.astype(str)
-        .str.replace("Â°C", "°C", regex=False)
-        .str.replace("Â°", "°", regex=False)
-        .str.replace("\ufeff", "", regex=False)
-        .str.strip()
-    )
-    return df
-
-
-def normalize_name(name: str) -> str:
-    return (
-        str(name).lower()
-        .replace("â°c", "c")
-        .replace("â°", "")
-        .replace("°c", "c")
-        .replace("°", "")
-        .replace("(", "")
-        .replace(")", "")
-        .replace('"', "")
-        .replace("'", "")
-        .replace(",", "")
-        .replace("-", "")
-        .replace("_", "")
-        .replace("/", "")
-        .replace("\\", "")
-        .replace(" ", "")
-        .strip()
-    )
-
-
-def find_target_column(df: pd.DataFrame, preferred_name: str) -> str:
-    if preferred_name in df.columns:
-        return preferred_name
-
-    normalized_lookup = {}
-    for col in df.columns:
-        normalized_lookup[normalize_name(col)] = col
-
-    preferred_key = normalize_name(preferred_name)
-    if preferred_key in normalized_lookup:
-        return normalized_lookup[preferred_key]
-
-    for col in df.columns:
-        if "gearoiltemperature" in normalize_name(col):
-            return col
-
-    raise ValueError(f"Target column '{preferred_name}' not found.")
-
-
-def convert_series_to_numeric(series: pd.Series) -> pd.Series:
-    cleaned = (
-        series.astype(str)
-        .str.strip()
-        .str.replace('"', "", regex=False)
-        .str.replace(",", ".", regex=False)
-    )
-
-    cleaned = cleaned.replace(
-        {
-            "": np.nan,
-            "nan": np.nan,
-            "NaN": np.nan,
-            "None": np.nan,
-            "null": np.nan,
-            "-": np.nan,
-        }
-    )
-
-    return pd.to_numeric(cleaned, errors="coerce")
-
-
-def looks_like_bad_single_column_parse(df: pd.DataFrame) -> bool:
-    if df.shape[1] != 1:
-        return False
-
-    only_col = str(df.columns[0]).lower()
-
-    suspicious_tokens = [
-        "date and time",
-        "wind speed",
-        "gear oil temperature",
-        "power",
-        "temperature",
-        "rotor speed",
-    ]
-
-    if only_col.count(",") >= 5:
-        return True
-
-    if sum(token in only_col for token in suspicious_tokens) >= 2:
-        return True
-
-    return False
-
-
-# =========================
-# READ CSV
-# =========================
-def read_csv_robust(file_path: str) -> pd.DataFrame:
-    last_error = None
-    header_row = None
-
-    with open(file_path, "r", encoding="utf-8", errors="replace") as f:
-        for i, line in enumerate(f):
-            lowered = line.lower()
-            if "# date and time" in lowered or "date and time" in lowered:
-                header_row = i
-                break
-
-    if header_row is None:
-        raise ValueError(f"Could not find header row in: {file_path}")
-
-    print(f"Detected header row at line: {header_row}")
-
-    attempts = [
-        {"encoding": "utf-8", "sep": ","},
-        {"encoding": "latin1", "sep": ","},
-        {"encoding": "utf-8", "sep": ";"},
-        {"encoding": "latin1", "sep": ";"},
-        {"encoding": "utf-8", "sep": "\t"},
-        {"encoding": "latin1", "sep": "\t"},
-    ]
-
-    for attempt in attempts:
-        try:
-            df = pd.read_csv(
-                file_path,
-                encoding=attempt["encoding"],
-                sep=attempt["sep"],
-                skiprows=header_row,
-                low_memory=False,
-                on_bad_lines="skip",
-            )
-
-            df = clean_column_names(df)
-
-            if looks_like_bad_single_column_parse(df):
-                print(
-                    f"Bad parse with encoding={attempt['encoding']} "
-                    f"sep={repr(attempt['sep'])}, retrying..."
-                )
-                continue
-
-            if df.shape[1] < 5:
-                print(
-                    f"Bad parse with only {df.shape[1]} columns, retrying..."
-                )
-                continue
-
-            print(
-                f"Read success with encoding={attempt['encoding']} "
-                f"sep={repr(attempt['sep'])}"
-            )
-            print(f"Detected {df.shape[1]} columns.")
-            return df
-
-        except Exception as e:
-            last_error = e
-
-    raise ValueError(f"Could not read file correctly: {file_path}\nLast error: {last_error}")
-
-
-# =========================
-# LOAD DATA
-# =========================
-def load_data(folder_path: str) -> pd.DataFrame:
-    dfs = []
-
-    print("SCRIPT FILE:", __file__)
-    print("BASE_DIR:", BASE_DIR)
-    print("FOLDER_PATH:", folder_path)
-    print("FOLDER EXISTS:", os.path.isdir(folder_path))
-
-    if not os.path.isdir(folder_path):
-        raise FileNotFoundError(f"Folder not found: {folder_path}")
-
-    files = os.listdir(folder_path)
-    csv_files = [f for f in files if f.lower().endswith(".csv")]
-
-    print("CSV FILES FOUND:", csv_files)
+def main():
+    csv_files = list(FOLDER_PATH.glob("*.csv"))
 
     if not csv_files:
-        raise ValueError(f"No .csv files found in: {folder_path}")
+        raise FileNotFoundError(f"No CSV files found in {FOLDER_PATH}")
 
-    for file_name in csv_files:
-        file_path = os.path.join(folder_path, file_name)
-        print(f"\nLoading: {file_path}")
+    dfs = []
 
-        try:
-            df = read_csv_robust(file_path)
-        except Exception as e:
-            print(f"Skipping {file_name} due to read error: {e}")
-            continue
-
-        df = clean_column_names(df)
-
-        print("Loaded shape:", df.shape)
-        print("First 10 columns:", df.columns[:10].tolist())
-
+    for file in csv_files:
+        print(f"Loading: {file.name}")
+        df = pd.read_csv(file)
+        df.columns = df.columns.str.strip()
         dfs.append(df)
 
-    if not dfs:
-        raise ValueError("No CSV files were successfully loaded.")
+    df = pd.concat(dfs, ignore_index=True)
 
-    combined_df = pd.concat(dfs, ignore_index=True)
-    combined_df = clean_column_names(combined_df)
+    if TARGET_COLUMN not in df.columns:
+        raise ValueError(f"Target column '{TARGET_COLUMN}' not found")
 
-    print("\nCOMBINED SHAPE:", combined_df.shape)
-    return combined_df
-
-
-# =========================
-# FEATURE SELECTION
-# =========================
-def select_features(df: pd.DataFrame) -> dict:
-    df = clean_column_names(df)
-
-    print("\nCOLUMNS CONTAINING 'gear oil':")
+    # Convert all columns to numeric (ignore non-numeric like timestamp)
     for col in df.columns:
-        if "gear oil" in col.lower():
-            print(repr(col))
+        df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    actual_target = find_target_column(df, TARGET_COLUMN)
-    print("\nResolved target column:", repr(actual_target))
+    # Drop rows where target is missing
+    df = df.dropna(subset=[TARGET_COLUMN])
 
-    timestamp_cols = []
-    for col in df.columns:
-        if "date and time" in col.lower():
-            timestamp_cols.append(col)
+    # Keep only numeric columns
+    df = df.select_dtypes(include="number")
 
-    for col in df.columns:
-        if col not in timestamp_cols:
-            df[col] = convert_series_to_numeric(df[col])
+    # Remove target from feature list
+    feature_columns = [col for col in df.columns if col != TARGET_COLUMN]
 
-    print("Target dtype after conversion:", df[actual_target].dtype)
-    print("Non-null target values:", df[actual_target].notna().sum())
+    correlations = []
 
-    df = df.select_dtypes(include=[np.number]).copy()
+    for feature in feature_columns:
+        corr = df[feature].corr(df[TARGET_COLUMN])
 
-    if actual_target not in df.columns:
-        raise ValueError(f"Target column '{actual_target}' is not numeric after conversion.")
+        # skip if correlation is NaN (e.g., constant column)
+        if pd.isna(corr):
+            continue
 
-    df = df.dropna(subset=[actual_target]).copy()
-    print("Shape after dropping missing target rows:", df.shape)
+        correlations.append({
+            "feature": feature,
+            "correlation_with_target": corr,
+            "abs_correlation": abs(corr),
+        })
 
-    print("\nCalculating correlations...")
+    result = pd.DataFrame(correlations)
+    result = result.sort_values("abs_correlation", ascending=False)
 
-    corr = df.corr(numeric_only=True)
+    print("\nPCC results (all features):")
+    print(result.to_string(index=False))
 
-    target_corr = corr[actual_target].drop(actual_target)
+    output_path = FOLDER_PATH / "pcc_all_features.csv"
+    result.to_csv(output_path, index=False)
 
-    target_corr = target_corr.reindex(
-        target_corr.abs().sort_values(ascending=False).index
-    )
-
-    # Correlation table for features above threshold
-    selected_corr_df = (
-        target_corr[target_corr.abs() > CORR_THRESHOLD]
-        .reset_index()
-        .rename(columns={"index": "feature", actual_target: "correlation_with_target"})
-    )
-
-    selected_corr_df["abs_correlation_with_target"] = selected_corr_df[
-        "correlation_with_target"
-    ].abs()
-
-    selected_corr_df = selected_corr_df.sort_values(
-        by="abs_correlation_with_target",
-        ascending=False,
-    )
-
-    print(f"\nFeatures with |correlation| > {CORR_THRESHOLD}:")
-    print(selected_corr_df.to_string(index=False))
-
-    selected = selected_corr_df["feature"].tolist()
-
-    if not selected:
-        raise ValueError(
-            f"No features passed the correlation threshold of {CORR_THRESHOLD}."
-        )
-
-    # Remove multicollinearity
-    corr_matrix = df[selected].corr().abs()
-
-    upper = corr_matrix.where(
-        np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
-    )
-
-    to_drop = [
-        col for col in upper.columns
-        if any(upper[col] > MULTICOL_THRESHOLD)
-    ]
-
-    reduced = [col for col in selected if col not in to_drop]
-
-    print(f"\nRemoved due to multicollinearity (>{MULTICOL_THRESHOLD}):")
-    if to_drop:
-        for col in to_drop:
-            print(f"- {col}")
-    else:
-        print("None")
-
-    # Remove leakage
-    leakage_removed = []
-    final_features = []
-
-    target_norm = normalize_name(actual_target)
-
-    for col in reduced:
-        col_norm = normalize_name(col)
-
-        if col_norm == target_norm:
-            leakage_removed.append(col)
-
-        elif "gearoiltemperature" in col_norm:
-            leakage_removed.append(col)
-
-        else:
-            final_features.append(col)
-
-    print("\nRemoved due to target leakage:")
-    if leakage_removed:
-        for col in leakage_removed:
-            print(f"- {col}")
-    else:
-        print("None")
-
-    print("\nFinal Features Used for Training:")
-    for f in final_features:
-        print(f"- {f}")
-
-    final_df = df[final_features + [actual_target]].copy()
-
-    return {
-        "actual_target": actual_target,
-        "final_df": final_df,
-        "target_corr": target_corr,
-        "selected_corr_df": selected_corr_df,
-        "selected": selected,
-        "to_drop": to_drop,
-        "leakage_removed": leakage_removed,
-        "final_features": final_features,
-    }
-
-
-# =========================
-# SAVE OUTPUTS
-# =========================
-def save_outputs(folder_path: str, results: dict) -> None:
-    output_csv = os.path.join(folder_path, "selected_features.csv")
-    output_corr_csv = os.path.join(folder_path, "selected_feature_correlations.csv")
-    output_report = os.path.join(folder_path, "feature_selection_report.txt")
-
-    results["final_df"].to_csv(output_csv, index=False)
-    results["selected_corr_df"].to_csv(output_corr_csv, index=False)
-
-    with open(output_report, "w", encoding="utf-8") as f:
-        f.write("FEATURE SELECTION REPORT\n")
-        f.write("========================\n\n")
-
-        f.write(f"Preferred Target Variable:\n{TARGET_COLUMN}\n\n")
-        f.write(f"Resolved Target Variable:\n{results['actual_target']}\n\n")
-
-        f.write(f"Correlation Threshold Used: {CORR_THRESHOLD}\n")
-        f.write(f"Multicollinearity Threshold Used: {MULTICOL_THRESHOLD}\n\n")
-
-        f.write(f"Features selected by PCC (|r| > {CORR_THRESHOLD}) with correlation values:\n")
-        f.write(results["selected_corr_df"].to_string(index=False))
-        f.write("\n\n")
-
-        f.write("Top 15 Correlations With Target:\n")
-        f.write(results["target_corr"].head(15).to_string())
-        f.write("\n\n")
-
-        f.write(f"Features removed for multicollinearity (>{MULTICOL_THRESHOLD}):\n")
-        if results["to_drop"]:
-            for col in results["to_drop"]:
-                f.write(f"- {col}\n")
-        else:
-            f.write("None\n")
-        f.write("\n")
-
-        f.write("Features removed due to target leakage:\n")
-        if results["leakage_removed"]:
-            for col in results["leakage_removed"]:
-                f.write(f"- {col}\n")
-        else:
-            f.write("None\n")
-        f.write("\n")
-
-        f.write("Final Features Used for Training:\n")
-        for col in results["final_features"]:
-            f.write(f"- {col}\n")
-        f.write("\n")
-
-        f.write(f"Final dataset shape: {results['final_df'].shape}\n")
-
-    print(f"\nSaved filtered dataset to: {output_csv}")
-    print(f"Saved correlation output to: {output_corr_csv}")
-    print(f"Saved report to: {output_report}")
-
-
-# =========================
-# MAIN
-# =========================
-def main():
-    df = load_data(FOLDER_PATH)
-    results = select_features(df)
-    save_outputs(FOLDER_PATH, results)
+    print(f"\nSaved to: {output_path}")
 
 
 if __name__ == "__main__":

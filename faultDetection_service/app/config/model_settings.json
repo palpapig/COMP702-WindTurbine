@@ -1,14 +1,11 @@
 {
-  "default_target_column": "Power (kW)",
+  "default_target_column": "GearboxOilTemp",
   "default_feature_columns": [
-    "Wind speed (m/s)",
-    "Drive train acceleration (mm/ss)",
-    "Gear oil inlet temperature (°C)",
-    "Transformer temperature (°C)",
-    "Front bearing temperature (°C)",
-    "Tower Acceleration y (mm/ss)",
-    "Nacelle temperature (°C)",
-    "Gear oil temperature (°C)"
+    "RotorSpeed",
+    "GearOilInletTemp",
+    "GeneratorBearingFrontTemp",
+    "RearBearingTemp",
+    "RotorBearingTemp"
   ],
   "model_type": "knn_bagging",
   "test_size": 0.2,
@@ -26,5 +23,9 @@
     "weights": "distance",
     "metric": "manhattan",
     "n_estimators": 30
+  },
+  "baggingRegressor" : {
+     "n_estimators":30,
+       "random_state":424
   }
 }
