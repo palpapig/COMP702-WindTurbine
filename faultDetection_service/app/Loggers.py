@@ -1,7 +1,7 @@
-import logging
 from __future__ import annotations
-from typing import Iterable
 
+import logging
+from typing import Iterable
 
 def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)

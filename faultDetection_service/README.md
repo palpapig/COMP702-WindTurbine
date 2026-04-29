@@ -6,19 +6,46 @@ Hybrid-ready Python ML service for integration with a .NET system.
 
 ---
 
-## Setup
+## Setup the virtual envirnoment / run in terminal one by one
 
-### Python Environment
+# 1. Create virtual environment
 
-Create virtual environment:
+1:
 cd faultDetection_service
+2:
 python -m venv .venv
+"or"
+py -m venv .venv
 
-Activate environment (Windows):
-.venv\Scripts\activate
+# 2. Activate it
 
-Install dependencies:
+1:
+.venv\Scripts\Activate
+
+# 3. Install dependencies
+
+2:
 pip install -r requirements.txt
+
+# 4. Run the server
+
+1:
+python -m uvicorn app.main:app --reload
+"or"
+py -m uvicorn app.main:app --reload
+
+---
+
+## Run - You need to do this every time you open VS
+
+1:
+cd faultDetection_service
+2:
+.venv\Scripts\Activate
+3:
+python -m uvicorn app.main:app --reload
+"or"
+py -m uvicorn app.main:app --reload
 
 ---
 
@@ -26,16 +53,6 @@ pip install -r requirements.txt
 
 - POST /train → train or retrain a turbine model from batch rows sent by C#
 - POST /predict → perform prediction and evaluate fault/alarm state
-
----
-
-## Run
-
-Start the API:
-uvicorn app.main:app --reload
-
-Open in browser:
-http://127.0.0.1:8000/docs
 
 ---
 

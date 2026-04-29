@@ -23,7 +23,8 @@ public sealed class MonitoringWorker(
             DateTime lastTrainingCheckUtc = DateTime.MinValue;
 
 
-            // remeber to put back the wile loop 
+
+
             while (!stoppingToken.IsCancellationRequested)
             {
 

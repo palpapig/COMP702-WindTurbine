@@ -7,7 +7,7 @@ from app.ml.feature_config import ensure_turbine_registered, get_default_feature
 from app.ml.model_registry import load_bundle, model_exists
 from app.models.response_models import PredictResponse
 from app.services.alarm_service import alarm_service
-from faultDetection_service.app.Loggers import get_logger,ensure_required_features
+from app.Loggers import get_logger,ensure_required_features
 
 logger = get_logger(__name__)
 
