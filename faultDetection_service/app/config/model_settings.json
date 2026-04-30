@@ -1,0 +1,31 @@
+{
+  "default_target_column": "GearboxOilTemp",
+  "default_feature_columns": [
+    "RotorSpeed",
+    "GearOilInletTemp",
+    "GeneratorBearingFrontTemp",
+    "RearBearingTemp",
+    "RotorBearingTemp"
+  ],
+  "model_type": "knn_bagging",
+  "test_size": 0.2,
+  "random_state": 42,
+  "scale_features": true,
+  "minimum_training_rows": 4, 
+  "retrain_interval_days": 90,
+  "alarm": {
+    "ewma_lambda": 0.2,
+    "control_limit_k": 3.0,
+    "a2_consecutive_a1_count": 3
+  },
+  "knn_bagging": {
+    "n_neighbors": 13,
+    "weights": "distance",
+    "metric": "manhattan",
+    "n_estimators": 30
+  },
+  "baggingRegressor" : {
+     "n_estimators":30,
+       "random_state":424
+  }
+}

@@ -1,39 +1,45 @@
 namespace COMP702_WindTurbine;
+
 using COMP702_WindTurbine.services;
 using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.DataSources;
+using COMP702_WindTurbine.ModelTraining;
 using COMP702_WindTurbine.models;
+
 
 public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
     FailureDetection FailureDetection,
+
     ILogger<MonitoringWorker> logger,
-    IServiceScopeFactory scopeFactory ) : BackgroundService
-    //logger, etc. are automatically stored as private, readonly variables
+    IServiceScopeFactory scopeFactory) : BackgroundService
+//logger, etc. are automatically stored as private, readonly variables
 {
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
+            DateTime lastTrainingCheckUtc = DateTime.MinValue;
+
 
             //######## TEMPORARY CODE ########
             //runs benchmarking on a single turbine for a given time period
-            using (var tempScope = scopeFactory.CreateScope())
-            {
-                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            //using (var tempScope = scopeFactory.CreateScope())
+            //{
+            //   var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
-                List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
-                logger.LogInformation("turbine name: {tname}", turbine.Name);
+            //    Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+            //    List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
+            //    logger.LogInformation("turbine name: {tname}", turbine.Name);
                 
-                BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
-                await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
-                logger.LogInformation("Successfully written benchmark results to database");
+            //    BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
+            //    await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+            //    logger.LogInformation("Successfully written benchmark results to database");
 
-            }
+            //}
 
 
 
@@ -70,6 +76,10 @@ public sealed class MonitoringWorker(
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
 
+
+
+
+
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
@@ -77,7 +87,35 @@ public sealed class MonitoringWorker(
                     await dbService.PrintDbAsync();
                 }
 
+
+                if (DateTime.UtcNow - lastTrainingCheckUtc >= TimeSpan.FromHours(1))
+                {
+                    lastTrainingCheckUtc = DateTime.UtcNow;
+
+                    try
+                    {
+                        using var trainingScope = scopeFactory.CreateScope();
+
+                        var trainingScheduleService = trainingScope.ServiceProvider.GetRequiredService<TrainingScheduleService>();
+                        var modelTrainingService = trainingScope.ServiceProvider.GetRequiredService<ModelTrainingService>();
+
+                        var dueTurbines = trainingScheduleService.GetTurbinesDueForTraining();
+
+                        foreach (var turbineId in dueTurbines)
+                        {
+                            logger.LogInformation("Model retraining due for turbine {TurbineId}", turbineId);
+                            await modelTrainingService.RunTrainingForTurbineAsync(turbineId, stoppingToken);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error while checking or running model retraining.");
+                    }
+                }
+
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+
+
             }
         }
         catch (OperationCanceledException)
