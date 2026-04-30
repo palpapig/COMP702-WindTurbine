@@ -13,6 +13,21 @@ public sealed class DbService (
         return await db.TurbineData.ToListAsync();
     }
 
+    public async Task<List<TurbineTelemetry>> GetTurbineDataYear(string turbineId, int year)
+    {
+        return await db.TurbineData
+        .Where(t => t.TurbineId == turbineId && t.Timestamp.Year == year)
+        .ToListAsync();
+    }
+    
+    public async Task<Turbine> GetTurbineById(string turbineId)
+    {
+        return await db.Turbine
+            .Include(t => t.TurbineModel)
+                .ThenInclude(tm => tm.ExpectedPowerBins)
+            .FirstAsync(t => t.TurbineId == turbineId);
+    }
+
     public async Task AddTelemetryAsync(TurbineTelemetry telemetry)
     {
         var turbine = await db.Set<Turbine>().FindAsync(telemetry.TurbineId);
@@ -26,7 +41,7 @@ public sealed class DbService (
                 Status = telemetry.StartedAlert == true ? "Alarm" : "Running",
                 LastTelemetryTime = telemetry.Timestamp
             };
-            db.Set<Turbine>().Add(turbine);
+            db.Turbine.Add(turbine);
         }
         else
         {
@@ -35,6 +50,12 @@ public sealed class DbService (
         }
 
         db.TurbineData.Add(telemetry);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task AddBenchmarkResultAsync(BenchmarkResult result)
+    {
+        db.Set<BenchmarkResult>().Add(result);
         await db.SaveChangesAsync();
     }
 

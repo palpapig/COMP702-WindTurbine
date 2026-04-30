@@ -3,6 +3,7 @@ using System;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace COMP702_WindTurbine.Migrations
 {
     [DbContext(typeof(MonitoringDbContext))]
-    partial class MonitoringDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260422054821_BenchmarkFix")]
+    partial class BenchmarkFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,7 +82,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<float?>("DeviationScore")
+                    b.Property<float>("DeviationScore")
                         .HasColumnType("real");
 
                     b.Property<DateTime>("TimeRangeEnd")
@@ -195,7 +198,7 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<float>("Power")
                         .HasColumnType("real");
 
-                    b.Property<long>("TurbineModelId")
+                    b.Property<long?>("TurbineModelId")
                         .HasColumnType("bigint");
 
                     b.Property<float>("WindSpeed")
@@ -216,7 +219,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("BenchmarkResultId")
+                    b.Property<long>("BenchmarkId")
                         .HasColumnType("bigint");
 
                     b.Property<float>("Power")
@@ -227,7 +230,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BenchmarkResultId");
+                    b.HasIndex("BenchmarkId");
 
                     b.ToTable("PowerBinMeasured");
                 });
@@ -406,24 +409,20 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinExpected", b =>
                 {
-                    b.HasOne("COMP702_WindTurbine.models.TurbineModel", "TurbineModel")
+                    b.HasOne("COMP702_WindTurbine.models.TurbineModel", null)
                         .WithMany("ExpectedPowerBins")
-                        .HasForeignKey("TurbineModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TurbineModel");
+                        .HasForeignKey("TurbineModelId");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinMeasured", b =>
                 {
-                    b.HasOne("COMP702_WindTurbine.models.BenchmarkResult", "BenchmarkResult")
+                    b.HasOne("COMP702_WindTurbine.models.BenchmarkResult", "Benchmark")
                         .WithMany("PowerBins")
-                        .HasForeignKey("BenchmarkResultId")
+                        .HasForeignKey("BenchmarkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BenchmarkResult");
+                    b.Navigation("Benchmark");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.Turbine", b =>

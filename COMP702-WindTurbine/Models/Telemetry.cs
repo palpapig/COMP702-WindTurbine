@@ -20,6 +20,11 @@ public sealed class TurbineTelemetry
     //public double? GeneratorBearingFrontTemp { get; set; } // °C
     //public double? RearBearingTemp { get; set; } // °C
     //public double? RotorBearingTemp { get; set; } // °C
+  
+    public double? CorrectedWindSpeed { get; set; } 
+
+    public double GeneratorSpeed { get; set; } //rpm
+    public double MinimumPowerOutput { get; set; }
 
 
     public double? Efficiency { get; set; }

@@ -3,6 +3,7 @@ using System;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace COMP702_WindTurbine.Migrations
 {
     [DbContext(typeof(MonitoringDbContext))]
-    partial class MonitoringDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260422052123_AddBenchmarkingTables")]
+    partial class AddBenchmarkingTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,13 +76,13 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.BenchmarkResult", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<float?>("DeviationScore")
+                    b.Property<float>("DeviationScore")
                         .HasColumnType("real");
 
                     b.Property<DateTime>("TimeRangeEnd")
@@ -101,11 +104,11 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.DegradationModelDetails", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Filepath")
                         .IsRequired()
@@ -128,11 +131,11 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.DegradationResult", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<float>("Region2Point5Score")
                         .HasColumnType("real");
@@ -159,14 +162,14 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinDeviation", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("BenchmarkResultId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("BenchmarkResultId")
+                        .HasColumnType("integer");
 
                     b.Property<float>("PowerDifference")
                         .HasColumnType("real");
@@ -186,22 +189,27 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinExpected", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BenchmarkId")
+                        .HasColumnType("integer");
 
                     b.Property<float>("Power")
                         .HasColumnType("real");
 
-                    b.Property<long>("TurbineModelId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("TurbineModelId")
+                        .HasColumnType("integer");
 
                     b.Property<float>("WindSpeed")
                         .HasColumnType("real");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BenchmarkId");
 
                     b.HasIndex("TurbineModelId");
 
@@ -210,14 +218,14 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinMeasured", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("BenchmarkResultId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("BenchmarkId")
+                        .HasColumnType("integer");
 
                     b.Property<float>("Power")
                         .HasColumnType("real");
@@ -227,7 +235,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BenchmarkResultId");
+                    b.HasIndex("BenchmarkId");
 
                     b.ToTable("PowerBinMeasured");
                 });
@@ -252,8 +260,8 @@ namespace COMP702_WindTurbine.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("TurbineModelId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("TurbineModelId")
+                        .HasColumnType("integer");
 
                     b.HasKey("TurbineId");
 
@@ -264,11 +272,11 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.TurbineModel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<float>("CutInWindSpeed")
                         .HasColumnType("real");
@@ -406,24 +414,28 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinExpected", b =>
                 {
-                    b.HasOne("COMP702_WindTurbine.models.TurbineModel", "TurbineModel")
-                        .WithMany("ExpectedPowerBins")
-                        .HasForeignKey("TurbineModelId")
+                    b.HasOne("COMP702_WindTurbine.models.BenchmarkResult", "Benchmark")
+                        .WithMany()
+                        .HasForeignKey("BenchmarkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("TurbineModel");
+                    b.HasOne("COMP702_WindTurbine.models.TurbineModel", null)
+                        .WithMany("ExpectedPowerBins")
+                        .HasForeignKey("TurbineModelId");
+
+                    b.Navigation("Benchmark");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinMeasured", b =>
                 {
-                    b.HasOne("COMP702_WindTurbine.models.BenchmarkResult", "BenchmarkResult")
+                    b.HasOne("COMP702_WindTurbine.models.BenchmarkResult", "Benchmark")
                         .WithMany("PowerBins")
-                        .HasForeignKey("BenchmarkResultId")
+                        .HasForeignKey("BenchmarkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BenchmarkResult");
+                    b.Navigation("Benchmark");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.Turbine", b =>
