@@ -15,15 +15,15 @@ The service runs a continuous monitoring loop:
 
 Main components:
 
-- Worker: `COMP702-WindTurbine/Workers/MonitoringWorker.cs`
-- Data source: `COMP702-WindTurbine/DataSources/SimulatedLiveDataSource.cs`
+- Worker: `Worker/Workers/MonitoringWorker.cs`
+- Data source: `Worker/DataSources/SimulatedLiveDataSource.cs`
 - Processing services:
-  - `COMP702-WindTurbine/services/DataFormatter.cs`
-  - `COMP702-WindTurbine/services/Benchmarker.cs`
-  - `COMP702-WindTurbine/services/FailureDetection.cs`
+  - `Worker/services/DataFormatter.cs`
+  - `Worker/services/Benchmarker.cs`
+  - `Worker/services/FailureDetection.cs`
 - Persistence:
-  - `COMP702-WindTurbine/database/MonitoringDbContext.cs`
-  - `COMP702-WindTurbine/services/DbService.cs`
+  - `Worker/database/MonitoringDbContext.cs`
+  - `Worker/services/DbService.cs`
 
 ```mermaid
 flowchart LR
@@ -66,11 +66,11 @@ Current worker behavior:
 - Auto resolve when vibration recovers
 - Auto clear resolved alerts after configured hours
   Standalone diagram source:
-- `4_Development_and_QA/Sprint1_Architecture.mmd`
+- `Sprint1_Architecture.mmd`
 
 ## Data source modes
 
-Configured in `COMP702-WindTurbine/appsettings.json` under `SimulatedDataSource`:
+Configured in `Worker/appsettings.json` under `SimulatedDataSource`:
 
 - `Mode = Replay`: read from `data/turbine1_clean.csv`.
 - `Mode = Generative`: synthesize samples from configured distributions and power curve parameters.
@@ -88,7 +88,7 @@ Configured in `COMP702-WindTurbine/appsettings.json` under `SimulatedDataSource`
 
 ```bash
 dotnet build
-dotnet run --project COMP702-WindTurbine/COMP702-WindTurbine.csproj
+dotnet run --project Worker/COMP702-WindTurbine.csproj
 ```
 
 ## Current limitations
