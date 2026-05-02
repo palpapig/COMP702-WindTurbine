@@ -15,13 +15,18 @@ public sealed class TurbineTelemetry
     // new fields for extended analysis
 
     public double? PitchAngle { get; set; } // degrees
+
+    // fault detection coloumns 
     public double? GearboxOilTemp { get; set; } // °C
-    //public double? GearOilInletTemp { get; set; } // °C
-    //public double? GeneratorBearingFrontTemp { get; set; } // °C
-    //public double? RearBearingTemp { get; set; } // °C
-    //public double? RotorBearingTemp { get; set; } // °C
-  
-    public double? CorrectedWindSpeed { get; set; } 
+    public double? GearOilInletTemp { get; set; } // °C
+    public double? RearBearingTemp { get; set; } // °C
+    public double? GearOilPumpPressure { get; set; } // pressure
+    public double? GeneratorBearingFrontTemp { get; set; } // °C
+    public double? GearOilInletPressure { get; set; } // pressure
+    public double? NacelleTemp { get; set; } // °C
+
+
+    public double? CorrectedWindSpeed { get; set; }
 
     public double GeneratorSpeed { get; set; } //rpm
     public double MinimumPowerOutput { get; set; }

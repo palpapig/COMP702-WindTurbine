@@ -82,7 +82,7 @@ public class SimulatedLiveDataSource : IDataSource
         for (int i = 1; i < lines.Length; i++)
         {
             var parts = lines[i].Split(',');
-            if (parts.Length < 6) continue;   // not enough columns, skip
+            if (parts.Length < 12) continue;   // not enough columns, skip
 
             // try to parse each field – if any fail we just skip that row
             if (DateTime.TryParse(parts[0], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var timestamp) &&
@@ -90,7 +90,15 @@ public class SimulatedLiveDataSource : IDataSource
                 double.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out var power) &&
                 double.TryParse(parts[3], NumberStyles.Any, CultureInfo.InvariantCulture, out var rotor) &&
                 double.TryParse(parts[4], NumberStyles.Any, CultureInfo.InvariantCulture, out var pitch) &&
-                double.TryParse(parts[5], NumberStyles.Any, CultureInfo.InvariantCulture, out var temp))
+                double.TryParse(parts[5], NumberStyles.Any, CultureInfo.InvariantCulture, out var temp) &&
+
+                //faultDetection new coloumns
+                double.TryParse(parts[6], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilInletTemp) &&
+                double.TryParse(parts[7], NumberStyles.Any, CultureInfo.InvariantCulture, out var rearBearingTemp) &&
+                double.TryParse(parts[8], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilPumpPressure) &&
+                double.TryParse(parts[9], NumberStyles.Any, CultureInfo.InvariantCulture, out var generatorBearingFrontTemp) &&
+                double.TryParse(parts[10], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilInletPressure) &&
+                double.TryParse(parts[11], NumberStyles.Any, CultureInfo.InvariantCulture, out var nacelleTemp))
             {
                 _replayData.Add(new ReplayRecord
                 {
@@ -99,7 +107,13 @@ public class SimulatedLiveDataSource : IDataSource
                     ActivePower = power,
                     RotorSpeed = rotor,
                     PitchAngle = pitch,
-                    GearboxOilTemp = temp
+                    GearboxOilTemp = temp,
+                    GearOilInletTemp = gearOilInletTemp,
+                    RearBearingTemp = rearBearingTemp,
+                    GearOilPumpPressure = gearOilPumpPressure,
+                    GeneratorBearingFrontTemp = generatorBearingFrontTemp,
+                    GearOilInletPressure = gearOilInletPressure,
+                    NacelleTemp = nacelleTemp
                 });
             }
         }
@@ -145,6 +159,9 @@ public class SimulatedLiveDataSource : IDataSource
         double pitchNoise = rec.PitchAngle + (_random.NextDouble() - 0.5) * 0.5;
         double tempNoise = rec.GearboxOilTemp + (_random.NextDouble() - 0.5) * 1.0;
 
+
+
+
         return new RawData
         {
             TurbineId = turbineId,
@@ -153,12 +170,21 @@ public class SimulatedLiveDataSource : IDataSource
             ActivePower = powerNoise,
             RotorSpeed = rotorNoise,
             PitchAngle = Math.Max(0, pitchNoise),                  // pitch can't be negative
-            GearboxOilTemp = tempNoise,
+            GearboxOilTemp = rec.GearboxOilTemp,                     // removed noise from gearboxOilTemp as it could effect faul analysis
             // keep the old fields for compatibility with existing code
             Vibration = _random.NextDouble() * 10,
-            Temperature = tempNoise
+            Temperature = tempNoise,
+
+            //Fault detection neq coloumns
+            GearOilInletTemp = rec.GearOilInletTemp,
+            RearBearingTemp = rec.RearBearingTemp,
+            GearOilPumpPressure = rec.GearOilPumpPressure,
+            GeneratorBearingFrontTemp = rec.GeneratorBearingFrontTemp,
+            GearOilInletPressure = rec.GearOilInletPressure,
+            NacelleTemp = rec.NacelleTemp
         };
     }
+
 
     // creates a brand new data point using the statistical models from the config
     private RawData GenerateFromParams()
@@ -261,7 +287,7 @@ public class SimulatedLiveDataSource : IDataSource
         if (idx < 0) idx = 0;
 
         return stds[idx];
-    }     
+    }
 
     // simple class to hold one row of replay data
     private class ReplayRecord
@@ -272,5 +298,14 @@ public class SimulatedLiveDataSource : IDataSource
         public double RotorSpeed { get; set; }
         public double PitchAngle { get; set; }
         public double GearboxOilTemp { get; set; }
+
+        // new replay-only fields for faultDetectoion
+        public double GearOilInletTemp { get; set; }
+        public double RearBearingTemp { get; set; }
+        public double GearOilPumpPressure { get; set; }
+        public double GeneratorBearingFrontTemp { get; set; }
+        public double GearOilInletPressure { get; set; }
+        public double NacelleTemp { get; init; }
+
     }
 }

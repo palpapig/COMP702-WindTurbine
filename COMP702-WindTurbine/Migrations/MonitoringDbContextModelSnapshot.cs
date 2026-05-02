@@ -305,7 +305,19 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<double?>("Efficiency")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("GearboxOilTemp")
+                    b.Property<double?>("GearOilInletPressure")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GearOilInletTemp")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GearOilPumpPressure")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GearboxOilTemp")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GeneratorBearingFrontTemp")
                         .HasColumnType("double precision");
 
                     b.Property<double>("GeneratorSpeed")
@@ -314,19 +326,25 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<double>("MinimumPowerOutput")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("PitchAngle")
+                    b.Property<double?>("NacelleTemp")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("PowerOutput")
+                    b.Property<double?>("PitchAngle")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("RotorSpeed")
+                    b.Property<double?>("PowerOutput")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("RearBearingTemp")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("RotorSpeed")
                         .HasColumnType("double precision");
 
                     b.Property<bool?>("StartedAlert")
                         .HasColumnType("boolean");
 
-                    b.Property<double>("Temperature")
+                    b.Property<double?>("Temperature")
                         .HasColumnType("double precision");
 
                     b.Property<DateTime>("Timestamp")
@@ -336,10 +354,10 @@ namespace COMP702_WindTurbine.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("Vibration")
+                    b.Property<double?>("Vibration")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("WindSpeed")
+                    b.Property<double?>("WindSpeed")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");

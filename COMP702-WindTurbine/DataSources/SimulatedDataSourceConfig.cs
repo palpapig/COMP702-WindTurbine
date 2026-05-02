@@ -102,3 +102,51 @@ public class GearOilTempConfig
     public double Max { get; set; } //maximum temperature from data (°C)
     public double Mean { get; set; } //average temperature (°C) – not used yet, but handy
 }
+
+
+
+/* was commented out as these coloumns will not be added in the generative mode
+
+
+public class GearOilInletTempConfig
+{
+    public double Min { get; set; }
+    public double Max { get; set; }
+    public double Mean { get; set; }
+}
+
+public class RearBearingTempConfig
+{
+    public double Min { get; set; }
+    public double Max { get; set; }
+    public double Mean { get; set; }
+}
+
+public class GeneratorBearingFrontTempConfig
+{
+    public double Min { get; set; }
+    public double Max { get; set; }
+    public double Mean { get; set; }
+}
+
+public class NacelleTempConfig
+{
+    public double Min { get; set; }
+    public double Max { get; set; }
+    public double Mean { get; set; }
+}
+
+public class GearOilPumpPressureConfig
+{
+    public double Min { get; set; }
+    public double Max { get; set; }
+    public double Mean { get; set; }
+}
+
+public class GearOilInletPressureConfig
+{
+    public double Min { get; set; }
+    public double Max { get; set; }
+    public double Mean { get; set; }
+}
+*/
