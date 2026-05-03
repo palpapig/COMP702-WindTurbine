@@ -85,7 +85,7 @@ public sealed class Benchmarker (
         return result;
     }
 
-    private static ICollection<TurbineTelemetry> Preprocess(ICollection<TurbineTelemetry> telemetry, bool hasCorrectedWindSpeed = true)
+    public static ICollection<TurbineTelemetry> Preprocess(ICollection<TurbineTelemetry> telemetry, bool hasCorrectedWindSpeed = true)
     {
         //remove rows with negative minimum power output.
         telemetry = [.. telemetry.Where(row => row.MinimumPowerOutput > 0)];
