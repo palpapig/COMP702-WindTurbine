@@ -11,7 +11,7 @@ public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
-    FailureDetection failureDetection;
+    FailureDetection failureDetection,
 
     ILogger<MonitoringWorker> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService
@@ -22,7 +22,7 @@ public sealed class MonitoringWorker(
     {
         try
         {
-            DateTime lastTrainingCheckUtc = DateTime.MinValue;
+            // DateTime lastTrainingCheckUtc = DateTime.MinValue; no more needed for new design
 
 
             //######## TEMPORARY CODE ########
@@ -34,7 +34,7 @@ public sealed class MonitoringWorker(
             //    Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
             //    List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
             //    logger.LogInformation("turbine name: {tname}", turbine.Name);
-                
+
             //    BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
             //    await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
             //    logger.LogInformation("Successfully written benchmark results to database");
@@ -71,8 +71,9 @@ public sealed class MonitoringWorker(
                 telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
 
                 telemetry = benchmarker.DummyBenchmark(telemetry);
-
                 telemetry = await failureDetection.FaultDetectAsync(oldRaw, telemetry, stoppingToken);
+
+
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
 
@@ -84,34 +85,37 @@ public sealed class MonitoringWorker(
                 {
                     var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
                     await dbService.AddTelemetryAsync(telemetry);
-                    await dbService.PrintDbAsync();
+                    //  await dbService.PrintDbAsync();
                 }
 
 
-                if (DateTime.UtcNow - lastTrainingCheckUtc >= TimeSpan.FromHours(1))
-                {
-                    lastTrainingCheckUtc = DateTime.UtcNow;
+                //############ removed as auto training no more needed in new design #################
+                /*
+                                if (DateTime.UtcNow - lastTrainingCheckUtc >= TimeSpan.FromHours(1))
+                                {
+                                    lastTrainingCheckUtc = DateTime.UtcNow;
 
-                    try
-                    {
-                        using var trainingScope = scopeFactory.CreateScope();
+                                    try
+                                    {
+                                        using var trainingScope = scopeFactory.CreateScope();
 
-                        var trainingScheduleService = trainingScope.ServiceProvider.GetRequiredService<TrainingScheduleService>();
-                        var modelTrainingService = trainingScope.ServiceProvider.GetRequiredService<ModelTrainingService>();
+                                        var trainingScheduleService = trainingScope.ServiceProvider.GetRequiredService<TrainingScheduleService>();
+                                        var modelTrainingService = trainingScope.ServiceProvider.GetRequiredService<ModelTrainingService>();
 
-                        var dueTurbines = trainingScheduleService.GetTurbinesDueForTraining();
+                                        var dueTurbines = trainingScheduleService.GetTurbinesDueForTraining();
 
-                        foreach (var turbineId in dueTurbines)
-                        {
-                            logger.LogInformation("Model retraining due for turbine {TurbineId}", turbineId);
-                            await modelTrainingService.RunTrainingForTurbineAsync(turbineId, stoppingToken);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Error while checking or running model retraining.");
-                    }
-                }
+                                        foreach (var turbineId in dueTurbines)
+                                        {
+                                            logger.LogInformation("Model retraining due for turbine {TurbineId}", turbineId);
+                                            await modelTrainingService.RunTrainingForTurbineAsync(turbineId, stoppingToken);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        logger.LogError(ex, "Error while checking or running model retraining.");
+                                    }
+                                }
+                                */
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
 

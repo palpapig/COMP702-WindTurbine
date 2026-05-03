@@ -1,4 +1,5 @@
 namespace COMP702_WindTurbine.services;
+
 using COMP702_WindTurbine.models;
 
 
@@ -13,7 +14,6 @@ public sealed class DataFormatter
             WindSpeed = data.WSSensor,
             RotorSpeed = data.RSSensor,
             PowerOutput = data.POSensor,
-            GearboxOilTemp = data.GearboxOilTemp,
 
             // fault detection fields
             GearboxOilTemp = data.GearboxOilTemp,

@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using COMP702_WindTurbine.models;
 
-namespace COMP702_WindTurbine.Services;
+namespace COMP702_WindTurbine.services;
 
 public sealed class FailureDetection
 {
@@ -12,35 +12,43 @@ public sealed class FailureDetection
         _httpClient = httpClient;
     }
 
-    public async Task<TurbineTelemetry> FaultDetectAsync( RawData rawdata,
+    public async Task<TurbineTelemetry> FaultDetectAsync(RawData rawdata,
       TurbineTelemetry telemetry,
         CancellationToken ct)
     {
         var predictRequest = PredictionRequestMapper.FromRawData(rawdata);
 
-        var response = await _httpClient.PostAsJsonAsync("predict", predictRequest, ct);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            var error = await response.Content.ReadAsStringAsync(ct);
-            Console.WriteLine($"Python error: {response.StatusCode} - {error}");
+            var response = await _httpClient.PostAsJsonAsync("predict", predictRequest, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct);
+                Console.WriteLine($"Python error: {response.StatusCode} - {error}");
+                return telemetry;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<PredictionResult>(
+                cancellationToken: ct
+            );
+
+            if (result == null)
+                return telemetry;
+
+            // later you can copy result values into telemetry here
             return telemetry;
         }
-
-        var result = await response.Content.ReadFromJsonAsync<PredictionResult>(
-            cancellationToken: ct
-        );
-
-        if (result == null)
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Python service is not available: {ex.Message}");
             return telemetry;
-
-        telemetry.PredictedGearboxOilTemp = result.PredictedValue;
-        telemetry.ActualGearboxOilTemp = result.ActualValue;
-        telemetry.Residual = result.Alarm?.Residual;
-        telemetry.Ewma = result.Alarm?.Ewma;
-        telemetry.FaultAlarmLevel = result.Alarm?.AlarmLevel;
-        telemetry.StartedAlert = result.IsAnomaly;
-
-        return telemetry;
+        }
+        catch (TaskCanceledException ex)
+        {
+            Console.WriteLine($"Python request timed out: {ex.Message}");
+            return telemetry;
+        }
     }
 }
+

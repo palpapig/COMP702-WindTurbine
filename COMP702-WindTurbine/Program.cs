@@ -31,6 +31,10 @@ builder.Services.AddHttpClient<ModelTrainingService>(client =>
 {
     client.BaseAddress = new Uri("http://127.0.0.1:8000/");
 });
+builder.Services.AddHttpClient<FailureDetection>(client =>
+{
+    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
+});
 
 
 var host = builder.Build();
