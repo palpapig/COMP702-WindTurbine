@@ -11,7 +11,7 @@ public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
-    FailureDetection FailureDetection,
+    FailureDetection failureDetection;
 
     ILogger<MonitoringWorker> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService
@@ -72,7 +72,7 @@ public sealed class MonitoringWorker(
 
                 telemetry = benchmarker.DummyBenchmark(telemetry);
 
-                telemetry = FailureDetection.DetectFailure(telemetry);
+                telemetry = await failureDetection.FaultDetectAsync(oldRaw, telemetry, stoppingToken);
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
 
