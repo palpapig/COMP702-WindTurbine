@@ -6,13 +6,13 @@ from app.services.state_manager import state_manager
 
 
 class AlarmService:
-    def evaluate(self, turbine_id: str, residual: float, residual_std: float | None) -> AlarmInfo:
+    def evaluate(self, turbineId: str, residual: float, residual_std: float | None) -> AlarmInfo:
         settings = get_model_settings()["alarm"]
         ewma_lambda = float(settings["ewma_lambda"])
         k = float(settings["control_limit_k"])
         a2_count_required = int(settings["a2_consecutive_a1_count"])
 
-        state = state_manager.get(turbine_id)
+        state = state_manager.get(turbineId)
         prev_ewma = float(state.get("last_ewma", 0.0))
         ewma = ewma_lambda * residual + (1 - ewma_lambda) * prev_ewma
 
@@ -27,7 +27,7 @@ class AlarmService:
         a2 = consecutive >= a2_count_required
 
         state_manager.update(
-            turbine_id,
+            turbineId,
             last_ewma=ewma,
             consecutive_a1_count=consecutive,
             residual_std=residual_std,

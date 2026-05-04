@@ -21,7 +21,6 @@ public static class PredictionRequestMapper
             ActualTargetValue = raw.GearboxOilTemp,
             Values = new Dictionary<string, double?>
             {
-                ["RotorSpeed"] = raw.RotorSpeed,
                 ["GearOilInletTemp"] = raw.GearOilInletTemp,
                 ["GeneratorBearingFrontTemp"] = raw.GeneratorBearingFrontTemp,
                 ["RearBearingTemp"] = raw.RearBearingTemp,

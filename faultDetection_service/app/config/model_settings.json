@@ -1,11 +1,13 @@
 {
   "default_target_column": "GearboxOilTemp",
   "default_feature_columns": [
-    "RotorSpeed",
     "GearOilInletTemp",
     "GeneratorBearingFrontTemp",
     "RearBearingTemp",
-    "RotorBearingTemp"
+    "GearOilPumpPressure",
+    "GearOilInletPressure",
+    "NacelleTemp",
+    ""
   ],
   "model_type": "knn_bagging",
   "test_size": 0.2,

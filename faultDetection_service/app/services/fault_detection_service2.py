@@ -4,13 +4,14 @@ from datetime import datetime, timezone
 import pandas as pd
 
 from app.ml.feature_config import ensure_turbine_registered, get_default_feature_columns, get_default_target_column
-from app.ml.model_registry import load_bundle, model_exists
+from app.ml.model_registry import load_bundle, model_exists, load_model
 from app.models.response_models import PredictResponse
 from app.services.alarm_service import alarm_service
 from app.Loggers import get_logger,ensure_required_features
 
 logger = get_logger(__name__)
 
+model, metadata = load_model()
 
 class FaultDetectionService:
     def predict(
@@ -22,6 +23,9 @@ class FaultDetectionService:
     ) -> PredictResponse:
         turbine_cfg = ensure_turbine_registered(turbineId)
 
+
+
+        """ // this should check if a certian turbine model exist, but now all turbines share same model
         if not model_exists(turbineId):
             logger.warning("No model found for turbine %s", turbineId)
             return PredictResponse(
@@ -34,6 +38,28 @@ class FaultDetectionService:
                 modelStatus="model_not_found",
                 alarm=None,
             )
+        """
+
+
+
+             
+          # this one need the same order as it was trianed so metadata is needed, you wanna train it on the new coloumns, so need to do outliers removal for new coloumns
+        row = pd.DataFrame([{
+
+         "GearOilInletTemp": 12.1,
+         "GeneratorBearingFrontTemp": 0.03,
+         "RearBearingTemp": 35.0,
+         "GearOilPumpPressure": 2.1,
+         "GearOilInletPressure": 45.6,
+         "NacelleTemp": 5,
+         
+      }])
+
+
+        predictValu  = model.predict(row)
+
+
+
 
         bundle = load_bundle(turbineId)
         if bundle is None:

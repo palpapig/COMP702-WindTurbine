@@ -8,6 +8,33 @@ from app.config.settings import ARTIFACTS_DIR
 from app.ml.feature_config import ensure_turbine_registered
 
 
+
+
+MODEL_DIR = Path("artifacts/global_model")
+
+def load_model():
+    model_path = MODEL_DIR / "model.pkl"
+    metadata_path = MODEL_DIR / "metadata.json"
+
+    if not model_path.exists():
+        raise ValueError("Model does not exist")
+
+    if not metadata_path.exists():
+        raise ValueError("Metadata does not exist")
+
+    model = joblib.load(model_path)
+
+    with open(metadata_path, "r") as f:
+        metadata = json.load(f)
+
+    return model, metadata
+
+
+
+
+ ########### needs to be removed ###############
+
+
 def get_turbine_dir(turbine_id: str) -> Path:
     turbine_dir = ARTIFACTS_DIR / turbine_id
     turbine_dir.mkdir(parents=True, exist_ok=True)
@@ -50,3 +77,13 @@ def save_bundle(turbine_id: str, model, scaler, metadata: dict) -> dict[str, str
     with open(paths["metadata"], "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2, ensure_ascii=False)
     return {k: str(v) for k, v in paths.items()}
+
+
+if __name__ == "__main__":
+    try:
+        model, metadata = load_model()
+        print("Model loaded successfully")
+        print("Model type:", type(model))
+        print("Metadata:", metadata)
+    except Exception as e:
+        print("Error:", e)

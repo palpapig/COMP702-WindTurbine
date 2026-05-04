@@ -8,15 +8,25 @@ router = APIRouter(tags=["prediction"])
 
 
 @router.post("/predict", response_model=PredictResponse)
+
 def predict(request: PredictRequest):
-    try:
+
+
+
+   turbineId = request.TurbineId 
+   timestamp = request.Timestamp
+   actualTargetValue = request.ActualTargetValue
+   values = request.Values
+
+   try:
+        # fault_detection_service.predict( turbineId, actualTargetValue, value, timestamp)
         return fault_detection_service.predict(
-            turbine_id=request.turbine_id,
-            values=request.values,
-            timestamp=request.timestamp,
-            actual_target_value=request.actual_target_value,
+            turbineId,
+            actualTargetValue,
+            values,
+            timestamp,
         )
-    except ValueError as e:
+   except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
-    except Exception as e:
+   except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
