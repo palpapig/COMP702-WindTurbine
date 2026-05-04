@@ -11,6 +11,7 @@ public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
+    DegradationAnalyser degradationAnalyser,
     FailureDetection FailureDetection,
 
     ILogger<MonitoringWorker> logger,
@@ -25,7 +26,7 @@ public sealed class MonitoringWorker(
             DateTime lastTrainingCheckUtc = DateTime.MinValue;
 
 
-            //######## TEMPORARY CODE ########
+            //######## TEMPORARY CODE - ONE TIME BENCHMARKING ########
             //runs benchmarking on a single turbine for a given time period
             //using (var tempScope = scopeFactory.CreateScope())
             //{
@@ -41,9 +42,22 @@ public sealed class MonitoringWorker(
 
             //}
 
+            //######## TEMPORARY CODE - ONE DEGRADATION ANALYSIS ########
+            using (var tempScope = scopeFactory.CreateScope())
+            {
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+
+                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+                List<TurbineTelemetry> firstYearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
+                logger.LogInformation("turbine name: {tname}", turbine.Name);
+                
+                degradationAnalyser.TrainBenchmark(firstYearTelemetry, turbine);
+
+            }
 
 
-            while (!stoppingToken.IsCancellationRequested)
+
+            while (!stoppingToken.IsCancellationRequested && false)
             {
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
 

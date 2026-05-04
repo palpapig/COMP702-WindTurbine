@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IDataSource, SimulatedLiveDataSource>();
 //the config is automatically bound from appsetttings.json via the data source constructor
 builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
+builder.Services.AddSingleton<DegradationAnalyser>();
 builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
 
