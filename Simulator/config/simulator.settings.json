@@ -1,0 +1,33 @@
+{
+  "replay": {
+    "enabled": true,
+    "mode": "accelerated",
+    "speed": 10,
+    "loop": true,
+    "timeColumn": "Timestamp",
+    "timezone": "UTC",
+    "intervalSeconds": 2
+  },
+  "opcua": {
+    "endpoint": "opc.tcp://localhost:4840",
+    "namespaceUri": "urn:comp702:windturbine:simulator",
+    "nodePrefix": "Turbine"
+  },
+  "historical": {
+    "enabled": true,
+    "maxRowsPerRequest": 5000,
+    "probeEnabled": true,
+    "probeIntervalSeconds": 30,
+    "probeSignal": "WindSpeed",
+    "probeMaxValues": 20,
+    "probeStartUtc": "2019-01-01T00:00:00Z",
+    "probeEndUtc": "2019-01-01T01:00:00Z"
+  },
+  "data": {
+    "csvPath": "data/turbine4_2017-2022.csv",
+    "turbineId": "WT-004",
+    "replayYear": 2024,
+    "historyYear": 2023,
+    "turbineFilePrefix": "Turbine_Data_Kelmarsh_"
+  }
+}
