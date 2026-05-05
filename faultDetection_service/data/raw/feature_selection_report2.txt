@@ -144,3 +144,20 @@ Gost
 Rbt
 → Rotor Bearing Temperature
 
+
+
+                            temperature                 1.000000         1.000000
+                  
+                 
+                          Rear bearing temperature (°C)                 0.880293         0.880293
+                           Gear oil pump pressure (bar)                -0.856461         0.856461
+                          Gear oil inlet pressure (bar)                -0.846176         0.846176
+                        Gear oil inlet temperature (°C)                 0.798785         0.798785
+                        
+                               Nacelle temperature (°C)                 0.727777         0.727777
+         
+               Generator bearing front temperature (°C)                 0.710371         0.710371
+                                    Generator RPM (RPM)                -0.709640         0.709640
+                                             rotorSpeed                -0.707966         0.707966
+                                    Gearbox speed (RPM)                -0.707929         0.707929
+           

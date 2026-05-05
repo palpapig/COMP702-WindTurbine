@@ -13,17 +13,17 @@ def predict(request: PredictRequest):
 
 
 
-   turbineId = request.TurbineId 
-   timestamp = request.Timestamp
-   actualTargetValue = request.ActualTargetValue
-   values = request.Values
+   turbineId = request.turbineId 
+   timestamp = request.timestamp
+   actualTargetValue = request.actualTargetValue
+   values = request.values
 
    try:
         # fault_detection_service.predict( turbineId, actualTargetValue, value, timestamp)
         return fault_detection_service.predict(
             turbineId,
-            actualTargetValue,
             values,
+            actualTargetValue,
             timestamp,
         )
    except ValueError as e:

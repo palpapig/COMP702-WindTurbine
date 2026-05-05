@@ -2,17 +2,19 @@
   "model_type": "global_knn_bagging",
   "target_column": "GearboxOilTemp",
   "feature_columns": [
-    "RotorSpeed",
+    "GearOilInletTemp",
     "GeneratorBearingFrontTemp",
     "RearBearingTemp",
-    "RotorBearingTemp"
+    "GearOilPumpPressure",
+    "GearOilInletPressure",
+    "NacelleTemp"
   ],
-  "rows_used": 271320,
+  "rows_used": 522873,
   "test_size": 0.2,
   "metrics": {
-    "rmse": 0.8455493656178261,
-    "r2": 0.9895116557346896,
-    "residual_std": 0.8447235633449067
+    "rmse": 0.7147791863281336,
+    "r2": 0.9518748192835917,
+    "residual_std": 0.7144489098985006
   },
   "model_path": "D:\\RnD Project\\COMP702-WindTurbine\\faultDetection_service\\artifacts\\global_model\\model.pkl"
 }

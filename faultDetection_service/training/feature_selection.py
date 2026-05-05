@@ -2,9 +2,9 @@ from pathlib import Path
 import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-FOLDER_PATH = BASE_DIR / "data" / "cleaned"
+FOLDER_PATH = BASE_DIR / "data" / "feature_selection"
 
-TARGET_COLUMN = "Gear oil temperature (°C)"
+TARGET_COLUMN = "GearboxOilTemp"
 
 
 def main():

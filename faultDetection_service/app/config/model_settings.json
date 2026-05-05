@@ -6,8 +6,8 @@
     "RearBearingTemp",
     "GearOilPumpPressure",
     "GearOilInletPressure",
-    "NacelleTemp",
-    ""
+    "NacelleTemp"
+    
   ],
   "model_type": "knn_bagging",
   "test_size": 0.2,
@@ -23,7 +23,7 @@
   "knn_bagging": {
     "n_neighbors": 13,
     "weights": "distance",
-    "metric": "manhattan",
+    "metric": "euclidean",
     "n_estimators": 30
   },
   "baggingRegressor" : {

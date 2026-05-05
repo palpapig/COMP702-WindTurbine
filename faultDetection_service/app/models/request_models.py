@@ -16,7 +16,7 @@ class PredictRequest(BaseModel):
 
 
 
-############# this was used for training but is no more used ##########
+############# this was used for auto training but is no more used ##########
     """
 class TrainRow(BaseModel):
     model_config = ConfigDict(populate_by_name=True)

@@ -10,7 +10,7 @@ from app.ml.feature_config import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CLEANED_DATA_DIR = PROJECT_ROOT / "data" / "cleaned"
+CLEANED_DATA_DIR = PROJECT_ROOT / "data" / "trainingReady"
 
 
 def extract_turbine_id(file_path: Path) -> str:
