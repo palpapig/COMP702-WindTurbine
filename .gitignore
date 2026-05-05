@@ -45,3 +45,6 @@ frontend/**/dist/
 
 # Local .NET CLI home
 .dotnet-home/
+
+# OPC UA local cert store
+Worker/pki/

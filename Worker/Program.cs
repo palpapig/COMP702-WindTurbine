@@ -16,8 +16,15 @@ builder.Services.AddDbContext<MonitoringDbContext>(options =>
     options.UseNpgsql(monitoringDbConnection));
 
 builder.Services.AddScoped<DbService>();
-//new data source (replaces DataInput)
-builder.Services.AddSingleton<IDataSource, SimulatedLiveDataSource>();
+var dataSourceType = builder.Configuration.GetSection("DataSource").GetValue<string>("Type") ?? "Simulated";
+if (string.Equals(dataSourceType, "OpcUaSimulator", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<IDataSource, OpcUaDataSource>();
+}
+else
+{
+    builder.Services.AddSingleton<IDataSource, SimulatedLiveDataSource>();
+}
 //the config is automatically bound from appsetttings.json via the data source constructor
 builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
