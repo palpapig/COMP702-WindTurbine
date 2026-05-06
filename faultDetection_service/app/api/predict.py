@@ -19,13 +19,16 @@ def predict(request: PredictRequest):
    values = request.values
 
    try:
+        print("Before fault_detection_service.predict")
         # fault_detection_service.predict( turbineId, actualTargetValue, value, timestamp)
+        
         return fault_detection_service.predict(
             turbineId,
             values,
             actualTargetValue,
             timestamp,
         )
+        print("Before fault_detection_service.predict")
    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
    except Exception as e:

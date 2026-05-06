@@ -84,21 +84,21 @@ public class SimulatedLiveDataSource : IDataSource
             var parts = lines[i].Split(',');
             if (parts.Length < 12) continue;   // not enough columns, skip
 
-            // try to parse each field – if any fail we just skip that row
+            // try to parse each field – if any fail we just skip that row | IMPORTANT this has to be fixed is it does not match the coloumns order in teh file
             if (DateTime.TryParse(parts[0], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var timestamp) &&
                 double.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var wind) &&
-                double.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out var power) &&
-                double.TryParse(parts[3], NumberStyles.Any, CultureInfo.InvariantCulture, out var rotor) &&
+                double.TryParse(parts[3], NumberStyles.Any, CultureInfo.InvariantCulture, out var power) &&
+                double.TryParse(parts[5], NumberStyles.Any, CultureInfo.InvariantCulture, out var rotor) &&
                 double.TryParse(parts[4], NumberStyles.Any, CultureInfo.InvariantCulture, out var pitch) &&
-                double.TryParse(parts[5], NumberStyles.Any, CultureInfo.InvariantCulture, out var temp) &&
+                double.TryParse(parts[8], NumberStyles.Any, CultureInfo.InvariantCulture, out var temp) &&
 
                 //faultDetection new coloumns
-                double.TryParse(parts[6], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilInletTemp) &&
-                double.TryParse(parts[7], NumberStyles.Any, CultureInfo.InvariantCulture, out var rearBearingTemp) &&
-                double.TryParse(parts[8], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilPumpPressure) &&
-                double.TryParse(parts[9], NumberStyles.Any, CultureInfo.InvariantCulture, out var generatorBearingFrontTemp) &&
-                double.TryParse(parts[10], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilInletPressure) &&
-                double.TryParse(parts[11], NumberStyles.Any, CultureInfo.InvariantCulture, out var nacelleTemp))
+                double.TryParse(parts[9], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilInletTemp) &&
+                double.TryParse(parts[10], NumberStyles.Any, CultureInfo.InvariantCulture, out var rearBearingTemp) &&
+                double.TryParse(parts[11], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilPumpPressure) &&
+                double.TryParse(parts[12], NumberStyles.Any, CultureInfo.InvariantCulture, out var generatorBearingFrontTemp) &&
+                double.TryParse(parts[13], NumberStyles.Any, CultureInfo.InvariantCulture, out var gearOilInletPressure) &&
+                double.TryParse(parts[14], NumberStyles.Any, CultureInfo.InvariantCulture, out var nacelleTemp))
             {
                 _replayData.Add(new ReplayRecord
                 {

@@ -25,25 +25,13 @@ class Metrics(BaseModel):
 
 class PredictResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
-
     turbine_id: str = Field(..., alias="turbineId")
     timestamp: datetime | None = None
-    is_anomaly: bool = Field(..., alias="isAnomaly")
+    residual: float | None = None
+    is_faulty: bool = Field(..., alias="isFaulty")   #  match .NET
+    alarm_lvl: int = Field(..., alias="alarmLvl")    #  added correctly
     reason: str | None = None
     predicted_value: float | None = Field(default=None, alias="predictedValue")
     actual_value: float | None = Field(default=None, alias="actualValue")
-    model_status: str = Field(..., alias="modelStatus")
     alarm: AlarmInfo | None = None
 
-
-class TrainResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    turbine_id: str = Field(..., alias="turbineId")
-    success: bool
-    model_status: str = Field(..., alias="modelStatus")
-    rows_used: int = Field(..., alias="rowsUsed")
-    target_column: str = Field(..., alias="targetColumn")
-    feature_columns: list[str] = Field(..., alias="featureColumns")
-    metrics: Metrics
-    model_path: str = Field(..., alias="modelPath")

@@ -12,13 +12,7 @@ app.include_router(predict_router)
 
 @app.get("/health")
 def health():
-    settings = reload_model_settings()
-    return {
-        "status": "ok",
-        "model_type": settings["model_type"],
-        "default_target_column": settings["default_target_column"],
-        "default_feature_count": len(settings["default_feature_columns"]),
-    }
+    return {"status": "ok"}
 
 
 @app.get("/turbines")

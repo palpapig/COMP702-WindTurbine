@@ -12,6 +12,7 @@ public sealed class MonitoringWorker(
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
     FailureDetection failureDetection,
+    PythonProcessService pythonService,
 
     ILogger<MonitoringWorker> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService
@@ -22,6 +23,14 @@ public sealed class MonitoringWorker(
     {
         try
         {
+            pythonService.Start();
+            bool pythonReady = false;
+
+
+
+
+            Console.WriteLine("Python ready!");
+
             // DateTime lastTrainingCheckUtc = DateTime.MinValue; no more needed for new design
 
 
@@ -45,7 +54,15 @@ public sealed class MonitoringWorker(
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
+
+                if (!pythonReady)
+                {
+                    pythonReady = await failureDetection.GetPythonHealth(stoppingToken);
+                }
+
+
 
 
                 logger.LogInformation("Processing new data started");
@@ -71,7 +88,17 @@ public sealed class MonitoringWorker(
                 telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
 
                 telemetry = benchmarker.DummyBenchmark(telemetry);
-                telemetry = await failureDetection.FaultDetectAsync(oldRaw, telemetry, stoppingToken);
+
+
+
+                if (pythonReady)
+                {
+                    telemetry = await failureDetection.FaultDetectAsync(newRaw, telemetry, stoppingToken);
+                }
+                else
+                {
+                    logger.LogWarning("Python is not ready. Skipping prediction this cycle.");
+                }
 
 
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
@@ -141,5 +168,11 @@ public sealed class MonitoringWorker(
             // recovery options, we need to terminate the process with a non-zero exit code.
             Environment.Exit(1);
         }
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        pythonService.Stop();
+        await base.StopAsync(cancellationToken);
     }
 }

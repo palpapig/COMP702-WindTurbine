@@ -26,6 +26,22 @@ public sealed class TurbineTelemetry
     public double? NacelleTemp { get; set; } // °C
 
 
+
+    /*    these coloumns need to be added to db
+        //response and alarm details
+        public int? AlarmLvl { get; set; }
+        public double? Residual { get; set; }
+        public bool? IsFaulty { get; set; }
+
+        public double? PredictedValue { get; set; }
+        public double? ActualValue { get; set; }
+        public string? Reason { get; set; }
+    */
+
+
+
+
+
     public double? CorrectedWindSpeed { get; set; }
 
     public double GeneratorSpeed { get; set; } //rpm

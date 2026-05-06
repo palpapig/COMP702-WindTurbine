@@ -2,7 +2,7 @@
 
 ## Overview
 
-Hybrid-ready Python ML service for integration with a .NET system.
+this is a failure pediction machine that use knn for predicteing target variable and EWMA chart to evaluate failure existance
 
 ---
 
@@ -17,19 +17,21 @@ python -m venv .venv
 "or"
 py -m venv .venv
 
-# 2. Activate it
+Activate it
 
-1:
+3:
 .venv\Scripts\Activate
+"or for mac"
+.venv/bin/python
 
-# 3. Install dependencies
+Install dependencies
 
-2:
+4:
 pip install -r requirements.txt
 
-# 4. Run the server
+Run the server
 
-1:
+5:
 python -m uvicorn app.main:app --reload
 "or"
 py -m uvicorn app.main:app --reload
@@ -40,8 +42,12 @@ py -m uvicorn app.main:app --reload
 
 1:
 cd faultDetection_service
+
 2:
 .venv\Scripts\Activate
+"or for mac"
+.venv/bin/python
+
 3:
 python -m uvicorn app.main:app --reload
 "or"
@@ -51,30 +57,13 @@ py -m uvicorn app.main:app --reload
 
 ## Endpoints
 
-- POST /train → train or retrain a turbine model from batch rows sent by C#
 - POST /predict → perform prediction and evaluate fault/alarm state
-
----
-
-## Training
-
-- .NET sends batch turbine data to /train
-- Each turbine is trained independently
-- Models are stored per turbine in:
-
-artifacts/<turbine_id>/
-
-Supports:
-
-- custom targetColumn
-- custom featureColumns
-- forced retraining (forceRetrain)
 
 ---
 
 ## Prediction
 
-- Loads model based on turbineId
+- Loads model
 - Predicts expected value
 - Computes residual:
 
@@ -103,23 +92,10 @@ Controlled via JSON settings:
 - C# service collects turbine data from database
 - Uses RunTrainingForTurbineAsync to send data
 - Data is serialized as JSON and sent to /train
-- Response includes model status and metrics
+- Response includes residual, alarm lvl, failure status, predicted value
 
 ---
 
 ## Notes
 
-- Models are stored per turbine (artifacts/<turbine_id>/)
-- Unknown turbines are registered automatically
-- Training is separated from prediction to avoid blocking real-time operations
-- Minimum row requirement applies for training
 - Training and prediction must use consistent feature columns
-
----
-
-## Summary
-
-- API-based ML service for wind turbine monitoring
-- Supports multi-turbine model training
-- Uses residual-based fault detection (Fluids 2022 approach)
-- Designed for real-time integration with .NET

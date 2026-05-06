@@ -12,6 +12,7 @@ from app.Loggers import get_logger,ensure_required_features
 logger = get_logger(__name__)
 
 model, metadata = load_model()
+print("Model loaded")
 
 class FaultDetectionService:
     def predict(
@@ -22,6 +23,7 @@ class FaultDetectionService:
         timestamp: datetime | None = None,
     ) -> PredictResponse:
      
+  
            # get feature order used during training
         # IMPORTANT: model expects SAME order during prediction
         feature_columns = metadata["feature_columns"]
@@ -31,12 +33,14 @@ class FaultDetectionService:
         if missing:
             raise ValueError(f"Missing required prediction features: {missing}")
 
-        # build a row dictionary in EXACT same feature order
-        row = {
-            feature: values.get(feature)
-            for feature in feature_columns
-        }
 
+        # build a row dictionary in EXACT same feature order
+        row = {}
+
+        for feature in feature_columns:
+            value = values.get(feature)
+            row[feature] = value
+  
         # convert to pandas DataFrame (model expects 2D input)
         # also explicitly enforce column order
         frame = pd.DataFrame([row], columns=feature_columns)
@@ -51,13 +55,16 @@ class FaultDetectionService:
             raise ValueError(f"Non-numeric or null feature values for: {bad_cols}")
 
         # perform prediction using trained model
+        print("Started Prediction \n\n")
         predicted_value = float(model.predict(frame)[0])
+        print("Prediction finished \n\n")
        
 
    # default values for alarm logic
         alarm = None
-        is_anomaly = False
+        is_faulty = False
         reason = None
+        alarm_lvl = 0
 
         # only compute anomaly if actual value is provided
         if actualTargetValue is not None:
@@ -77,7 +84,15 @@ class FaultDetectionService:
             )
 
             # anomaly if either A1 or A2 triggered
-            is_anomaly = bool(alarm.a1_triggered or alarm.a2_triggered)
+            is_faulty = bool(alarm.a1_triggered or alarm.a2_triggered)
+
+            # determine alarm level
+            if alarm and alarm.a2_triggered:
+               alarm_lvl = 2
+            elif alarm and alarm.a1_triggered:
+               alarm_lvl = 1
+            else:
+               alarm_lvl = 0
 
             # explain why anomaly happened
             if alarm.a2_triggered:
@@ -86,16 +101,22 @@ class FaultDetectionService:
                 reason = "A1 alarm triggered: residual moved outside control limits"
 
         # return structured API response
+        print("turbineId:", turbineId,)
+        print("Predicted:", predicted_value,)
+        print("Actual:", actualTargetValue,)
+        print("residual:", residual,)
+        print("alarm_lvl:", alarm_lvl,)
+        print("Failuar Status:", is_faulty,"\n")
         return PredictResponse(
-            turbineId=turbineId,
-            timestamp=timestamp or datetime.now(timezone.utc),
-            isAnomaly=is_anomaly,
-            reason=reason,
-            predictedValue=predicted_value,
-            actualValue=actualTargetValue,
-            modelStatus="trained",   # since we always use one global model
-            alarm=alarm,
-        )
+             turbine_id=turbineId,
+             timestamp=timestamp or datetime.now(timezone.utc),
+             is_faulty=is_faulty,
+             alarm_lvl=alarm_lvl,
+             predicted_value=predicted_value,
+             actual_value=actualTargetValue,
+             residual=residual,
+           
+)
         
 
 

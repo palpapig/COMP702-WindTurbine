@@ -23,18 +23,25 @@ builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
 builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
-
-builder.Services.AddSingleton<ModelTrainingConfigService>();
-builder.Services.AddSingleton<TrainingScheduleService>();
-
-builder.Services.AddHttpClient<ModelTrainingService>(client =>
-{
-    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
-});
+builder.Services.AddSingleton<PythonProcessService>();
 builder.Services.AddHttpClient<FailureDetection>(client =>
+
 {
     client.BaseAddress = new Uri("http://127.0.0.1:8000/");
 });
+
+
+
+//######## This is for auto-training. not used anymore ##########
+//builder.Services.AddSingleton<ModelTrainingConfigService>();
+//builder.Services.AddSingleton<TrainingScheduleService>();
+
+//builder.Services.AddHttpClient<ModelTrainingService>(client =>
+//{
+//    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
+//});
+
+
 
 
 var host = builder.Build();

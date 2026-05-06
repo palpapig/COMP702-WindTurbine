@@ -14,6 +14,18 @@ public static class PredictionRequestMapper
 {
     public static PredictRequest FromRawData(RawData raw)
     {
+
+        Console.WriteLine($"TurbineId: {raw.TurbineId}");
+        Console.WriteLine($"Timestamp: {raw.Timestamp}");
+        Console.WriteLine($"GearboxOilTemp (Target): {raw.GearboxOilTemp}");
+
+        Console.WriteLine($"GearOilInletTemp: {raw.GearOilInletTemp}");
+        Console.WriteLine($"GeneratorBearingFrontTemp: {raw.GeneratorBearingFrontTemp}");
+        Console.WriteLine($"RearBearingTemp: {raw.RearBearingTemp}");
+        Console.WriteLine($"GearOilPumpPressure: {raw.GearOilPumpPressure}");
+        Console.WriteLine($"GearOilInletPressure: {raw.GearOilInletPressure}");
+        Console.WriteLine($"NacelleTemp: {raw.NacelleTemp}");
+
         return new PredictRequest
         {
             TurbineId = raw.TurbineId,
