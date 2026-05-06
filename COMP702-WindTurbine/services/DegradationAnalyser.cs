@@ -5,6 +5,11 @@ using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Statistics.Kernels;
 using Accord.MachineLearning.Performance;
 using Accord.Math;
+using Accord.Statistics.Models.Regression.Linear;
+using Accord.Math.Optimization.Losses;
+using System.Runtime.CompilerServices;
+using Accord.IO;
+using Microsoft.VisualBasic;
 
 // ###### TODO ######
 // Have a single function which you call to do the analysis. If a trained SVR model does not exist, do the training function (which includes getting 1st year of that turbine's data)
@@ -82,16 +87,28 @@ public sealed class DegradationAnalyser (
         }
 
 
-        //normalize input and outputs to 0-1
-        double inputMin = inputRaw.Min();
-        double inputNormalizationFactor = inputRaw.Max() - inputMin;
-        double[] normInput = inputRaw.Select(d => (d-inputMin)/inputNormalizationFactor).ToArray();
+        bool doNormalize = false;
+        double[][] input = [];
+        double[] output = [];
 
-        double outputMin = outputRaw.Min();
-        double outputNormalizationFactor = outputRaw.Max() - outputMin;
-        double[] output = outputRaw.Select(d => (d-outputMin)/outputNormalizationFactor).ToArray();
+        if (doNormalize)
+        {   
+            //normalize input and outputs to 0-1
+            double inputMin = inputRaw.Min();
+            double inputNormalizationFactor = inputRaw.Max() - inputMin;
+            double[] normInput = inputRaw.Select(d => (d-inputMin)/inputNormalizationFactor).ToArray();
 
-        double[][] input = normInput.Select(value => new double[] { value }).ToArray();
+            double outputMin = outputRaw.Min();
+            double outputNormalizationFactor = outputRaw.Max() - outputMin;
+            output = outputRaw.Select(d => (d-outputMin)/outputNormalizationFactor).ToArray();
+
+            input = normInput.Select(value => new double[] { value }).ToArray();
+        } else
+        {
+            input = inputRaw.Select(value => new double[] { value }).ToArray();
+            output = outputRaw;
+        }
+        
 
 
 
@@ -103,30 +120,41 @@ public sealed class DegradationAnalyser (
 
 
 
-        var svr = new FanChenLinSupportVectorRegression<Gaussian>
-        {
-            //according to paper, C and Gamma values are iqr(Y)/13.49
-            Complexity = 1.0, // what C and other values? omit to make it guess
-            Kernel = new Gaussian(), //what gamma value?
-            Epsilon = 0.001, //default 0.001
-            Tolerance = 0.01 //default 0.01
-        };
 
+
+        //var svrTrained = DoGridSearch(trainInput, trainOutput);
+
+
+
+
+
+
+        
+
+        var svr = new FanChenLinSupportVectorRegression<Gaussian>();
+            //according to paper, C and epsilon values are iqr(Y)/13.49
+            svr.UseComplexityHeuristic = true;
+            //svr.Complexity = 1.0; // what C and other values? omit to make it guess
+            svr.UseKernelEstimation = true;
+            svr.Kernel = new Gaussian(); //what gamma value?
+            svr.Epsilon = 0.01; //default 0.001
+            svr.Tolerance = 0.1; //default 0.01
+
+        
         //training happens here
         logger.LogInformation("now training model...");
-        var svrTrained = svr.Learn(trainInput, trainOutput);
-
+        SupportVectorMachine<Gaussian> svrTrained = svr.Learn(trainInput, trainOutput);
+        logger.LogInformation("Making predictions...");
         double[] scores = svrTrained.Score(testInput);
+        
+        var topTen = scores.Take(10);
+        var topTenTest = testOutput.Take(10);
+        logger.LogInformation("SVR RESULTS HERE: {topTen}", topTen);
+        logger.LogInformation("ACTUAL VALUES HERE: {topTen}", topTenTest);
 
-        var topThirty = scores.Take(30);
-        var topThirtyTest = testOutput.Take(30);
 
-        logger.LogInformation("SVR RESULTS HERE: {topThirty}", topThirty);
-        logger.LogInformation("ACTUAL VALUES HERE: {topThirty}", topThirtyTest);
-
-
-        double[] normalTestInput = testInput.Select(x => x[0]).ToArray();
-        SaveAsCsv(normalTestInput, testOutput, scores);
+        double[] unlistedTestInput = testInput.Select(x => x[0]).ToArray();
+        SaveAsCsv(unlistedTestInput, testOutput, scores);
 
         //test SVR on test data to get residuals
         //use averaging equation to get expected deviation
@@ -157,10 +185,58 @@ private void SaveAsCsv(double[] input, double[] output, double[] scores)
             lines.Add($"{input[i]},{output[i]},{scores[i]}");
         }
 
-        File.WriteAllLines($"TestCSVs/normalized2.5.csv", lines);
+        File.WriteAllLines($"TestCSVs/Transform-r2.5.csv", lines);
         counter++;
     }
 
+private void TEMPSaveAsCsv(double[][] input, double[] output, string name)
+    {
+        double[] normalInput = input.Select(x => x[0]).ToArray();
 
+        var lines = new List<string>{$"PitchAngle,Power"};
+        for (int i = 0; i < input.Length; i++)
+        {
+            lines.Add($"{normalInput[i]},{output[i]}");
+        }
 
+        File.WriteAllLines($"TestCSVs/{name}.csv", lines);
+        counter++;
+    }
+
+private SupportVectorMachine<Gaussian> DoGridSearch(double[][] input, double[] output)
+    {
+        logger.LogInformation("Starting grid search...");
+        var gridsearch = GridSearch<double[], double>.Create(
+            ranges: new
+            {
+                Complexity = GridSearch.Values( 0.01, 0.1, 1, 10, 100 ),
+                Gamma = GridSearch.Values(0.001, 0.01, 0.1, 0.5, 1, 10 )
+            },
+
+            learner: (p) => new FanChenLinSupportVectorRegression<Gaussian>
+            {
+                Complexity = p.Complexity,
+                Kernel = Gaussian.FromGamma(p.Gamma),
+                Epsilon = 0.001, //default 0.001
+                Tolerance = 0.01, //default 0.01
+                
+            },
+
+            fit: (teacher, x, y, w) => teacher.Learn(x, y, w),
+
+            loss: (actual, expected, m) => new SquareLoss(expected).Loss(actual)            
+            
+
+        );
+
+        gridsearch.ParallelOptions.MaxDegreeOfParallelism = 4;
+
+        var result = gridsearch.Learn(input, output);
+        logger.LogInformation("Grid search Finished");
+
+        var bestSvm = result.BestModel;
+        logger.LogInformation("Best parameters - Compexity:{c} Gamma:{g}", result.BestParameters.Complexity.Value, result.BestParameters.Gamma.Value);
+        //bestSvm.Save("./");
+        return bestSvm;
+    }
 }
