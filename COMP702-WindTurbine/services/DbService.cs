@@ -23,6 +23,7 @@ public sealed class DbService (
     public async Task<Turbine> GetTurbineById(string turbineId)
     {
         return await db.Turbine
+            .Include(t => t.DegradationModelDetails)
             .Include(t => t.TurbineModel)
                 .ThenInclude(tm => tm.ExpectedPowerBins)
             .FirstAsync(t => t.TurbineId == turbineId);
