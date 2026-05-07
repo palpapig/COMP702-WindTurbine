@@ -22,12 +22,14 @@ Activate it
 3:
 .venv\Scripts\Activate
 "or for mac"
-.venv/bin/python
+source .venv/bin/activate
 
 Install dependencies
 
 4:
 pip install -r requirements.txt
+"or" for mac
+python -m pip install -r requirements.txt
 
 Run the server
 
