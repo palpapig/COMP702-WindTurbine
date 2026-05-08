@@ -1,10 +1,10 @@
 {
   "default_target_column": "GearboxOilTemp",
   "default_feature_columns": [
+    "GeneratorSpeed",
     "GearOilInletTemp",
     "GeneratorBearingFrontTemp",
     "RearBearingTemp",
-    "GearOilPumpPressure",
     "GearOilInletPressure",
     "NacelleTemp"
     
@@ -21,13 +21,13 @@
     "a2_consecutive_a1_count": 3
   },
   "knn_bagging": {
-    "n_neighbors": 13,
+    "n_neighbors": 5,
     "weights": "distance",
-    "metric": "euclidean",
+    "metric": "manhattan",
     "n_estimators": 30
   },
   "baggingRegressor" : {
      "n_estimators":30,
-       "random_state":424
+       "random_state":42
   }
 }

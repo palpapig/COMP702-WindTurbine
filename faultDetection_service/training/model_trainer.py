@@ -5,6 +5,7 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sklearn.ensemble import BaggingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
@@ -23,11 +24,11 @@ DATA_DIR = BASE_DIR / "data" / "trainingReady"
 csv_files = list(DATA_DIR.glob("*.csv"))
 
 if not csv_files:
-    raise FileNotFoundError("No CSV files found in data/cleaned")
+    raise FileNotFoundError("No CSV files found in data/trainingReady")
 CSV_PATH = csv_files[0]
 
 
-MODEL_OUTPUT_DIR = BASE_DIR / "artifacts" / "global_model"
+MODEL_OUTPUT_DIR = BASE_DIR / "artifacts" / "final_Model"
 MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MODEL_PATH = MODEL_OUTPUT_DIR / "model.pkl"
@@ -72,7 +73,9 @@ def train_model() -> dict:
         work_df[col] = pd.to_numeric(work_df[col], errors="coerce")
 
     # Drop invalid rows
-    ## df = df.dropna()
+    df = df.dropna()
+
+    print(len(work_df))
 
     if work_df.empty:
         raise ValueError("No valid rows left after cleaning.")
@@ -115,6 +118,24 @@ def train_model() -> dict:
     # Test model
     predictions = model.predict(X_test)
 
+    plt.figure(figsize=(10, 6))
+    plt.scatter(y_test, predictions, alpha=0.5)
+
+    min_val = min(y_test.min(), predictions.min())
+    max_val = max(y_test.max(), predictions.max())
+
+    plt.plot([min_val, max_val], [min_val, max_val], linestyle="--")
+
+    plt.xlabel("Actual " + TARGET_COLUMN)
+    plt.ylabel("Predicted " + TARGET_COLUMN)
+    plt.title("Predicted vs Actual " + TARGET_COLUMN)
+    plt.grid(True)
+
+    GRAPH_PATH = MODEL_OUTPUT_DIR / "predicted_vs_actual.png"
+
+    plt.savefig(GRAPH_PATH, dpi=300, bbox_inches="tight")
+    plt.close()
+
     rmse = float(np.sqrt(mean_squared_error(y_test, predictions)))
     r2 = float(r2_score(y_test, predictions))
     residual_std = float(np.std(y_test - predictions, ddof=1))
@@ -143,6 +164,6 @@ def train_model() -> dict:
 
 
 if __name__ == "__main__":
-    result = train_global_model()
+    result = train_model() 
     print("Global model trained successfully")
     print(json.dumps(result, indent=2))
