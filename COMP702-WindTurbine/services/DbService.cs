@@ -60,6 +60,12 @@ public sealed class DbService (
         await db.SaveChangesAsync();
     }
 
+    public async Task AddDegradationModelDetails(DegradationModelDetails dmd)
+    {
+        db.Set<DegradationModelDetails>().Add(dmd);
+        await db.SaveChangesAsync();
+    }
+
     public async Task PrintDbAsync()
     {
         var data = await db.TurbineData.ToListAsync();

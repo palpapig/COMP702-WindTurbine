@@ -26,23 +26,23 @@ public sealed class MonitoringWorker(
             DateTime lastTrainingCheckUtc = DateTime.MinValue;
 
 
-            //######## TEMPORARY CODE - ONE TIME BENCHMARKING ########
+            //######## TEMPORARY CODE - ONE-TIME BENCHMARKING ########
             //runs benchmarking on a single turbine for a given time period
-            //using (var tempScope = scopeFactory.CreateScope())
-            //{
-            //   var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            using (var tempScope = scopeFactory.CreateScope())
+            {
+              var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-            //    Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
-            //    List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
-            //    logger.LogInformation("turbine name: {tname}", turbine.Name);
+               Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+               List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
+               logger.LogInformation("turbine name: {tname}", turbine.Name);
                 
-            //    BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
-            //    await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
-            //    logger.LogInformation("Successfully written benchmark results to database");
+               BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
+               await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+               logger.LogInformation("Successfully written benchmark results to database");
 
-            //}
+            }
 
-            //######## TEMPORARY CODE - ONE DEGRADATION ANALYSIS ########
+            //######## TEMPORARY CODE - ONE-TIME DEGRADATION ANALYSIS ########
             using (var tempScope = scopeFactory.CreateScope())
             {
                 var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
@@ -51,7 +51,7 @@ public sealed class MonitoringWorker(
                 List<TurbineTelemetry> firstYearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
                 logger.LogInformation("turbine name: {tname}", turbine.Name);
                 
-                degradationAnalyser.TrainBenchmark(firstYearTelemetry, turbine);
+                degradationAnalyser.Run(firstYearTelemetry, turbine);
 
             }
 
