@@ -192,3 +192,60 @@ body {
   background: #06A2DF;
   color: white;
 }
+
+.export-page {
+  padding: 2rem;
+}
+
+.export-page h1 {
+  margin-bottom: 1.5rem;
+  color: #111827;
+}
+
+.export-description {
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.export-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.4rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e5e5;
+}
+
+.export-card h2 {
+  margin-bottom: 0.5rem;
+  color: #111827
+}
+
+.export-card p {
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.export-button {
+  background: #06A2DF;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.export-button:hover {
+  background: #048ac0;
+}
+
+.export-button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.export-message {
+  margin-top: 1rem;
+  font-weight: 500;
+}

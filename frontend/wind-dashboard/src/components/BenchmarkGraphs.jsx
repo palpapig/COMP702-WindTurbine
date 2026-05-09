@@ -193,7 +193,7 @@ function BenchmarkGraphs({ turbineId }) {
   return (
     <div>
       {/*main page title (large) */}
-      <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '1rem' }}>
+      <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '1rem', color: '#111827' }}>
         Power Difference vs Wind Speed
       </h1>
       <p style={{ textAlign: 'center', fontSize: '1rem', color: '#666', marginBottom: '2rem' }}>
