@@ -5,6 +5,7 @@ using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Npgsql.Replication;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 // ###### TODO ######
 // Have a single function which you call to do the analysis. If a trained SVR model does not exist, do the training function (which includes getting 1st year of that turbine's data)
@@ -16,8 +17,9 @@ public sealed class DegradationAnalyser (
     IServiceScopeFactory scopeFactory)
 {
 
-    public void Run(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
+    public async Task Run(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
     {
+        //check that the provided turbine has an associated turbineModel
         if (turbine.TurbineModel is null)
         {
             logger.LogError("Attempted to benchmark a turbine with no assigned TurbineModel");
@@ -61,34 +63,35 @@ public sealed class DegradationAnalyser (
 
 
         //TODO two DegModels should be stored per turbine, one for each region.
-        //
-        if (turbine.DegradationModelDetails == null)
+
+        //check if there is an existing onnx model file saved. If not, train a new model.
+
+        var modelName = turbine.DegradationModelDetails?.Filepath; 
+        var modelPath = $"PythonDegradationTraining/Models/{modelName}.onnx"; //TODO the directory path to the model is the same as in PythonTrainModel()
+
+        if (turbine.DegradationModelDetails == null || !File.Exists(modelPath))
         {
             logger.LogWarning("Degradation Model not found for turbine {t}. Training degradation model now...", turbine.TurbineId);
-            PythonTrainBenchmark(inputRegion2, outputRegion2, turbine);
-            PythonTrainBenchmark(inputRegion2p5, outputRegion2p5, turbine);
+            //var degDetailsRegion2 = await PythonTrainBenchmark(inputRegion2, outputRegion2, turbine);
+            var degDetailsRegion2p5 = await PythonTrainBenchmark(inputRegion2p5, outputRegion2p5, turbine);
             //TODO Somehow re-get from supabase. or just pass back the TurbineModelDetails. Also check the written file exists.
+                //re-enable region 2.5 functions
+
+            modelPath = $"PythonDegradationTraining/Models/{degDetailsRegion2p5.Filepath}.onnx"; //TODO fix repeated code
             return;
         }
 
         //if the turbine already has a trained model, use it do to the benchmark
-        PerformBenchmark(inputRegion2, outputRegion2, turbine);
-        PerformBenchmark(inputRegion2p5, outputRegion2p5, turbine);
+        //PerformBenchmark(inputRegion2, outputRegion2, turbine, modelPath);
+        PerformBenchmark(inputRegion2p5, outputRegion2p5, turbine, modelPath);
     }
 
-    private void PerformBenchmark(double[] inputData, double[] actualOutput, Turbine turbine)
+    private void PerformBenchmark(double[] inputData, double[] actualOutput, Turbine turbine, string modelPath)
     {
-        
         var expectedDeviation = turbine.DegradationModelDetails?.Offset;
-        var modelName = turbine.DegradationModelDetails?.Filepath; //TODO this is copied code from the other function
-        var modelPath = $"PythonDegradationTraining/Models/{modelName}";
+        
 
-        //check ONNX file exists
-        if (!File.Exists(modelPath))
-        {
-            logger.LogError("Attempted to access degradation model .onnx file which does not exist");
-            throw new ArgumentNullException(nameof(turbine.TurbineModel));
-        }
+        
 
         //read ONNX model from file and set it up with the input data
         var session = new InferenceSession(modelPath);   
@@ -114,7 +117,7 @@ public sealed class DegradationAnalyser (
         logger.LogCritical("ONNX tensor shape: {s}", tensorTypeAndShape);
         
         //TODO VVVV
-        //test data against the SVR model to get residuals. 
+        //get residuals from pred - actual
 
         //use averaging equation (in reserach doc) to get deviation value
         //subtract it from expected deviation
@@ -128,13 +131,14 @@ public sealed class DegradationAnalyser (
     
     }
 
-    private void PythonTrainBenchmark(double[] input, double[] output, Turbine turbine)
-    {
-        var modelName = turbine.DegradationModelDetails?.Filepath; //TODO this is copied code from the other function
-        var modelPath = $"PythonDegradationTraining/Models/{modelName}";
+    private async Task<DegradationModelDetails> PythonTrainBenchmark(double[] input, double[] output, Turbine turbine)
+    {   
+        //create file name and path for .onnx model to be created
+        var modelName = $"{turbine.TurbineId}-region2";
+        var modelPath = $"PythonDegradationTraining/Models/{modelName}.onnx"; //TODO the directory path to the model is the same as in Run()
 
-        //write input and output rows to file for python to train with
-        var dataPath = "PythonDegradationTraining/Models/TempTrainingData.csv";
+        //write input and output training rows to file for python to train with
+        var dataPath = "PythonDegradationTraining/TempTrainingData.csv";
         var lines = new List<string>();
 
         lines.Add($"inputVar,power");
@@ -150,7 +154,7 @@ public sealed class DegradationAnalyser (
         var startInfo = new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"DegradationTraining.py {dataPath} {modelPath}", //provide the .py filename and training data filename 
+                Arguments = $"PythonDegradationTraining/DegradationTraining.py {dataPath} {modelPath}", //provide the .py filename and training data filename 
 
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -179,21 +183,25 @@ public sealed class DegradationAnalyser (
         
         
         //save the details of the newly trained model to supabase
+        DegradationModelDetails degradationModelDetails = new()
+        {
+            Offset = (float)response?.ExpectedDeviation,
+            Filepath = modelName,
+            Turbine = turbine
+        };
         using (var tempScope = scopeFactory.CreateScope())
         {
-            DegradationModelDetails degradationModelDetails = new()
-            {
-                Offset = (float)response?.ExpectedDeviation,
-                Filepath = modelPath,
-                Turbine = turbine
-            };
+
+            logger.LogInformation("about to save DegModelDetails. offset: {o}. filepath: {f}. turbine: {t}", degradationModelDetails.Offset, degradationModelDetails.Filepath, degradationModelDetails.Turbine.TurbineId);
 
             var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            await dbService.AddDegradationModelDetails(degradationModelDetails);
             
         }
 
-
         logger.LogInformation("Degradation Benchmark Models successfuly created for turbine {t}", turbine.TurbineId);
+        return degradationModelDetails;
+
 
 
 

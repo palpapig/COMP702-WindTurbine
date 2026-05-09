@@ -62,6 +62,7 @@ public sealed class DbService (
 
     public async Task AddDegradationModelDetails(DegradationModelDetails dmd)
     {
+        db.Set<Turbine>().Attach(dmd.Turbine); //indicated not to re-add the turbine as a new row
         db.Set<DegradationModelDetails>().Add(dmd);
         await db.SaveChangesAsync();
     }

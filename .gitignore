@@ -42,3 +42,7 @@ frontend/**/node_modules/
 frontend/**/.vite/
 frontend/**/.vite-temp/
 frontend/**/dist/
+
+
+#temporary data for training degradation model in python
+COMP702-WindTurbine/PythonDegradationTraining/TempTrainingData.csv
