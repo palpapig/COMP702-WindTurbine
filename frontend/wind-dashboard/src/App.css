@@ -166,3 +166,29 @@ body {
     height: 48px;
   }
 }
+
+.graph-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.graph-tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid #06A2DF;
+  background: white;
+  color: #06A2DF;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.graph-tab:hover {
+  background: #eef8fd;
+}
+
+.graph-tab.active {
+  background: #06A2DF;
+  color: white;
+}
