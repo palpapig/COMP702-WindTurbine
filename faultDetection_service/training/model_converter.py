@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import onnxruntime as ort
+import onnxruntime as ort
 
 from sklearn.ensemble import BaggingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
@@ -152,15 +153,12 @@ def train_model() -> dict:
     onnx_path = MODEL_OUTPUT_DIR / "model.onnx"
 
     # define input shape
-    initial_type = [
+    input_type = [
        ("float_input", FloatTensorType([None, len(FEATURE_COLUMNS)]))
     ]
 
     # convert
-    onnx_model = to_onnx(
-       model,
-       initial_types=initial_type
-    )
+    onnx_model = to_onnx( model,initial_types= input_type)
 
     # save ONNX file
     with open(onnx_path, "wb") as f:
@@ -168,32 +166,34 @@ def train_model() -> dict:
 
     print("ONNX model saved:", onnx_path)
 
-    import onnxruntime as ort
 
-    # testing the convert onnx model
+
+        # testing the convert onnx model
+    # testing the converted ONNX model
     session = ort.InferenceSession(str(onnx_path))
 
     input_name = session.get_inputs()[0].name
 
-    # test several samples
-    sample = X_test.iloc[:20].to_numpy().astype(np.float32)
+    # use exact same features and order
+    X_sample = X_test[FEATURE_COLUMNS].iloc[:100]
 
-    onnx_predictions = session.run(
-        None,
-        {input_name: sample}
-    )[0]
+    # ONNX needs numpy float32
+    sample = X_sample.to_numpy().astype(np.float32)
 
-    sklearn_predictions = model.predict(X_test.iloc[:20])
+    # ONNX prediction
+    onnx_predictions = session.run(None, {input_name: sample})[0]
+
+    # sklearn prediction using same columns/order
+    sklearn_predictions = model.predict(X_sample)
 
     print("Sklearn predictions:")
     print(sklearn_predictions)
 
-    print("\nONNX predictions:")
-    print(onnx_predictions)
+    diff = sklearn_predictions.ravel() - onnx_predictions.ravel()
 
-    print("\nDifference:")
-    print(sklearn_predictions - onnx_predictions.ravel())
-        
+    print("Mean difference:", np.mean(diff))
+    print("Mean absolute difference:", np.mean(np.abs(diff)))
+    print("Max absolute difference:", np.max(np.abs(diff)))
      # saving the metadata
     metadata = {
         "model_type": "global_knn_bagging",

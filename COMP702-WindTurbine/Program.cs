@@ -29,6 +29,17 @@ builder.Services.AddHttpClient<FailureDetection>(client =>
 {
     client.BaseAddress = new Uri("http://127.0.0.1:8000/");
 });
+builder.Services.AddSingleton<FailureDetection2>(sp =>
+{
+    string modelPath = @"TrainedModel\model.onnx";
+
+    if (!File.Exists(modelPath))
+    {
+        throw new FileNotFoundException($"ONNX model not found: {Path.GetFullPath(modelPath)}");
+    }
+
+    return new FailureDetection2(modelPath);
+});
 
 
 

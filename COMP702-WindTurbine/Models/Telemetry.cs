@@ -31,7 +31,10 @@ public sealed class TurbineTelemetry
         //response and alarm details
         public int? AlarmLvl { get; set; }
         public double? Residual { get; set; }
+        public double? ewma {get; set;}  
         public bool? IsFaulty { get; set; }
+        public double? UCL {get; set;}
+        public double? LCL {get; set;}
 
         public double? PredictedValue { get; set; }
         public double? ActualValue { get; set; }

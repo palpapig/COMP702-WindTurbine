@@ -7,12 +7,15 @@ using COMP702_WindTurbine.ModelTraining;
 using COMP702_WindTurbine.models;
 
 
+
+
 public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
     FailureDetection failureDetection,
     PythonProcessService pythonService,
+    FailureDetection2 failureDetection2,
 
     ILogger<MonitoringWorker> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService
@@ -23,8 +26,8 @@ public sealed class MonitoringWorker(
     {
         try
         {
-            pythonService.Start();
-            bool pythonReady = false;
+            // pythonService.Start();
+            //bool pythonReady = false;
 
 
 
@@ -57,10 +60,10 @@ public sealed class MonitoringWorker(
                 await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
 
-                if (!pythonReady)
-                {
-                    pythonReady = await failureDetection.GetPythonHealth(stoppingToken);
-                }
+                // if (!pythonReady)
+                //{
+                //  pythonReady = await failureDetection.GetPythonHealth(stoppingToken);
+                //}
 
 
 
@@ -91,14 +94,11 @@ public sealed class MonitoringWorker(
 
 
 
-                if (pythonReady)
-                {
-                    telemetry = await failureDetection.FaultDetectAsync(newRaw, telemetry, stoppingToken);
-                }
-                else
-                {
-                    logger.LogWarning("Python is not ready. Skipping prediction this cycle.");
-                }
+
+                // currently this only returns the predicted and prints out pred vs actuall, alarms still need to be done
+                float predictedValue = failureDetection2.Predict(newRaw, telemetry, stoppingToken);
+                //logger.LogWarning($"Predicted :{predictedValue} Actual:{newRaw.GearboxOilTemp}");
+
 
 
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
