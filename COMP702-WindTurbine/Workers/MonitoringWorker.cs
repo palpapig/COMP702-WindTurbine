@@ -46,12 +46,16 @@ public sealed class MonitoringWorker(
             using (var tempScope = scopeFactory.CreateScope())
             {
                 var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
-
+            
                 Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
-                List<TurbineTelemetry> firstYearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
-                logger.LogInformation("turbine name: {tname}", turbine.Name);
+                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2021);
                 
-                await degradationAnalyser.Run(firstYearTelemetry, turbine);
+                DegradationResult degradationResult = await degradationAnalyser.DoDegradationAnalysis(recentTelemetry, turbine);
+                if ( degradationResult != null)
+                {
+                    await tempDbService.AddDegradationResult(degradationResult);
+                    logger.LogInformation("Degradation result successfuly added to database!");
+                }
 
             }
 

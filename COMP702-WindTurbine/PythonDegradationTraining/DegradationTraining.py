@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 data_path = sys.argv[1]
 model_path = sys.argv[2]
+model_name = sys.argv[3]
 dataset = pd.read_csv(data_path)
 
 #take only first 5000 rows for faster grid searching
@@ -35,6 +36,7 @@ svr.fit(X_train, y_train,)
 #get predictions using test data
 y_pred = svr.predict(X_test)
 ####### end of normal model training ######
+
 
 ###### grid search ###### 
 # search_params = {
@@ -68,7 +70,7 @@ y_pred = svr.predict(X_test)
 #TODO graphing or save to csv here for validaton purposes
 display = PredictionErrorDisplay.from_predictions(y_test, y_pred, kind="actual_vs_predicted")
 display.plot()
-plt.savefig("PythonDegradationTraining/outputs/cool graph_r2")
+plt.savefig(f"PythonDegradationTraining/outputs/scilearn_{model_name}")
 plt.show()
 
 #combine test data and predictions into a csv for validation
@@ -77,7 +79,7 @@ results_df = pd.DataFrame({
     'Power': y_test.values,
     'PredictedPower': y_pred
 })
-results_df.to_csv("PythonDegradationTraining/outputs/python_results_2.csv", index=False)
+results_df.to_csv(f"PythonDegradationTraining/outputs/python_{model_name}.csv", index=False)
 
 #get expected deviation value of the model
 residuals = y_test - y_pred #subtract every value in list y_test by the corresponding value in y_pred 

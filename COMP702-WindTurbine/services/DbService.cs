@@ -13,6 +13,20 @@ public sealed class DbService (
         return await db.TurbineData.ToListAsync();
     }
 
+    public async Task<List<TurbineTelemetry>> GetFirstYearTurbineData(string turbineId)
+    {
+        var earliestTimestamp = await db.TurbineData
+        .Where(x => x.TurbineId == turbineId)
+        .MinAsync(x => x.Timestamp);
+
+        var latestTimestamp = earliestTimestamp.AddYears(1);
+
+        return await db.TurbineData
+        .Where(t => t.TurbineId == turbineId && t.Timestamp < latestTimestamp)
+        .ToListAsync();
+        
+
+    }
     public async Task<List<TurbineTelemetry>> GetTurbineDataYear(string turbineId, int year)
     {
         return await db.TurbineData
@@ -62,8 +76,19 @@ public sealed class DbService (
 
     public async Task AddDegradationModelDetails(DegradationModelDetails dmd)
     {
-        db.Set<Turbine>().Attach(dmd.Turbine); //indicated not to re-add the turbine as a new row
+        db.Set<Turbine>().Attach(dmd.Turbine); //indicates to not re-add the turbine as a new row
         db.Set<DegradationModelDetails>().Add(dmd);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task AddDegradationResult(DegradationResult result)
+    {
+        //reloads the accosiated turbine so it doesn't try to create a new Turbine entry
+        //Would be best to change all EF relationships to use ID instead.
+        var turbine = await db.Turbine.FindAsync(result.Turbine.TurbineId);
+        result.Turbine = turbine;
+
+        db.Set<DegradationResult>().Add(result);
         await db.SaveChangesAsync();
     }
 
