@@ -96,8 +96,10 @@ public sealed class MonitoringWorker(
 
 
                 // currently this only returns the predicted and prints out pred vs actuall, alarms still need to be done
-                float predictedValue = failureDetection2.Predict(newRaw, telemetry, stoppingToken);
-                //logger.LogWarning($"Predicted :{predictedValue} Actual:{newRaw.GearboxOilTemp}");
+                var failureDetectionResult = failureDetection2.DetectFailure(newRaw, telemetry, stoppingToken);
+                logger.LogWarning($"Predicted :{failureDetectionResult.PredictedValue} Actual:{failureDetectionResult.ActualValue} Alarm1:{failureDetectionResult.AlarmLvl}");
+
+
 
 
 

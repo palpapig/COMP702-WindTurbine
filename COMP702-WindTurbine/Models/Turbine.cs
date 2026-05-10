@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace COMP702_WindTurbine.models;
+
 public sealed class Turbine
 {
     public required string TurbineId { get; set; }
@@ -12,7 +13,7 @@ public sealed class Turbine
 
 
     public ICollection<TurbineTelemetry> TelemetryHistories { get; set; } = [];
-    public ICollection<Alert> Alerts { get; set; } = [];
+    //public ICollection<Alarm> Alarm { get; set; } = [];
 
 
 

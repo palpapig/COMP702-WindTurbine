@@ -4,6 +4,7 @@ using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.DataSources;
 using COMP702_WindTurbine.ModelTraining;
 using Microsoft.EntityFrameworkCore;
+using COMP702_WindTurbine.models;
 
 var builder = Host.CreateApplicationBuilder(args);
 var monitoringDbConnection =
@@ -24,11 +25,14 @@ builder.Services.AddSingleton<Benchmarker>();
 builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddHostedService<MonitoringWorker>();
 builder.Services.AddSingleton<PythonProcessService>();
+builder.Services.AddSingleton<AlarmStateManager>();
+builder.Services.AddSingleton<FailureDetectionAlarm>();
 builder.Services.AddHttpClient<FailureDetection>(client =>
 
 {
     client.BaseAddress = new Uri("http://127.0.0.1:8000/");
 });
+
 builder.Services.AddSingleton<FailureDetection2>(sp =>
 {
     string modelPath = @"TrainedModel\model.onnx";
@@ -38,8 +42,14 @@ builder.Services.AddSingleton<FailureDetection2>(sp =>
         throw new FileNotFoundException($"ONNX model not found: {Path.GetFullPath(modelPath)}");
     }
 
-    return new FailureDetection2(modelPath);
+    var alarmService = sp.GetRequiredService<FailureDetectionAlarm>();
+    return new FailureDetection2(modelPath, alarmService);
 });
+
+builder.Services.Configure<FailureDetectionSettings>(
+    builder.Configuration.GetSection("FailureDetectionSettings")
+);
+
 
 
 

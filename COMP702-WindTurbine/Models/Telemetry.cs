@@ -38,7 +38,7 @@ public sealed class TurbineTelemetry
 
         public double? PredictedValue { get; set; }
         public double? ActualValue { get; set; }
-        public string? Reason { get; set; }
+        
     */
 
 
