@@ -60,9 +60,9 @@ public sealed class DegradationAnalyser (
         //if model files aren't found, create and train a new model
         if (trainingRequired){
             degDetails = await TrainModels(turbine);
-            logger.LogInformation("Degradation Model created for turbine {t}. Doing bench analysis now...", turbine.TurbineId);
+            logger.LogInformation("Degradation Model created for turbine {t}. Doing degradation analysis now...", turbine.TurbineId);
         } else {
-            logger.LogInformation("Degradation Model found for turbine {t}. Doing bench analysis now...", turbine.TurbineId);
+            logger.LogInformation("Degradation Model found for turbine {t}. Doing degradation analysis now...", turbine.TurbineId);
         }
 
 
@@ -80,7 +80,7 @@ public sealed class DegradationAnalyser (
             Region2Point5Score = region2p5Deviation,
             TimeRangeStart = telemetry.MinBy(t => t.Timestamp).Timestamp,
             TimeRangeEnd = telemetry.MaxBy(t => t.Timestamp).Timestamp,
-            Turbine = turbine
+            TurbineId = turbine.TurbineId
         };
 
         return degradationResult;
@@ -93,6 +93,10 @@ public sealed class DegradationAnalyser (
             expectedDeviation = degModelDetails.Region2Offset;
         } else if (region == "2p5") {
             expectedDeviation = degModelDetails.Region2p5Offset;
+        } else
+        {
+            logger.LogCritical("Invalid region number provided to benchmarking function");
+            return 0;
         }
         
 
@@ -143,7 +147,9 @@ public sealed class DegradationAnalyser (
         float deviation = residuals.Sum() / actualOutput.Sum();
         float deviationPercentage = deviation * 100;
 
-        return deviationPercentage;
+        float correctedDeviation = deviationPercentage - expectedDeviation;
+
+        return correctedDeviation;
 
 
         //QUALITATIVE BONUS: do manufacturer model benchmarking, but again against itself.
@@ -183,6 +189,7 @@ public sealed class DegradationAnalyser (
             Region2p5Filename = modelNameRegion2p5,
         };
 
+        logger.LogInformation("Adding trained model details to database...");
         //write model details to database
         await dbService.AddDegradationModelDetails(degradationModelDetails);
         return degradationModelDetails;
@@ -236,7 +243,7 @@ public sealed class DegradationAnalyser (
         PyResponse? response = JsonSerializer.Deserialize<PyResponse>(pyOutput);
         logger.LogInformation("Degradation model training script exited with message: {o}", response?.Message);
         
-        logger.LogInformation("Degradation Benchmark Models successfuly created for turbine {t}", turbine.TurbineId);
+        logger.LogInformation("Degradation Benchmark Models successfuly created for turbine {t}", modelName);
         return (float)response?.ExpectedDeviation;
     }
 

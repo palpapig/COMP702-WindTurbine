@@ -67,15 +67,19 @@ y_pred = svr.predict(X_test)
 y_pred = svr.predict(X_test)
 
 
-#TODO graphing or save to csv here for validaton purposes
+#graphing or save to csv here for manual validaton purposes
 display = PredictionErrorDisplay.from_predictions(y_test, y_pred, kind="actual_vs_predicted")
 display.plot()
 plt.savefig(f"PythonDegradationTraining/outputs/scilearn_{model_name}")
 plt.show()
 
-#combine test data and predictions into a csv for validation
+#combine test data and predictions into a csv for later manual validation
+x_var_name = 'GeneratorSpeed'
+if (model_name[-1] == "5"): #if region is 2p5, not 2...
+    x_var_name = "PitchAngle"
+
 results_df = pd.DataFrame({
-    'PitchAngle': X_test[xvar].values,
+    x_var_name: X_test[xvar].values,
     'Power': y_test.values,
     'PredictedPower': y_pred
 })
@@ -110,26 +114,3 @@ print(json.dumps(response))
 
 
 
-
-#code outline:
-
-#do a train-test split?
-
-#normalize training data?
-
-#TODO
-#do grid search for best hyperprams using training data
-    #either have them be tightly bunched assumed-correct params,
-    #OR, do a double grid search where you take the best params and do a tighter search around that. 
-
-#TODO (try out the current graph function)
-#validation, not for production: also have the testing data passed and do this:
-    #also test data to get RMSE, R2, MAE values
-    #put test/actual data into grapher
-
-
-#python creates ONNX file
-
-#calculate expected degradation percentage.
-
-#return to C#

@@ -83,11 +83,6 @@ public sealed class DbService (
 
     public async Task AddDegradationResult(DegradationResult result)
     {
-        //reloads the accosiated turbine so it doesn't try to create a new Turbine entry
-        //Would be best to change all EF relationships to use ID instead.
-        var turbine = await db.Turbine.FindAsync(result.Turbine.TurbineId);
-        result.Turbine = turbine;
-
         db.Set<DegradationResult>().Add(result);
         await db.SaveChangesAsync();
     }
