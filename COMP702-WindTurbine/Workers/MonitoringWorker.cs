@@ -13,7 +13,6 @@ public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
-    FailureDetection failureDetection,
     PythonProcessService pythonService,
     FailureDetection2 failureDetection2,
 

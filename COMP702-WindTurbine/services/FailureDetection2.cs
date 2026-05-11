@@ -8,6 +8,8 @@ using COMP702_WindTurbine.services;
 
 namespace COMP702_WindTurbine.services;
 
+
+/*
 public class FailureDetectionResult
 {
     public string TurbineId { get; set; } = "";
@@ -35,6 +37,7 @@ public class FailureDetectionResult
 
     public Alarm? Alarm { get; set; }
 }
+*/
 public class FailureDetection2 : IDisposable
 {
     private readonly FailureDetectionAlarm _alarmService;
@@ -136,7 +139,7 @@ public class FailureDetection2 : IDisposable
             A1Triggered = alarm.A1Triggered,
             A2Triggered = alarm.A2Triggered,
 
-            Alarm = alarm
+          
         };
     }
 

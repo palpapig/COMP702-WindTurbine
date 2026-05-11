@@ -1,3 +1,5 @@
+using COMP702_WindTurbine.models;
+
 namespace COMP702_WindTurbine.services;
 
 public class AlarmState

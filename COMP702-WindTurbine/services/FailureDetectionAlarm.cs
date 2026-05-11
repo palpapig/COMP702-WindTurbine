@@ -74,9 +74,9 @@ public class FailureDetectionAlarm
         return new Alarm
         {
             Residual = residual,
-            Ewma = ewma,
-            Ucl = ucl,
-            Lcl = lcl,
+            EWMA = ewma,
+            UCL = ucl,
+            LCL = lcl,
             A1Triggered = a1Triggered,
             A2Triggered = a2Triggered,
             ConsecutiveA1Count = consecutiveA1Count

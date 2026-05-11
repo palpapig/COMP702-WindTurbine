@@ -22,16 +22,12 @@ builder.Services.AddSingleton<IDataSource, SimulatedLiveDataSource>();
 //the config is automatically bound from appsetttings.json via the data source constructor
 builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
-builder.Services.AddSingleton<FailureDetection>();
+
 builder.Services.AddHostedService<MonitoringWorker>();
 builder.Services.AddSingleton<PythonProcessService>();
 builder.Services.AddSingleton<AlarmStateManager>();
 builder.Services.AddSingleton<FailureDetectionAlarm>();
-builder.Services.AddHttpClient<FailureDetection>(client =>
 
-{
-    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
-});
 
 builder.Services.AddSingleton<FailureDetection2>(sp =>
 {
