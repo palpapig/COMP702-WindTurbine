@@ -7,12 +7,7 @@ using Npgsql.Replication;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
-
-
-// ###### TODO ######
-// Have a single function which you call to do the analysis. If a trained SVR model does not exist, do the training function (which includes getting 1st year of that turbine's data)
-// calculate IQR for Gamma (and complexity?)
-// try grid search
+using System.Runtime.CompilerServices;
 
 public sealed class DegradationAnalyser (
     ILogger<MonitoringWorker> logger,
@@ -20,6 +15,37 @@ public sealed class DegradationAnalyser (
 {
     readonly string modelsDirectory = "PythonDegradationTraining/Models/";
 
+    public async Task HardCodedAnalyzeTurbine(){
+        using (var tempScope = scopeFactory.CreateScope())
+            {
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            
+                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2021);
+                
+                DegradationResult degradationResult = await DoDegradationAnalysis(recentTelemetry, turbine);
+                if ( degradationResult != null)
+                {
+                    await tempDbService.AddDegradationResult(degradationResult);
+                    logger.LogInformation("Degradation result successfuly added to database!");
+                }
+
+            }
+    }
+    public async Task FullyAnalyzeTurbine(Turbine turbine, int monthSpan){
+        //get data from each section, run it through DoDegredationAnalysis]
+
+    }
+
+    /// <summary>
+    /// <para>Runs degradation analysis on a given set of telemtry data, using the trained degradation models associated with the given turbine.
+    /// Assumes that the provided telemtry is from the provided turbine.
+    /// </para>
+    /// <para>If trained degradation models for the turbine don't yet exist, they will automatically be created using the first year of the turbine's telemetry and a DegradationModelDetails entry will be added to Supabase.
+    /// The trained models and raw output results of each analysis are stored at PythonDegradationTraining/Models and .../outputs respectively
+    /// </para>
+    /// Returns a DegradationResult object.
+    /// </summary>
     public async Task<DegradationResult> DoDegradationAnalysis(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
     {
         //check that the provided turbine has an associated turbineModel

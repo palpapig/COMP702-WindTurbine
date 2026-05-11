@@ -27,41 +27,18 @@ public sealed class MonitoringWorker(
 
 
             // //######## TEMPORARY CODE - ONE-TIME BENCHMARKING ########
-            // //runs benchmarking on a single turbine for a given time period
-            // using (var tempScope = scopeFactory.CreateScope())
-            // {
-            //   var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
-
-            //    Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
-            //    List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
-            //    logger.LogInformation("turbine name: {tname}", turbine.Name);
-                
-            //    BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
-            //    await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
-            //    logger.LogInformation("Successfully written benchmark results to database");
-
-            // }
+            await benchmarker.HardCodedBenchmarkTurbine();
+            //Need to integrate to get inputs from the new simulator 
+            
 
             //######## TEMPORARY CODE - ONE-TIME DEGRADATION ANALYSIS ########
-            using (var tempScope = scopeFactory.CreateScope())
-            {
-                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
-            
-                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
-                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2021);
-                
-                DegradationResult degradationResult = await degradationAnalyser.DoDegradationAnalysis(recentTelemetry, turbine);
-                if ( degradationResult != null)
-                {
-                    await tempDbService.AddDegradationResult(degradationResult);
-                    logger.LogInformation("Degradation result successfuly added to database!");
-                }
-
-            }
+            await degradationAnalyser.HardCodedAnalyzeTurbine();
+            //Need to integrate to get inputs from the new simulator 
 
 
 
-            while (!stoppingToken.IsCancellationRequested && false)
+
+            while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
 

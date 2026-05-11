@@ -8,9 +8,27 @@ public sealed class PowerBin
 
 
 public sealed class Benchmarker (
-    ILogger<MonitoringWorker> logger
-)
+    ILogger<MonitoringWorker> logger,
+    IServiceScopeFactory scopeFactory)
+
 {
+
+    public async Task HardCodedBenchmarkTurbine()
+    {
+        using (var tempScope = scopeFactory.CreateScope())
+            {
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+
+                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+                List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
+                logger.LogInformation("turbine name: {tname}", turbine.Name);
+                    
+                BenchmarkResult benchmarkResult = Benchmark(yearTelemetry, turbine);
+                await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+                logger.LogInformation("Successfully written benchmark results to database");
+
+            }
+    }
     public TurbineTelemetry DummyBenchmark(TurbineTelemetry telemetry)
     {
         var rand = new Random();
