@@ -41,9 +41,10 @@ public sealed class OpcUaDataSource : IDataSource
         var signals = new[] { "WindSpeed", "ActivePower", "RotorSpeed", "PitchAngle", "GearboxOilTemp" };
         foreach (var signal in signals)
         {
+            var nodePath = _signalToNodePath[signal];
             readNodes.Add(new ReadValueId
             {
-                NodeId = new NodeId(_signalToNodePath[signal], 2),
+                NodeId = new NodeId(nodePath, 2),
                 AttributeId = Attributes.Value
             });
         }
@@ -56,13 +57,39 @@ public sealed class OpcUaDataSource : IDataSource
             out var values,
             out _);
 
-        static double ToDouble(DataValue v) => Convert.ToDouble(v.Value ?? 0d);
-        var windSpeed = ToDouble(values[0]);
-        var activePower = ToDouble(values[1]);
-        var rotorSpeed = ToDouble(values[2]);
-        var pitchAngle = ToDouble(values[3]);
-        var gearboxOilTemp = ToDouble(values[4]);
+        double ToDoubleSafe(string signal, DataValue v)
+        {
+            if (StatusCode.IsBad(v.StatusCode))
+            {
+                _logger.LogWarning("OPC read bad status for {Signal}. status={StatusCode}", signal, v.StatusCode);
+                return 0d;
+            }
+            if (v.Value is null)
+            {
+                _logger.LogWarning("OPC read null value for {Signal}.", signal);
+                return 0d;
+            }
+
+            try
+            {
+                return Convert.ToDouble(v.Value);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "OPC read non-numeric value for {Signal}. value={Value}", signal, v.Value);
+                return 0d;
+            }
+        }
+
+        var windSpeed = ToDoubleSafe("WindSpeed", values[0]);
+        var activePower = ToDoubleSafe("ActivePower", values[1]);
+        var rotorSpeed = ToDoubleSafe("RotorSpeed", values[2]);
+        var pitchAngle = ToDoubleSafe("PitchAngle", values[3]);
+        var gearboxOilTemp = ToDoubleSafe("GearboxOilTemp", values[4]);
         var ts = values[0].SourceTimestamp != DateTime.MinValue ? values[0].SourceTimestamp : DateTime.UtcNow;
+        _logger.LogInformation(
+            "OPC snapshot turbine={TurbineId} ts={Timestamp:o} ws={WindSpeed:F3} power={Power:F3} rotor={RotorSpeed:F3} pitch={PitchAngle:F3} oilTemp={OilTemp:F3}",
+            _config.TurbineId, ts, windSpeed, activePower, rotorSpeed, pitchAngle, gearboxOilTemp);
 
         return new RawData
         {
@@ -85,11 +112,12 @@ public sealed class OpcUaDataSource : IDataSource
 
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["WindSpeed"] = $"{cfg.RootNode}/{cfg.TurbineId}/{GetNodeName("WindSpeed", "WindSpeed")}",
-            ["ActivePower"] = $"{cfg.RootNode}/{cfg.TurbineId}/{GetNodeName("ActivePower", "Power")}",
-            ["RotorSpeed"] = $"{cfg.RootNode}/{cfg.TurbineId}/{GetNodeName("RotorSpeed", "RotorSpeed")}",
-            ["PitchAngle"] = $"{cfg.RootNode}/{cfg.TurbineId}/{GetNodeName("PitchAngle", "PitchAngle")}",
-            ["GearboxOilTemp"] = $"{cfg.RootNode}/{cfg.TurbineId}/{GetNodeName("GearboxOilTemp", "GearboxOilTemp")}"
+            // Variable NodeIds in Simulator are under WT-004/<Signal>, not Turbines/WT-004/<Signal>.
+            ["WindSpeed"] = $"{cfg.TurbineId}/{GetNodeName("WindSpeed", "WindSpeed")}",
+            ["ActivePower"] = $"{cfg.TurbineId}/{GetNodeName("ActivePower", "Power")}",
+            ["RotorSpeed"] = $"{cfg.TurbineId}/{GetNodeName("RotorSpeed", "RotorSpeed")}",
+            ["PitchAngle"] = $"{cfg.TurbineId}/{GetNodeName("PitchAngle", "PitchAngle")}",
+            ["GearboxOilTemp"] = $"{cfg.TurbineId}/{GetNodeName("GearboxOilTemp", "GearboxOilTemp")}"
         };
     }
 

@@ -52,6 +52,47 @@ var replay = new CsvReplayReader(csvPath);
 await replay.LoadAsync(CancellationToken.None);
 Console.WriteLine($"[Replay] Loaded rows for replay. Columns: {replay.ColumnMap.Count}");
 
+static string? PickColumn(IReadOnlyDictionary<string, int> columns, params string[] candidates)
+{
+    foreach (var c in candidates)
+    {
+        var match = columns.Keys.FirstOrDefault(k => k.Equals(c, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(match)) return match;
+    }
+    return null;
+}
+
+var signalMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+void TryMap(string opcName, params string[] candidates)
+{
+    var col = PickColumn(replay.ColumnMap, candidates);
+    if (!string.IsNullOrWhiteSpace(col))
+    {
+        signalMap[opcName] = col;
+    }
+}
+
+TryMap("WindSpeed", "WindSpeed", "Wind Speed", "windspeed");
+TryMap("Power", "Power", "ActivePower", "PowerOutput", "Active Power", "power");
+TryMap("RotorSpeed", "RotorSpeed", "Rotor Speed", "rotorspeed");
+TryMap("PitchAngle", "PitchAngle", "Pitch Angle", "pitchangle");
+TryMap("GearboxOilTemp", "GearboxOilTemp", "Gear Oil Temp", "Temperature", "temp");
+
+if (signalMap.Count == 0)
+{
+    Console.WriteLine("[OPC] No canonical signal mappings found from CSV headers. Server will publish raw CSV column names.");
+}
+else
+{
+    Console.WriteLine($"[OPC] Canonical mappings ready: {string.Join(", ", signalMap.Select(x => $"{x.Key}<={x.Value}"))}");
+    var canonicalNodes = signalMap.Keys
+        .Where(k => !opcNodes.Any(n => n.Name.Equals(k, StringComparison.OrdinalIgnoreCase)))
+        .Select(k => new OpcNodeDefinition(k, k))
+        .ToList();
+    opcNodes = opcNodes.Concat(canonicalNodes).ToList();
+    Console.WriteLine($"[OPC] Combined node definitions prepared: {opcNodes.Count} (raw + canonical)");
+}
+
 var opcServer = new OpcUaHostedServer(opcNodes, haReader, settings.Opcua.NamespaceUri);
 await opcServer.StartAsync(settings.Opcua.Endpoint, CancellationToken.None);
 Console.WriteLine($"[OPC] Endpoint started: {settings.Opcua.Endpoint}");
@@ -65,12 +106,38 @@ try
 {
     while (await timer.WaitForNextTickAsync(cts.Token))
     {
+        Dictionary<string, double>? publishedValues = null;
+
         if (settings.Replay.Enabled && replay.TryNext(out var ts, out var values))
         {
-            opcServer.PublishLiveValues(ts, values);
+            if (signalMap.Count > 0)
+            {
+                var merged = new Dictionary<string, double>(values, StringComparer.OrdinalIgnoreCase);
+                foreach (var map in signalMap)
+                {
+                    if (values.TryGetValue(map.Value, out var v))
+                    {
+                        merged[map.Key] = v;
+                    }
+                }
+                publishedValues = merged;
+                opcServer.PublishLiveValues(ts, merged);
+            }
+            else
+            {
+                publishedValues = values;
+                opcServer.PublishLiveValues(ts, values);
+            }
         }
 
         Console.WriteLine($"[Heartbeat] {DateTime.UtcNow:O} | turbines={turbineCount} signals={signalCount} | live={opcServer.LiveSnapshot()}");
+        if (publishedValues is { Count: > 0 })
+        {
+            var preview = string.Join(", ", publishedValues
+                .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(x => $"{x.Key}={x.Value:F3}"));
+            Console.WriteLine($"[LiveValues] {preview}");
+        }
     }
 }
 catch (OperationCanceledException)
