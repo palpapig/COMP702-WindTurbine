@@ -3,8 +3,8 @@ import pandas as pd
 
 #physical filter limits (from Outlier Detection Methodology document)
 POWER_UPPER_LIMIT = 2152.0   #5% above rated power (2050 kW) to remove extreme transient spikes while preserving normal peaks. Rated power from turbine specs
-PITCH_COL = "Blade angle (pitch position) A (°)" #pitch angle >20° indicates turbine is stopped or severely curtailed 
-ROTOR_COL = "Rotor speed (RPM)"
+PITCH_COL = "PitchAngle" #pitch angle >20° indicates turbine is stopped or severely curtailed 
+ROTOR_COL = "RotorSpeed"
 PITCH_UPPER_LIMIT = 20.0 #normal operation stays below 20°
 ROTOR_LOWER_LIMIT = 11.0 #rotor speed <11 RPM captures start-up / shut-down transients. Below this, SCADA data becomes unreliable (averaging over 10-min intervals)
 
@@ -14,8 +14,9 @@ RAW_DIR = BASE_DIR / "data" / "raw"
 CLEANED_DIR = BASE_DIR / "data" / "cleaned"
 CLEANED_DIR.mkdir(parents=True, exist_ok=True)
 
-WIND_COL = "Wind speed (m/s)"
-POWER_COL = "Power (kW)"
+WIND_COL = "WindSpeed"
+POWER_COL = "PowerOutput"
+TEMP_COL = "GearboxOilTemp"
 
 
 def clean_file(file_path: Path) -> None:
@@ -81,6 +82,7 @@ def clean_file(file_path: Path) -> None:
     df = df[~((df[WIND_COL] > 5) & (df[POWER_COL] < 10))]
 
     #IQR‑based outlier removal per wind speed bin (60 bins, ~0.5 m/s each)
+    #60 bins (~0.5 m/s each) is a common choice for wind speed binning because the IEC standard uses 0.5 m/s bins for power curves
     df["wind_bin"] = pd.cut(df[WIND_COL], bins=60)
     cleaned_parts = []
 
@@ -93,7 +95,8 @@ def clean_file(file_path: Path) -> None:
         q1 = group[POWER_COL].quantile(0.25)
         q3 = group[POWER_COL].quantile(0.75)
         iqr = q3 - q1
-
+        
+        #using 1.5 * IQR is the standard Tukey outlier rule. It removes points that are unusually far from the median power in each wind bin
         lower = q1 - 1.5 * iqr
         upper = q3 + 1.5 * iqr
 
@@ -110,11 +113,11 @@ def clean_file(file_path: Path) -> None:
 
     #rename columns to match model trainer expectations
     rename_map = {
-        'Wind speed (m/s)': 'windSpeed',
-        'Rotor speed (RPM)': 'rotorSpeed',
-        'Blade angle (pitch position) A (°)': 'pitchAngle',
-        'Gear oil temperature (°C)': 'GearboxOilTemp',
-        'Power (kW)': 'power'
+        'WindSpeed': 'windSpeed',
+        'RotorSpeed': 'rotorSpeed',
+        'PitchAngle': 'pitchAngle',
+        'GearboxOilTemp': 'GearboxOilTemp',
+        'PowerOutput': 'power'
     }
     cleaned_df.rename(columns=rename_map, inplace=True)    
     #added dummy temperature column (model trainer expects it)
