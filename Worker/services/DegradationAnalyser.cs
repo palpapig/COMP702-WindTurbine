@@ -15,13 +15,20 @@ public sealed class DegradationAnalyser (
 {
     readonly string modelsDirectory = "PythonDegradationTraining/Models/";
 
-    public async Task HardCodedAnalyzeTurbine(){
+    /// <summary>
+    /// <para>Runs degradation analysis on wind turbine with ID "BK-TEST-4" for the year 2021 and writes results to supabase.
+    /// Includes model training if necessary.</para>
+    /// </summary>
+    public async Task ForceDoAnalysis(string turbineId = "BK-TEST-4", DateTime? analysisEndDate = null, int monthsGap = 12){
+        DateTime endDate = analysisEndDate ?? DateTime.Now;
         using (var tempScope = scopeFactory.CreateScope())
             {
                 var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
-            
-                Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
-                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2021);
+
+                Turbine turbine = await tempDbService.GetTurbineById(turbineId);
+                
+                //todo change this to get from csv. Have it have any datetime as input, not year (have year as wrapper function?)
+                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear(turbineId, 2021);
                 
                 DegradationResult degradationResult = await DoDegradationAnalysis(recentTelemetry, turbine);
                 if ( degradationResult != null)
@@ -32,7 +39,47 @@ public sealed class DegradationAnalyser (
 
             }
     }
-    public async Task FullyAnalyzeTurbine(Turbine turbine, int monthSpan){
+
+    /// <summary>
+    /// <para>For the given turbine, checks whether a DegradationAnalysisResult happened within the last monthsGap months.
+    /// If not, it performs degradation analysis on the turbine with data between monthsgap months ago and now.</para>
+    /// </summary>
+    public async Task DoAnalysisIfNeeded(Turbine turbine, int monthsGap = 3){
+        using (var tempScope = scopeFactory.CreateScope())
+            {
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+                
+                //if there is at least one degradation result, AND the most recent one happened less than monthGap months ago, don't do analysis
+                if (turbine.DegradationResults.Count > 0)
+                {
+                    DateTime lastAnalysed = turbine.DegradationResults.MaxBy(r => r.TimeRangeEnd).TimeRangeEnd;
+                    if (lastAnalysed.AddMonths(monthsGap) > DateTime.Now)
+                    {
+                        logger.LogInformation("No degradation analysis needed, latest analysis happened less than {m} months ago", monthsGap);
+                        return;
+                    }
+                }
+                
+
+                //TODO get data from csv
+                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", DateTime.Now.Year);
+                if (recentTelemetry.Count == 0)
+                {
+                    logger.LogWarning("Attempted to do degradation analysis on turbine {t}, but no data exists for given time period", turbine.TurbineId);
+                    return;
+                }
+                
+                DegradationResult degradationResult = await DoDegradationAnalysis(recentTelemetry, turbine);
+                if (degradationResult != null)
+                {
+                    await tempDbService.AddDegradationResult(degradationResult);
+                    logger.LogInformation("Degradation result successfuly added to database!");
+                }
+
+            }
+    }
+
+    public async Task FullyAnalyzeTurbine(Turbine turbine, int monthsGap = 12){
         //get data from each section, run it through DoDegredationAnalysis]
 
     }
@@ -191,6 +238,7 @@ public sealed class DegradationAnalyser (
         var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
         //get first year of data to train model on
+        //TODO replace this with getting from csv
         ICollection<TurbineTelemetry> telemetry = await dbService.GetFirstYearTurbineData(turbine.TurbineId);
         
         //preprocess data (remove out-of-range values)
