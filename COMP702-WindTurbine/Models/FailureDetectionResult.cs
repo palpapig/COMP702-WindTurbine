@@ -31,6 +31,4 @@ public class FailureDetectionResult
     public bool? A1Triggered { get; set; }
     public bool? A2Triggered { get; set; }
 
-
-    //public Alarm? Alarm { get; set; }
 }

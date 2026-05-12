@@ -2,6 +2,13 @@ using COMP702_WindTurbine.models;
 
 namespace COMP702_WindTurbine.services;
 
+/*
+    AlarmStateManager manages alarm states for all turbines.
+
+    Each turbine has its own AlarmState, stored using TurbineId as the key.
+    This allows each turbine to keep a separate EWMA and A1 count.
+*/
+
 public class AlarmState
 {
     public double LastEwma { get; set; } = 0.0;
@@ -23,6 +30,8 @@ public class AlarmStateManager
         return _states[turbineId];
     }
 
+
+    //update the ewma for each trubine 
     public void Update(string turbineId, double lastEwma, int consecutiveA1Count, double residualStd)
     {
         AlarmState state = Get(turbineId);

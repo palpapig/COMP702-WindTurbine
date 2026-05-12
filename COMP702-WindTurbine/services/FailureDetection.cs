@@ -130,6 +130,8 @@ public class FailureDetection : IDisposable
             alarmLevel = 0;
         }
 
+        // return telemetry with reuslt value
+
         telemetry.FailureDetectionResult = new FailureDetectionResult();
 
         telemetry.FailureDetectionResult.TurbineId = telemetry.TurbineId;

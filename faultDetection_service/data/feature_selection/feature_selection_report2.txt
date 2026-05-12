@@ -157,7 +157,7 @@ Rbt
                                Nacelle temperature (°C)                 0.727777         0.727777
          
                Generator bearing front temperature (°C)                 0.710371         0.710371
-                                    Generator RPM (RPM)                -0.709640         0.709640
-                                             rotorSpeed                -0.707966         0.707966
+                                    Generator RPM (RPM)                -0.707640         0.709640
+                                             rotorSpeed                -0.709966         0.707966
                                     Gearbox speed (RPM)                -0.707929         0.707929
            

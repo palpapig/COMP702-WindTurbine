@@ -1,5 +1,15 @@
-from __future__ import annotations
+"""
+Global Model Training Script
 
+This script was used for training and hyperparameter tuning of the
+wind turbine failure prediction model.
+
+It loads the cleaned training data, trains a KNN + Bagging Regressor model,
+tests the model, saves the trained model, saves the training metadata,
+and creates a predicted-vs-actual graph.
+"""
+
+from __future__ import annotations
 from pathlib import Path
 import json
 import joblib

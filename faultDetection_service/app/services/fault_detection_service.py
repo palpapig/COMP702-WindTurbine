@@ -69,8 +69,7 @@ class FaultDetectionService:
         # only compute anomaly if actual value is provided
         if actualTargetValue is not None:
 
-            # residual = difference between predicted and actual
-            # NOTE: this is the key signal for fault detection
+      
             residual = predicted_value - actualTargetValue
 
             # standard deviation of residuals from training (used for control limits)
@@ -93,12 +92,7 @@ class FaultDetectionService:
                alarm_lvl = 1
             else:
                alarm_lvl = 0
-
-            # explain why anomaly happened
-            if alarm.a2_triggered:
-                reason = "A2 alarm triggered: repeated abnormal residual pattern"
-            elif alarm.a1_triggered:
-                reason = "A1 alarm triggered: residual moved outside control limits"
+    
 
         # return structured API response
         print("turbineId:", turbineId,)

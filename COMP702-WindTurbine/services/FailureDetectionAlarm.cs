@@ -3,28 +3,34 @@ using Microsoft.Extensions.Options;
 namespace COMP702_WindTurbine.services;
 
 
+/*
+    FailureDetectionAlarm is responsible for applying the alarm logic
+    after the model calculates the residual.
+
+    It uses EWMA to smooth the residual values over time, then compares
+    the EWMA value against fixed upper and lower control limits UCL and LCL.
+
+    Alarm levels:
+    - A1 is triggered when EWMA goes outside the control limits.
+    - A2 is triggered when A1 happens repeatedly for the required count.
+
+    The alarm state is stored per turbine using AlarmStateManager,
+    so each turbine keeps its own EWMA history and A1 count.
+*/
+
 public class FailureDetectionAlarm
 {
     private readonly AlarmStateManager _stateManager;
 
     private readonly AlarmSettings _settings;
 
-    //  double _ewmaLambda;
-    //  private double _controlLimitK;
-    // private double _residualStd;
-    //private int _a2ConsecutiveA1Count;
+
 
 
     public FailureDetectionAlarm(AlarmStateManager stateManager, IOptions<FailureDetectionSettings> options)
     {
         _stateManager = stateManager;
         _settings = options.Value.Alarm;
-
-        // _settings = options.Value.Alarm;
-        //_ewmaLambda = _settings.EwmaLambda;
-        //_controlLimitK = _settings.ControlLimitK;
-        //_residualStd = _settings.ResidualStd;
-        //_a2ConsecutiveA1Count = _settings.A2ConsecutiveA1Count;
     }
 
     public Alarm Evaluate(string turbineId, double residual)
@@ -60,10 +66,10 @@ public class FailureDetectionAlarm
             consecutiveA1Count = 0;
         }
 
-        // A2 alarm: repeated A1 alarms
+        // A2 alarm: repeated 3 A1 alarms
         bool a2Triggered = consecutiveA1Count >= _settings.A1RequiredCount;
 
-        // Save updated state
+
         _stateManager.Update(
             turbineId,
             ewma,
