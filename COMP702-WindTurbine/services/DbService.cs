@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.models;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ public sealed class DbService (
         return await db.TurbineData.ToListAsync();
     }
 
+    //TODO replace all calls of this with directly from csv
     public async Task<List<TurbineTelemetry>> GetFirstYearTurbineData(string turbineId)
     {
         var earliestTimestamp = await db.TurbineData
@@ -27,6 +29,8 @@ public sealed class DbService (
         
 
     }
+
+    //TODO replace all calls of this with directly from csv
     public async Task<List<TurbineTelemetry>> GetTurbineDataYear(string turbineId, int year)
     {
         return await db.TurbineData
@@ -38,6 +42,7 @@ public sealed class DbService (
     {
         return await db.Turbine
             .Include(t => t.DegradationModelDetails)
+            .Include(t => t.DegradationResults)
             .Include(t => t.TurbineModel)
                 .ThenInclude(tm => tm.ExpectedPowerBins)
             .FirstAsync(t => t.TurbineId == turbineId);

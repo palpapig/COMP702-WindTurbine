@@ -27,12 +27,12 @@ public sealed class MonitoringWorker(
 
 
             // //######## TEMPORARY CODE - ONE-TIME BENCHMARKING ########
-            await benchmarker.HardCodedBenchmarkTurbine();
+            await benchmarker.ForceDoBenchmarking();
             //Need to integrate to get inputs from the new simulator 
             
 
             //######## TEMPORARY CODE - ONE-TIME DEGRADATION ANALYSIS ########
-            await degradationAnalyser.HardCodedAnalyzeTurbine();
+            await degradationAnalyser.ForceDoAnalysis();
             //Need to integrate to get inputs from the new simulator 
 
 
