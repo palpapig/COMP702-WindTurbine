@@ -44,8 +44,8 @@ public sealed class DegradationAnalyser (
     /// <para>For the given turbine, checks whether a DegradationAnalysisResult happened within the last monthsGap months.
     /// If not, it performs degradation analysis on the turbine with data between monthsgap months ago and now.</para>
     /// </summary>
-    public async Task DoAnalysisIfNeeded(string turbineId, int monthsGap = 3){
-        DateTime endDate = DateTime.Now;
+    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 3){
+        DateTime endDate = currentDate;
         using (var tempScope = scopeFactory.CreateScope())
             {
                 var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
@@ -56,7 +56,7 @@ public sealed class DegradationAnalyser (
                 if (turbine.DegradationResults.Count > 0)
                 {
                     DateTime lastAnalysed = turbine.DegradationResults.MaxBy(r => r.TimeRangeEnd).TimeRangeEnd;
-                    if (lastAnalysed.AddMonths(monthsGap) > DateTime.Now)
+                    if (lastAnalysed.AddMonths(monthsGap) > endDate)
                     {
                         logger.LogInformation("No degradation analysis needed, latest analysis happened less than {m} months ago", monthsGap);
                         return;

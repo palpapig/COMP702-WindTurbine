@@ -62,9 +62,11 @@ public sealed class MonitoringWorker(
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
 
-                
-                await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId);
-                await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId);
+
+                //Do benchmarking and degradation analysis if it hasn't happened recently for this turbine. (see each function for details)
+                //For the sake of simulation, it assumes that the timestamp of the current telemetry is 
+                await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
+                await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
 
 
                 using (var scope = scopeFactory.CreateScope())

@@ -35,9 +35,9 @@ public sealed class Benchmarker(
         }
     }
 
-    public async Task DoAnalysisIfNeeded(string turbineId, int monthsGap = 3)
+    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 3)
     {
-        DateTime endDate = DateTime.Now;
+        DateTime endDate = currentDate;
         using (var tempScope = scopeFactory.CreateScope())
         {
             var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
@@ -48,7 +48,7 @@ public sealed class Benchmarker(
             if (turbine.BenchmarkResults.Count > 0)
             {
                 DateTime lastAnalysed = turbine.BenchmarkResults.MaxBy(r => r.TimeRangeEnd).TimeRangeEnd;
-                if (lastAnalysed.AddMonths(monthsGap) > DateTime.Now)
+                if (lastAnalysed.AddMonths(monthsGap) > currentDate)
                 {
                     logger.LogInformation("No benchmarking needed, latest benchmark for turbine {t} happened less than {m} months ago", turbine.TurbineId, monthsGap);
                     return;
