@@ -56,4 +56,6 @@ public sealed class TurbineTelemetry
 
 
     public Turbine? Turbine { get; set; }
+
+    public FailureDetectionResult? FailureDetectionResult { get; set; }
 }

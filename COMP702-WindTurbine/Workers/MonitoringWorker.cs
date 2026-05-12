@@ -14,7 +14,8 @@ public sealed class MonitoringWorker(
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
     PythonProcessService pythonService,
-    FailureDetection2 failureDetection2,
+    FailureDetection failureDetection,
+
 
     ILogger<MonitoringWorker> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService
@@ -95,8 +96,8 @@ public sealed class MonitoringWorker(
 
 
                 // currently this only returns the predicted and prints out pred vs actuall, alarms still need to be done
-                var failureDetectionResult = failureDetection2.DetectFailure(newRaw, telemetry, stoppingToken);
-                logger.LogWarning($"Predicted :{failureDetectionResult.PredictedValue} Actual:{failureDetectionResult.ActualValue} Alarm1:{failureDetectionResult.AlarmLvl}");
+                telemetry = failureDetection.DetectFailure(newRaw, telemetry, stoppingToken);
+                logger.LogWarning($"Predicted :{telemetry.FailureDetectionResult.PredictedValue} Actual:{telemetry.FailureDetectionResult.ActualValue} Alarm1:{telemetry.FailureDetectionResult.AlarmLvl}");
 
 
 

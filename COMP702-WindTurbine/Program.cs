@@ -27,9 +27,12 @@ builder.Services.AddHostedService<MonitoringWorker>();
 builder.Services.AddSingleton<PythonProcessService>();
 builder.Services.AddSingleton<AlarmStateManager>();
 builder.Services.AddSingleton<FailureDetectionAlarm>();
+builder.Services.AddTransient<AlarmStateManager>();
+builder.Services.AddTransient<FailureDetectionAlarm>();
 
 
-builder.Services.AddSingleton<FailureDetection2>(sp =>
+builder.Services.AddSingleton<AlarmStateManager>();
+builder.Services.AddSingleton<FailureDetection>(sp =>
 {
     string modelPath = @"TrainedModel\model.onnx";
 
@@ -39,7 +42,7 @@ builder.Services.AddSingleton<FailureDetection2>(sp =>
     }
 
     var alarmService = sp.GetRequiredService<FailureDetectionAlarm>();
-    return new FailureDetection2(modelPath, alarmService);
+    return new FailureDetection(modelPath, alarmService);
 });
 
 builder.Services.Configure<FailureDetectionSettings>(
