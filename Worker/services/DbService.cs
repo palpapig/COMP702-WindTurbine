@@ -13,6 +13,20 @@ public sealed class DbService (
         return await db.TurbineData.ToListAsync();
     }
 
+    public async Task<List<TurbineTelemetry>> GetFirstYearTurbineData(string turbineId)
+    {
+        var earliestTimestamp = await db.TurbineData
+        .Where(x => x.TurbineId == turbineId)
+        .MinAsync(x => x.Timestamp);
+
+        var latestTimestamp = earliestTimestamp.AddYears(1);
+
+        return await db.TurbineData
+        .Where(t => t.TurbineId == turbineId && t.Timestamp < latestTimestamp)
+        .ToListAsync();
+        
+
+    }
     public async Task<List<TurbineTelemetry>> GetTurbineDataYear(string turbineId, int year)
     {
         return await db.TurbineData
@@ -23,6 +37,7 @@ public sealed class DbService (
     public async Task<Turbine> GetTurbineById(string turbineId)
     {
         return await db.Turbine
+            .Include(t => t.DegradationModelDetails)
             .Include(t => t.TurbineModel)
                 .ThenInclude(tm => tm.ExpectedPowerBins)
             .FirstAsync(t => t.TurbineId == turbineId);
@@ -56,6 +71,19 @@ public sealed class DbService (
     public async Task AddBenchmarkResultAsync(BenchmarkResult result)
     {
         db.Set<BenchmarkResult>().Add(result);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task AddDegradationModelDetails(DegradationModelDetails dmd)
+    {
+        db.Set<Turbine>().Attach(dmd.Turbine); //indicates to not re-add the turbine as a new row
+        db.Set<DegradationModelDetails>().Add(dmd);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task AddDegradationResult(DegradationResult result)
+    {
+        db.Set<DegradationResult>().Add(result);
         await db.SaveChangesAsync();
     }
 

@@ -3,6 +3,7 @@ using System;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace COMP702_WindTurbine.Migrations
 {
     [DbContext(typeof(MonitoringDbContext))]
-    partial class MonitoringDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510081237_AddDegDetailRegions")]
+    partial class AddDegDetailRegions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -321,10 +324,10 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<double>("MinimumPowerOutput")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("PitchAngle")
+                    b.Property<double>("PitchAngle")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("PowerOutput")
+                    b.Property<double>("PowerOutput")
                         .HasColumnType("double precision");
 
                     b.Property<double?>("RotorSpeed")

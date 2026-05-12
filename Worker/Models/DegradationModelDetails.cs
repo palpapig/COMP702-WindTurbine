@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 public sealed class DegradationModelDetails
 {
     public long Id { get; set; }
-    public required float Offset { get; set; }
-    public required string Filepath { get; set; }
+    public required float Region2Offset { get; set; }
+    public required float Region2p5Offset { get; set; }
+    public required string Region2Filename { get; set; }
+    public required string Region2p5Filename { get; set; }
 
 
 

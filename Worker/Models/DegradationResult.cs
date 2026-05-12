@@ -11,6 +11,8 @@ public sealed class DegradationResult
 
 
 
-    public required Turbine Turbine { get; set; } //FK
+    public Turbine? Turbine { get; set; } //FK
+    public required String TurbineId { get; set; } //same FK
+
 
 }

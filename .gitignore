@@ -48,3 +48,6 @@ frontend/**/dist/
 
 # OPC UA local cert store
 Worker/pki/
+
+# Temporary data for training degradation model in Python
+Worker/PythonDegradationTraining/TempTrainingData.csv
