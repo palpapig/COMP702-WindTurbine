@@ -26,15 +26,6 @@ public sealed class MonitoringWorker(
             DateTime lastTrainingCheckUtc = DateTime.MinValue;
 
 
-            // //######## TEMPORARY CODE - ONE-TIME BENCHMARKING ########
-            await benchmarker.ForceDoBenchmarking();
-            //Need to integrate to get inputs from the new simulator 
-            
-
-            //######## TEMPORARY CODE - ONE-TIME DEGRADATION ANALYSIS ########
-            await degradationAnalyser.ForceDoAnalysis();
-            //Need to integrate to get inputs from the new simulator 
-
 
 
 
@@ -56,11 +47,11 @@ public sealed class MonitoringWorker(
                 };
                 var telemetry = dataFormatter.FormatData(oldRaw);
 
+
                 //add the extra fields from the new raw data
                 telemetry.WindSpeed = newRaw.WindSpeed;
                 telemetry.RotorSpeed = newRaw.RotorSpeed;
                 telemetry.PowerOutput = newRaw.ActivePower;
-                telemetry.Vibration = newRaw.Vibration;
                 telemetry.Temperature = newRaw.Temperature;
                 telemetry.PitchAngle = newRaw.PitchAngle;
                 telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
@@ -71,12 +62,17 @@ public sealed class MonitoringWorker(
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
 
-
-
+                
+                await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId);
+                await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId);
 
 
                 using (var scope = scopeFactory.CreateScope())
                 {
+
+
+
+
                     var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
                     await dbService.AddTelemetryAsync(telemetry);
                     await dbService.PrintDbAsync();

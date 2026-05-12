@@ -10,7 +10,8 @@ public sealed class PowerBin
 
 public sealed class Benchmarker(
     ILogger<MonitoringWorker> logger,
-    IServiceScopeFactory scopeFactory)
+    IServiceScopeFactory scopeFactory,
+    PlaceholderHistoricalDataSource historicalDataSource)
 
 {
 
@@ -19,27 +20,30 @@ public sealed class Benchmarker(
         DateTime endDate = benchmarkEndDate ?? DateTime.Now;
         using (var tempScope = scopeFactory.CreateScope())
         {
-            var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-            Turbine turbine = await tempDbService.GetTurbineById(turbineId);
+            Turbine turbine = await dbService.GetTurbineById(turbineId);
 
-            //TODO get data from csv
-            List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear(turbineId, endDate.Year);
+            List<TurbineTelemetry> benchmarkTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
+
             logger.LogInformation("turbine name: {tname}", turbine.Name);
 
-            BenchmarkResult benchmarkResult = Benchmark(yearTelemetry, turbine);
-            await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+            BenchmarkResult benchmarkResult = Benchmark(benchmarkTelemetry, turbine);
+            await dbService.AddBenchmarkResultAsync(benchmarkResult);
             logger.LogInformation("Successfully written benchmark results to database");
 
         }
     }
 
-    public async Task DoAnalysisIfNeeded(Turbine turbine, int monthsGap = 3)
+    public async Task DoAnalysisIfNeeded(string turbineId, int monthsGap = 3)
     {
+        DateTime endDate = DateTime.Now;
         using (var tempScope = scopeFactory.CreateScope())
         {
-            var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
-
+            var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            
+            Turbine turbine = await dbService.GetTurbineById(turbineId);
+            
             //if there is at least one benchmark result, AND the most recent one happened less than monthGap months ago, don't do analysis
             if (turbine.BenchmarkResults.Count > 0)
             {
@@ -52,19 +56,18 @@ public sealed class Benchmarker(
             }
 
 
-            //TODO get data from csv
-            List<TurbineTelemetry> benchmarkTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", DateTime.Now.Year);
-
-            if (benchmarkTelemetry.Count == 0)
+            List<TurbineTelemetry> recentTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
+            
+            if (recentTelemetry.Count == 0)      
             {
                 logger.LogWarning("Attempted to do degradation analysis on turbine {t}, but no data exists for given time period", turbine.TurbineId);
                 return;
             }
 
-            BenchmarkResult benchmarkResult = Benchmark(benchmarkTelemetry, turbine);
+            BenchmarkResult benchmarkResult = Benchmark(recentTelemetry, turbine);
             if (benchmarkResult != null)
             {
-                await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+                await dbService.AddBenchmarkResultAsync(benchmarkResult);
                 logger.LogInformation("Successfully written benchmark results to database");
             }
 
