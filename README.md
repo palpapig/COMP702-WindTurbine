@@ -88,7 +88,7 @@ Configured in `Worker/appsettings.json` under `SimulatedDataSource`:
 
 ```bash
 dotnet build
-dotnet run --project Worker/COMP702-WindTurbine.csproj
+dotnet run --project Worker/Worker.csproj
 ```
 
 ## Current limitations
