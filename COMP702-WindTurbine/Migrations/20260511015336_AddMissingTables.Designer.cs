@@ -3,6 +3,7 @@ using System;
 using COMP702_WindTurbine.database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace COMP702_WindTurbine.Migrations
 {
     [DbContext(typeof(MonitoringDbContext))]
-    partial class MonitoringDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511015336_AddMissingTables")]
+    partial class AddMissingTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +50,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("TurbineId");
 
-                    b.ToTable("BenchmarkResult", (string)null);
+                    b.ToTable("BenchmarkResult");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.DegradationModelDetails", b =>
@@ -74,7 +77,7 @@ namespace COMP702_WindTurbine.Migrations
                     b.HasIndex("TurbineId")
                         .IsUnique();
 
-                    b.ToTable("DegradationModelDetails", (string)null);
+                    b.ToTable("DegradationModelDetails");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.DegradationResult", b =>
@@ -105,7 +108,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("TurbineId");
 
-                    b.ToTable("DegradationResult", (string)null);
+                    b.ToTable("DegradationResult");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinDeviation", b =>
@@ -132,7 +135,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("BenchmarkResultId");
 
-                    b.ToTable("PowerBinDeviation", (string)null);
+                    b.ToTable("PowerBinDeviation");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinExpected", b =>
@@ -156,7 +159,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("TurbineModelId");
 
-                    b.ToTable("PowerBinExpected", (string)null);
+                    b.ToTable("PowerBinExpected");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinMeasured", b =>
@@ -180,7 +183,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("BenchmarkResultId");
 
-                    b.ToTable("PowerBinMeasured", (string)null);
+                    b.ToTable("PowerBinMeasured");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.Turbine", b =>
@@ -210,7 +213,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("TurbineModelId");
 
-                    b.ToTable("Turbine", (string)null);
+                    b.ToTable("Turbine");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.TurbineModel", b =>
@@ -239,7 +242,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TurbineModel", (string)null);
+                    b.ToTable("TurbineModel");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.TurbineTelemetry", b =>
@@ -315,7 +318,7 @@ namespace COMP702_WindTurbine.Migrations
 
                     b.HasIndex("TurbineId");
 
-                    b.ToTable("TurbineData", (string)null);
+                    b.ToTable("TurbineData");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.BenchmarkResult", b =>
