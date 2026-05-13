@@ -9,7 +9,8 @@ import RotorSpeedGraph from '../components/RotorSpeedGraph'
 import PowerOutputGraph from '../components/PowerOutputGraph'
 import VibrationGraph from '../components/VibrationGraph'
 import BenchmarkGraphs from '../components/BenchmarkGraphs'
-import { FiTrendingUp, FiZap } from 'react-icons/fi'
+import FailureDetectionGraph from '../components/FailureDetectionGraph'
+import { FiTrendingUp, FiZap, FiActivity } from 'react-icons/fi'
 import { GiGears } from 'react-icons/gi'
 
 function DashboardPage() {
@@ -114,6 +115,16 @@ function DashboardPage() {
             </div>
             <div className="graph-wrapper">
               <RotorSpeedCurveGraph turbineId={selectedTurbine} />
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            <div className="section-title">
+              <FiActivity color="#06A2DF" size={24} />
+              <h2>Failure Detection</h2>
+            </div>
+            <div className="graph-wrapper">
+              <FailureDetectionGraph turbineId={selectedTurbine} />
             </div>
           </section>
 
