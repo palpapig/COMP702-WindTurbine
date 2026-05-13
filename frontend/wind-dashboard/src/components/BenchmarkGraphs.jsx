@@ -3,7 +3,9 @@ import { supabase } from '../utils/supabase';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { FiZap } from 'react-icons/fi';
+import FailureDetectionGraph from './FailureDetectionGraph';
+import DegradationResultTable from './DegradationResultTable';
+import { FiZap, FiActivity } from 'react-icons/fi';
 
 function BenchmarkGraphs({ turbineId }) {
   //state for storing deviation data (power difference) grouped by year
@@ -26,11 +28,11 @@ function BenchmarkGraphs({ turbineId }) {
 
   //consistent colour palette for each year so lines are easy to tell apart
   const colourMap = {
-    2018: '#1f77b4', 
-    2019: '#00bcd4', 
-    2020: '#8bc34a', 
-    2021: '#ff9800', 
-    2022: '#d32f2f', 
+    2018: '#1f77b4',
+    2019: '#00bcd4',
+    2020: '#8bc34a',
+    2021: '#ff9800',
+    2022: '#d32f2f',
   };
 
   //this function computes summary statistics directly from the deviation data
@@ -332,6 +334,26 @@ function BenchmarkGraphs({ turbineId }) {
           </p>
         </div>
       )}
+
+      {/*========== Third Graph: Failure Detection ==========*/}
+      <div className="dashboard-section">
+        <div className="section-title">
+          <FiActivity size={24} color="#06A2DF" style={{ marginRight: '8px' }} />
+          <h3>Failure Detection</h3>
+        </div>
+
+        <FailureDetectionGraph turbineId={targetTurbineId} />
+      </div>
+      
+      {/*========== A Talbe shows Degradation Result ==========*/}
+      <div className="dashboard-section">
+        <div className="section-title">
+          <FiActivity size={24} color="#06A2DF" style={{ marginRight: '8px' }} />
+          <h3>Degradation Result</h3>
+        </div>
+
+        <DegradationResultTable turbineId={targetTurbineId} />
+      </div>
 
       {/*simple table showing deviation score per year – directly from supabase*/}
       <div className="dashboard-section">
