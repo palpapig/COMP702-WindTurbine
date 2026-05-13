@@ -163,7 +163,7 @@ function ExportPage() {
       </div>
 
       <div className="export-card">
-        <h2>Benchmarking Insights</h2>
+        <h2>Benchmarking Results</h2>
         <p>
           Downloads all rows from the BenchmarkResult table, including turbine ID,
           time range, and deviation score.

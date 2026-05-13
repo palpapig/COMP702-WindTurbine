@@ -45,17 +45,12 @@ function DegradationResultTable({ turbineId }) {
 
   return (
     <div className="table-page">
-      <h3>Degradation Result Table</h3>
-      <p style={{ fontSize: '0.85rem', color: '#555', marginBottom: '1rem' }}>
-        Shows degradation scores for the selected turbine only.
-      </p>
-
       <div className="table-container">
         <table className="telemetry-table">
           <thead>
             <tr>
-              <th>Id</th>
-              <th>TurbineId</th>
+              
+              
               <th>Region 2 Score</th>
               <th>Region 2.5 Score</th>
               <th>Time Range Start</th>
@@ -66,8 +61,7 @@ function DegradationResultTable({ turbineId }) {
           <tbody>
             {degradationData.map((row) => (
               <tr key={row.Id}>
-                <td>{row.Id}</td>
-                <td>{row.TurbineId}</td>
+                
                 <td>{row.Region2Score?.toFixed(4) ?? '—'}</td>
                 <td>{row.Region2Point5Score?.toFixed(4) ?? '—'}</td>
                 <td>
