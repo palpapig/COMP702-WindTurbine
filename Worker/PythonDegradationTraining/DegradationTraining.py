@@ -71,7 +71,7 @@ y_pred = svr.predict(X_test)
 display = PredictionErrorDisplay.from_predictions(y_test, y_pred, kind="actual_vs_predicted")
 display.plot()
 plt.savefig(f"PythonDegradationTraining/outputs/scilearn_{model_name}")
-plt.show()
+#plt.show()
 
 #combine test data and predictions into a csv for later manual validation
 x_var_name = 'GeneratorSpeed'
@@ -105,7 +105,7 @@ with open(model_path, "wb") as f:
 #return expected deviation to C#
 response = {
     "Success": True,
-    "ExpectedDeviation": expected_deviation_percent,
+    "ExpectedDeviationPercentage": expected_deviation_percent,
     "Message": "Model trained without issue"
 }
 

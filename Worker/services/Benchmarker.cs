@@ -15,9 +15,8 @@ public sealed class Benchmarker(
 
 {
 
-    public async Task ForceDoBenchmarking(string turbineId = "BK-TEST-4", DateTime? benchmarkEndDate = null, int monthsGap = 12)
+    public async Task ForceDoBenchmarking(DateTime endDate, string turbineId = "WT-004", int monthsGap = 12)
     {
-        DateTime endDate = benchmarkEndDate ?? DateTime.Now;
         using (var tempScope = scopeFactory.CreateScope())
         {
             var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
@@ -35,7 +34,7 @@ public sealed class Benchmarker(
         }
     }
 
-    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 3)
+    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12)
     {
         DateTime endDate = currentDate;
         using (var tempScope = scopeFactory.CreateScope())
@@ -132,8 +131,8 @@ public sealed class Benchmarker(
 
             float binWeight = (float)frequencyBins[windSpeed] / telemetry.Count;
             weightedTotalDeviation += binWeight * deviationRatio;
-
         }
+        weightedTotalDeviation = (weightedTotalDeviation - 1) * 100; //become percentage difference 
 
         //convert dictionary to PowerBin list
         ICollection<PowerBinMeasured> convertedMeasuredPowerBins = [.. measuredPowerBins.Select(pair => new PowerBinMeasured { WindSpeed = pair.Key, Power = pair.Value, BenchmarkResult = result })];

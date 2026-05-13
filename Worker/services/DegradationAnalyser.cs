@@ -20,8 +20,7 @@ public sealed class DegradationAnalyser (
     /// <para>Runs degradation analysis on wind turbine with ID "BK-TEST-4" for the year 2021 and writes results to supabase.
     /// Includes model training if necessary.</para>
     /// </summary>
-    public async Task ForceDoAnalysis(string turbineId = "WT-004", DateTime? analysisEndDate = null, int monthsGap = 12){
-        DateTime endDate = analysisEndDate ?? DateTime.Now;
+    public async Task ForceDoAnalysis(DateTime endDate, bool forceRetrain = false, string turbineId = "WT-004",  int monthsGap = 12){
         using (var tempScope = scopeFactory.CreateScope())
             {
                 var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
@@ -30,7 +29,7 @@ public sealed class DegradationAnalyser (
                 
                 List<TurbineTelemetry> analysisTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
                 
-                DegradationResult degradationResult = await DoDegradationAnalysis(analysisTelemetry, turbine);
+                DegradationResult degradationResult = await DoDegradationAnalysis(analysisTelemetry, turbine, forceRetrain);
                 if ( degradationResult != null)
                 {
                     await dbService.AddDegradationResult(degradationResult);
@@ -44,7 +43,7 @@ public sealed class DegradationAnalyser (
     /// <para>For the given turbine, checks whether a DegradationAnalysisResult happened within the last monthsGap months.
     /// If not, it performs degradation analysis on the turbine with data between monthsgap months ago and now.</para>
     /// </summary>
-    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 3){
+    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12){
         DateTime endDate = currentDate;
         using (var tempScope = scopeFactory.CreateScope())
             {
@@ -95,7 +94,7 @@ public sealed class DegradationAnalyser (
     /// </para>
     /// Returns a DegradationResult object.
     /// </summary>
-    public async Task<DegradationResult> DoDegradationAnalysis(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
+    public async Task<DegradationResult> DoDegradationAnalysis(ICollection<TurbineTelemetry> telemetry, Turbine turbine, bool forceRetrain = false)
     {
         //check that the provided turbine has an associated turbineModel
         if (turbine.TurbineModel is null)
@@ -117,7 +116,7 @@ public sealed class DegradationAnalyser (
 
         //check if turbine has degradationModelDetails exists for this turbine, and if matching model files exist
         bool trainingRequired = false;
-        if (degDetails == null){
+        if (degDetails == null || forceRetrain){
             trainingRequired = true;
             logger.LogInformation("DegradationModelDetails not found for turbine {t}. Training degradation model now...", turbine.TurbineId);
 
@@ -146,8 +145,8 @@ public sealed class DegradationAnalyser (
         string modelPathRegion2 = GenerateModelPath(degDetails.Region2Filename);
         string modelPathRegion2p5 = GenerateModelPath(degDetails.Region2p5Filename);
 
-        float region2Deviation = BenchmarkRegion(inputRegion2, outputRegion2, turbine.DegradationModelDetails, modelPathRegion2, "2");
-        float region2p5Deviation = BenchmarkRegion(inputRegion2p5, outputRegion2p5, turbine.DegradationModelDetails, modelPathRegion2p5, "2p5");
+        float region2Deviation = AnalyseRegion(inputRegion2, outputRegion2, turbine.DegradationModelDetails, modelPathRegion2, "2");
+        float region2p5Deviation = AnalyseRegion(inputRegion2p5, outputRegion2p5, turbine.DegradationModelDetails, modelPathRegion2p5, "2p5");
 
         //combine results from each region
         DegradationResult degradationResult = new() {
@@ -161,7 +160,7 @@ public sealed class DegradationAnalyser (
         return degradationResult;
     }
 
-    private float BenchmarkRegion(float[] inputData, float[] actualOutput, DegradationModelDetails degModelDetails, string modelPath, string region)
+    private float AnalyseRegion(float[] inputData, float[] actualOutput, DegradationModelDetails degModelDetails, string modelPath, string region)
     {
         float expectedDeviation;
         if (region == "2"){
@@ -197,7 +196,7 @@ public sealed class DegradationAnalyser (
 
         var outputData = output_0.GetTensorDataAsSpan<float>();
         var tensorTypeAndShape = output_0.GetTensorTypeAndShape();
-        logger.LogInformation("ONNX tensor first output: {o}", outputData[0]);
+        //logger.LogInformation("ONNX tensor first output: {o}", outputData[0]);
 
         //write results to csv
         var dataPath = $"PythonDegradationTraining/outputs/csharp_results_{region}.csv";
@@ -222,7 +221,7 @@ public sealed class DegradationAnalyser (
         float deviation = residuals.Sum() / actualOutput.Sum();
         float deviationPercentage = deviation * 100;
 
-        float correctedDeviation = deviationPercentage - expectedDeviation;
+        float correctedDeviation = deviationPercentage - expectedDeviation; //expectedDeviation was already stored as a percentage
 
         return correctedDeviation;
     
@@ -251,7 +250,7 @@ public sealed class DegradationAnalyser (
         float deviationRegion2p5 = TrainRegion(inputRegion2p5, outputRegion2p5, turbine, modelNameRegion2p5);
 
         DegradationModelDetails degradationModelDetails = new() {
-            Turbine = turbine,
+            TurbineId = turbine.TurbineId,
             Region2Offset = deviationRegion2,
             Region2Filename = modelNameRegion2,
             Region2p5Offset = deviationRegion2p5,
@@ -313,13 +312,13 @@ public sealed class DegradationAnalyser (
         logger.LogInformation("Degradation model training script exited with message: {o}", response?.Message);
         
         logger.LogInformation("Degradation Benchmark Models successfuly created for turbine {t}", modelName);
-        return (float)response?.ExpectedDeviation;
+        return (float)response?.ExpectedDeviationPercentage;
     }
 
     class PyResponse()
     {
         public bool Success { get; set; } = false;
-        public float? ExpectedDeviation { get; set; }
+        public float? ExpectedDeviationPercentage { get; set; }
         public string? Message { get; set; }
     }
 

@@ -31,8 +31,6 @@ public sealed class MonitoringWorker(
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
-
 
                 logger.LogInformation("Processing new data started");
                 //fetch realistic raw data from the simulated source
@@ -64,10 +62,15 @@ public sealed class MonitoringWorker(
 
 
                 //Do benchmarking and degradation analysis if it hasn't happened recently for this turbine. (see each function for details)
-                //For the sake of simulation, it assumes that the timestamp of the current telemetry is 
+                //For the sake of simulation, it assumes that the timestamp of the current telemetry to be the current date
                 await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
                 await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
 
+                //##### Force benchmarking and degradation analysis for testing purposes.
+                // DateTime exampleEndDate = new DateTime(2020,1,1);
+                // bool forceRetrain = true;
+                // await benchmarker.ForceDoBenchmarking(exampleEndDate, telemetry.TurbineId);
+                // await degradationAnalyser.ForceDoAnalysis(exampleEndDate, forceRetrain, telemetry.TurbineId);
 
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -77,7 +80,7 @@ public sealed class MonitoringWorker(
 
                     var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
                     await dbService.AddTelemetryAsync(telemetry);
-                    await dbService.PrintDbAsync();
+                    //await dbService.PrintDbAsync(); Prints one line for every row of turbineTelemetry
                 }
 
 
@@ -107,8 +110,7 @@ public sealed class MonitoringWorker(
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
-
-
+                
             }
         }
         catch (OperationCanceledException)
