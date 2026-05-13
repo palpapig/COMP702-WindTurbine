@@ -44,3 +44,7 @@
   color: red;
   font-weight: bold;
 }
+
+.failure-detection-table {
+  min-width: 1500px;
+}
