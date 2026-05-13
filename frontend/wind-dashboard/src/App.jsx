@@ -1,120 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+/*
+this is the main dashboard component that ties everything together.
+it manages the state for toggling between the most‑recent & full‑history tables,
+and includes the efficiency graph & the power curve graph.
+i used react‑icons for a clean, professional look with the client's brand colours.
+the explanation paragraph under the table heading was added to help non‑technical
+users understand what "most recent" means. 
+*/
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { FiBarChart2, FiActivity, FiSettings, FiDownload } from 'react-icons/fi'
+import DashboardPage from './pages/DashboardPage'
+import TablesPage from './pages/TablesPage'
+import ExportPage from './pages/ExportPage'
 import './App.css'
+import './Navigation.css'
+import logo from './assets/WindTurbineLogo.png'
+import AlertsPage from './pages/AlertsPage';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <div className="dashboard-container">
+        <header className="dashboard-header">
+          <div className="header-logo-text">
+            <img src={logo} alt="Wind Turbine Logo"/>
+            <div className="header-text">
+              <h1>Wind Turbine Monitoring Dashboard</h1>
+              <p>Live benchmark & fault status | historical efficiency trends</p>
+            </div>
+          </div>
+          <nav className="nav-bar">
+            <NavLink to="/" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiBarChart2 /> Dashboard
+            </NavLink>
+            <NavLink to="/tables" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiActivity /> Tables
+            </NavLink>
+            <NavLink to="/export" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>
+              <FiDownload /> Export
+            </NavLink>
+          </nav>
+        </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/tables" element={<TablesPage />} />
+          <Route path="/export" element={<ExportPage />} />
+          <Route path="/alerts" element={<AlertsPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   )
 }
 

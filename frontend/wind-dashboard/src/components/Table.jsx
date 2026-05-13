@@ -1,5 +1,13 @@
+/*    
+this component shows the complete telemetry history (all rows).
+it fetches all records from supabase without any limit and orders them
+by timestamp ascending (oldest first). i removed the previous .range(0,29)
+because we need the full history for the "Complete Telemetry History" view.
+the table includes all columns stored in supabase, including the internal Id. 
+*/
+
 import { useState, useEffect } from 'react'
-import { supabase } from './utils/supabase'
+import { supabase } from '../utils/supabase'
 import './Table.css'
 
 function Table() {
@@ -12,11 +20,12 @@ function Table() {
       setLoading(true)
       setErrorMessage('')
 
+      //fetch all rows, ordered by timestamp oldest first
+      //removed .range(0,29) to get the complete history
       const { data, error } = await supabase
         .from('TurbineData')
         .select('*')
-        .order('Id', { ascending: true })
-        .range(0, 29)
+        .order('Timestamp', { ascending: true })
 
       if (error) {
         setErrorMessage(error.message)
@@ -37,11 +46,14 @@ function Table() {
   return (
     <div className="table-page">
       <h1>Turbine Telemetry Data</h1>
+      <h2>Complete History</h2>
+      <p>{turbineData.length} rows total</p>
 
       {loading && <p>Loading data...</p>}
       {errorMessage && <p className="error-text">Error: {errorMessage}</p>}
 
       {!loading && !errorMessage && (
+        <>
         <div className="table-container">
           <table className="telemetry-table">
             <thead>
@@ -60,7 +72,6 @@ function Table() {
                 <th>PitchAngle</th>
               </tr>
             </thead>
-
             <tbody>
               {turbineData.map((row) => (
                 <tr key={row.Id}>
@@ -81,7 +92,24 @@ function Table() {
             </tbody>
           </table>
         </div>
-      )}
+        <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            style={{
+              display: 'block',
+              margin: '1.5rem auto 0',
+              padding: '0.5rem 1rem',
+              backgroundColor: 'var(--brand-blue)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '40px',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            ↑ Back to Top
+          </button>
+        </>
+      )}        
     </div>
   )
 }

@@ -30,5 +30,6 @@ public class FailureDetectionResult
     public double? EWMA { get; set; }
     public bool? A1Triggered { get; set; }
     public bool? A2Triggered { get; set; }
+    public bool IsAcknowledged { get; set; } = false;
 
 }

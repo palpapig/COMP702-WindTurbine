@@ -122,7 +122,7 @@ public sealed class Benchmarker (
             }
 
             //store average power and # of rows for that windspeed
-            float binnedPower = (float) binRows.Average(row => row.PowerOutput);
+            float binnedPower = (float)(binRows.Average(row => row.PowerOutput) ?? 0);
             binnedTelemetry[i] = binnedPower;
             binnedFrequency[i] = binRows.Count;
         }
