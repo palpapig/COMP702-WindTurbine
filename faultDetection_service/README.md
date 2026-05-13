@@ -4,15 +4,13 @@
 
 This is a failure prediction machine learning service for the wind turbine fault detection project.
 
-The Python service is now used for **training only**. It trains a kNN + Bagging Regressor model to predict the target variable, such as gearbox oil temperature.
+The Python service is now used for training only. It trains a kNN model to predict the target variable, such as gearbox oil temperature.
 
-Live prediction, residual calculation, EWMA chart logic, A1/A2 alarm evaluation, and saving failure results are now handled in the **.NET project**.
+Live prediction, residual calculation, EWMA chart logic, A1/A2 alarm evaluation, and saving failure results are now handled in the .NET project
 
 ---
 
 ## Setup the virtual environment / run in terminal one by one
-
-# 1. Create virtual environment
 
 1:
 cd faultDetection_service
@@ -42,13 +40,6 @@ pip install -r requirements.txt
 
 python -m pip install -r requirements.txt
 
-Run the server
-
-5:
-python -m uvicorn app.main:app --reload
-
-"or"
-
 py -m uvicorn app.main:app --reload
 
 ---
@@ -63,94 +54,67 @@ cd faultDetection_service
 
 "or for mac"
 
-source .venv/bin/activate
+e.g
 
-3:
-python -m uvicorn app.main:app --reload
-
-"or"
-
-py -m uvicorn app.main:app --reload
-
----
-
-## Endpoints
-
-- POST /train → trains or retrains the machine learning model using batch turbine data from .NET
-
----
+py -m training.model_trainer
 
 ## Training
 
-The Python service is responsible for training the model.
+for training you will use trining/model_trainer
 
-Training process:
+upload the data in data/trainingReady
 
-- Receives batch turbine data from .NET
-- Loads the selected feature columns and target column
-- Trains the kNN + Bagging Regressor model
-- Evaluates the model using metrics such as RMSE and R²
-- Saves the trained model and metadata
-- Returns training status and metrics to .NET
+and run:
+py -m training.model_trainer
+
+after training a . pkl model and .onnx model will be generated in artifacts/fianl Model converted in addition to metadata.json
+
+if you trained new model. you want to copy the new .onnx trained model and the metadata.json to .NET in COMP702-WindTurbine/
+
+TrainedModel for .NET to use them for predicition
+
+## Configuration
+
+Controlled via JSON settings:
+faultDetection_service/app/config/mode_settings.json
+
+target column
+feature columns
+model type, such as kNN
+training parameters
+random state
+
+Important:
+
+Training and prediction must use the same feature columns.
+Feature order must stay consistent between Python training and .NET prediction.
 
 ---
 
 ## Prediction
 
-Prediction is **not handled by Python anymore**.
+Prediction is not handled by Python anymore
 
-Prediction is now handled in the .NET project.
+Prediction is now handled in the .NET project. by COMP702-WindTurbine/services/FailureDetection.cs
 
 The .NET project:
 
-- Loads the trained/exported model
-- Predicts the expected target value
-- Computes residual:
+Loads the trained/exported model
+Predicts the expected target value
+Computes residual:
 
 residual = actual − predicted
 
-- Applies EWMA for anomaly detection
-- Generates alarm levels:
-  - A1 → threshold exceeded
-  - A2 → repeated A1 triggers
-- Saves failure detection results to the database
-
----
-
-## Configuration
-
-Controlled via JSON settings:
-
-- target column
-- feature columns
-- model type, such as kNN + Bagging
-- training parameters
-- minimum training rows
-- test size
-- random state
-
-Important:
-
-- Training and prediction must use the same feature columns.
-- Feature order must stay consistent between Python training and .NET prediction.
-
----
-
-## Integration with .NET
-
-- C# service collects turbine data from the database
-- C# sends batch training data to Python
-- Python trains the model using the /train endpoint
-- Python returns model status and training metrics
-- .NET uses the trained/exported model for prediction
-- .NET calculates residual, EWMA, alarm level, and failure status
-- .NET saves the result data to the database
+Applies EWMA for anomaly detection Generates alarm levels:
+A1 -> threshold exceeded
+A2-> repeated A1 triggers
+-Saves failure detection results to the database
 
 ---
 
 ## Notes
 
-- Python is used for training only.
-- .NET is used for prediction and alarm evaluation.
-- Training and prediction must use consistent feature columns.
-- The trained model metadata should be saved and used to confirm the feature order.
+Python is used for training only.
+NET is used for prediction and alarm evaluation.
+Training and prediction must use consistent feature columns.
+The trained model metadata should be saved and used to confirm the feature order.

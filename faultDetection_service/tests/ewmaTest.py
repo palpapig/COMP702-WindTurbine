@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 class EwmaChartGenerator:
     """
     Reads a CSV file, predicts target values using the saved model,
-    calculates residuals, applies EWMA alarm logic, and saves an EWMA chart.
+    calculates residuals, applies EWMA alarm logic, saves an EWMA chart,
+    saves an actual-vs-predicted chart, and optionally exports results to CSV.
     """
 
     def __init__(
@@ -17,7 +18,7 @@ class EwmaChartGenerator:
         model_path: str | Path,
         metadata_path: str | Path,
         ewma_lambda: float = 0.2,
-        control_limit_k: float = 3.0,
+        control_limit_k: float = 4.0, # 3 originaly
         a2_consecutive_count: int = 3,
     ):
         self.model_path = Path(model_path)
@@ -87,6 +88,7 @@ class EwmaChartGenerator:
         csv_path: str | Path,
         output_graph_path: str | Path,
         output_results_path: str | Path | None = None,
+        output_prediction_graph_path: str | Path | None = None,
     ) -> pd.DataFrame:
         csv_path = Path(csv_path)
         output_graph_path = Path(output_graph_path)
@@ -95,6 +97,8 @@ class EwmaChartGenerator:
             raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
         df = pd.read_csv(csv_path)
+        df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+        df = df.sort_values(by="Timestamp").reset_index(drop=True)
 
         missing_features = [
             col for col in self.feature_columns
@@ -143,17 +147,84 @@ class EwmaChartGenerator:
             a1_values.append(1 if alarm_result["is_a1"] else 0)
             a2_values.append(1 if alarm_result["is_a2"] else 0)
 
-        result_df = work_df.copy()
-        result_df["Predicted"] = predicted_values
-        result_df["Actual"] = actual_values
+        result_df = pd.DataFrame()
+
+        # Timestamp
+        if "Timestamp" in df.columns:
+            result_df["Timestamp"] = df.loc[work_df.index, "Timestamp"].values
+        elif "timestamp" in df.columns:
+            result_df["Timestamp"] = df.loc[work_df.index, "timestamp"].values
+        else:
+            result_df["Timestamp"] = None
+
+        # TurbineId
+        if "TurbineId" in df.columns:
+            result_df["TurbineId"] = df.loc[work_df.index, "TurbineId"].values
+        elif "turbineId" in df.columns:
+            result_df["TurbineId"] = df.loc[work_df.index, "turbineId"].values
+        elif "turbine_id" in df.columns:
+            result_df["TurbineId"] = df.loc[work_df.index, "turbine_id"].values
+        else:
+            result_df["TurbineId"] = "BK-TEST-4"
+
+        # Prediction/result values matching C# FailureDetectionResult
         result_df["Residual"] = residuals
+        result_df["IsAbnormal"] = False
+        result_df["AlarmLvl"] = 0
+        result_df["PredictedValue"] = predicted_values
+        result_df["ActualValue"] = actual_values
+        result_df["LCL"] = lower_limits
+        result_df["UCL"] = upper_limits
         result_df["EWMA"] = ewma_values
-        result_df["UpperLimit"] = upper_limits
-        result_df["LowerLimit"] = lower_limits
-        result_df["A1"] = a1_values
-        result_df["A2"] = a2_values
+        result_df["A1Triggered"] = [value == 1 for value in a1_values]
+        result_df["A2Triggered"] = [value == 1 for value in a2_values]
+
+        result_df["IsAbnormal"] = (
+            result_df["A1Triggered"] | result_df["A2Triggered"]
+        )
+
+        result_df["AlarmLvl"] = np.where(
+            result_df["A2Triggered"],
+            2,
+            np.where(result_df["A1Triggered"], 1, 0)
+        )
+
+        # Reorder columns to match C# model order, except Id is excluded
+        # because Supabase/database should generate Id automatically.
+        result_df = result_df[
+            [
+                "TurbineId",
+                "Timestamp",
+                "Residual",
+                "IsAbnormal",
+                "AlarmLvl",
+                "PredictedValue",
+                "ActualValue",
+                "LCL",
+                "UCL",
+                "EWMA",
+                "A1Triggered",
+                "A2Triggered",
+            ]
+        ]
+
+        print("Mean actual:", np.mean(actual_values))
+        print("Mean predicted:", np.mean(predicted_values))
+        print("Mean residual:", np.mean(residuals))
+        print("Min residual:", np.min(residuals))
+        print("Max residual:", np.max(residuals))
+
+        print("Residual std from metadata:", self.residual_std)
+        print("Upper limit:", self.control_limit_k * self.residual_std)
+        print("Lower limit:", -self.control_limit_k * self.residual_std)
 
         self._draw_chart(result_df, output_graph_path)
+
+        if output_prediction_graph_path is not None:
+            self._draw_prediction_chart(
+                result_df,
+                Path(output_prediction_graph_path)
+            )
 
         if output_results_path is not None:
             output_results_path = Path(output_results_path)
@@ -178,20 +249,20 @@ class EwmaChartGenerator:
 
         plt.plot(
             x_axis,
-            result_df["UpperLimit"],
+            result_df["UCL"],
             linestyle="--",
             label="Upper Control Limit",
         )
 
         plt.plot(
             x_axis,
-            result_df["LowerLimit"],
+            result_df["LCL"],
             linestyle="--",
             label="Lower Control Limit",
         )
 
-        a1_points = result_df[result_df["A1"] == 1]
-        a2_points = result_df[result_df["A2"] == 1]
+        a1_points = result_df[result_df["A1Triggered"] == True]
+        a2_points = result_df[result_df["A2Triggered"] == True]
 
         plt.scatter(
             a1_points.index,
@@ -219,3 +290,115 @@ class EwmaChartGenerator:
         plt.close()
 
         print(f"EWMA chart saved to: {output_graph_path}")
+
+    def _draw_prediction_chart(
+    self,
+    result_df: pd.DataFrame,
+    output_graph_path: Path,
+    ):
+        output_graph_path.parent.mkdir(parents=True, exist_ok=True)
+
+        plot_df = result_df.copy()
+
+        if "Timestamp" in plot_df.columns and plot_df["Timestamp"].notna().any():
+            plot_df["Timestamp"] = pd.to_datetime(plot_df["Timestamp"], errors="coerce")
+            plot_df = plot_df.dropna(subset=["Timestamp"])
+            plot_df = plot_df.sort_values(by="Timestamp").reset_index(drop=True)
+            x_axis = plot_df["Timestamp"]
+            x_label = "Timestamp"
+        else:
+            x_axis = np.arange(len(plot_df))
+            x_label = "Row Number"
+
+        # Smooth only for visualization
+        rolling_window = 24  # 24 rows = 4 hours if data is every 10 minutes
+
+        plot_df["ActualSmooth"] = (
+            plot_df["ActualValue"]
+            .rolling(window=rolling_window, min_periods=1)
+            .mean()
+        )
+
+        plot_df["PredictedSmooth"] = (
+            plot_df["PredictedValue"]
+            .rolling(window=rolling_window, min_periods=1)
+            .mean()
+        )
+
+        plt.figure(figsize=(16, 8))
+
+        # Raw lines, light/thin
+
+        '''
+        plt.plot(
+            x_axis,
+            plot_df["ActualValue"],
+            label="Actual Raw",
+            linewidth=0.6,
+            alpha=0.25,
+        )
+
+        plt.plot(
+            x_axis,
+            plot_df["PredictedValue"],
+            label="Predicted Raw",
+            linewidth=0.6,
+            alpha=0.25,
+        )
+         '''
+
+        # Smoothed lines, clearer
+        plt.plot(
+            x_axis,
+            plot_df["ActualSmooth"],
+            label="Actual Smoothed",
+            linewidth=2.0,
+        )
+
+        plt.plot(
+            x_axis,
+            plot_df["PredictedSmooth"],
+            label="Predicted Smoothed",
+            linewidth=2.0,
+        )
+
+        a1_points = plot_df[plot_df["A1Triggered"] == True]
+        a2_points = plot_df[plot_df["A2Triggered"] == True]
+
+        if "Timestamp" in plot_df.columns and plot_df["Timestamp"].notna().any():
+            a1_x = a1_points["Timestamp"]
+            a2_x = a2_points["Timestamp"]
+        else:
+            a1_x = a1_points.index
+            a2_x = a2_points.index
+
+        # Alarm dots on actual value line
+        plt.scatter(
+            a1_x,
+            a1_points["ActualValue"],
+            label="A1 Alarm",
+            marker="o",
+            s=35,
+            zorder=5,
+        )
+
+        plt.scatter(
+            a2_x,
+            a2_points["ActualValue"],
+            label="A2 Alarm",
+            marker="x",
+            s=60,
+            zorder=6,
+        )
+
+        plt.title("Actual vs Predicted Values with Alarm Points")
+        plt.xlabel(x_label)
+        plt.ylabel(self.target_column)
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        plt.savefig(output_graph_path, dpi=300, bbox_inches="tight")
+        plt.close()
+
+        print(f"Prediction chart saved to: {output_graph_path}")
