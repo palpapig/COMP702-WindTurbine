@@ -95,9 +95,9 @@ public class FailureDetection : IDisposable
     public TurbineTelemetry DetectFailure(RawData rawdata, TurbineTelemetry telemetry, CancellationToken ct)
     {
 
-        if (rawdata.GearboxOilTemp == null)
+        if (double.IsNaN(rawdata.GearboxOilTemp) || rawdata.GearboxOilTemp < -50 || rawdata.GearboxOilTemp > 150)
         {
-            throw new InvalidOperationException("GearboxOilTemp is required for failure detection.");
+            throw new InvalidOperationException($"Invalid GearboxOilTemp value: {rawdata.GearboxOilTemp}");
         }
 
         float predictedValue = Predict(rawdata, ct);

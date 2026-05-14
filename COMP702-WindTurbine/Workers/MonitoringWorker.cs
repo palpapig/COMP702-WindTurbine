@@ -97,10 +97,14 @@ public sealed class MonitoringWorker(
 
                 // currently this only returns the predicted and prints out pred vs actuall, alarms still need to be done
                 telemetry = failureDetection.DetectFailure(newRaw, telemetry, stoppingToken);
-                logger.LogWarning($"Predicted :{telemetry.FailureDetectionResult.PredictedValue} Actual:{telemetry.FailureDetectionResult.ActualValue} Alarm1:{telemetry.FailureDetectionResult.AlarmLvl}");
-
-
-
+                if (telemetry.FailureDetectionResult != null)
+                {
+                    logger.LogWarning($"Predicted :{telemetry.FailureDetectionResult.PredictedValue} Actual:{telemetry.FailureDetectionResult.ActualValue} Alarm1:{telemetry.FailureDetectionResult.AlarmLvl}");
+                    }
+                    else
+                    {
+                         logger.LogWarning("FailureDetectionResult is null after DetectFailure call.");
+                    }
 
 
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
