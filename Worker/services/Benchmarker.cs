@@ -27,6 +27,12 @@ public sealed class Benchmarker(
             List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear(turbineId, endDate.Year);
             logger.LogInformation("turbine name: {tname}", turbine.Name);
 
+            if (yearTelemetry.Count == 0)
+            {
+                logger.LogWarning("Skipping benchmark for turbine {turbineId}: no telemetry found for year {year}", turbineId, endDate.Year);
+                return;
+            }
+
             BenchmarkResult benchmarkResult = Benchmark(yearTelemetry, turbine);
             await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
             logger.LogInformation("Successfully written benchmark results to database");
@@ -90,6 +96,10 @@ public sealed class Benchmarker(
 
         //Preprocess
         telemetry = Preprocess(telemetry);
+        if (telemetry.Count == 0)
+        {
+            throw new InvalidOperationException($"Cannot benchmark turbine {turbine.TurbineId}: no telemetry remains after preprocessing.");
+        }
 
         //Create result object to be filled in at the end
         BenchmarkResult result = new()
