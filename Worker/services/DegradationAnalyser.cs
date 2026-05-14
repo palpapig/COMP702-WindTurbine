@@ -20,7 +20,7 @@ public sealed class DegradationAnalyser (
     /// <para>Runs degradation analysis on wind turbine with ID "BK-TEST-4" for the year 2021 and writes results to supabase.
     /// Includes model training if necessary.</para>
     /// </summary>
-    public async Task ForceDoAnalysis(DateTime endDate, bool forceRetrain = false, string turbineId = "WT-004",  int monthsGap = 12){
+    public async Task ForceDoAnalysis(DateTime endDate, bool forceRetrain = false, string turbineId = "BK-TEST-4",  int monthsGap = 12){
         using (var tempScope = scopeFactory.CreateScope())
             {
                 var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
@@ -162,11 +162,14 @@ public sealed class DegradationAnalyser (
 
     private float AnalyseRegion(float[] inputData, float[] actualOutput, DegradationModelDetails degModelDetails, string modelPath, string region)
     {
+        string inputVarName;
         float expectedDeviation;
         if (region == "2"){
             expectedDeviation = degModelDetails.Region2Offset;
+            inputVarName = "GeneratorSpeed";
         } else if (region == "2p5") {
             expectedDeviation = degModelDetails.Region2p5Offset;
+            inputVarName = "PitchAngle";
         } else
         {
             logger.LogCritical("Invalid region number provided to benchmarking function");
@@ -199,10 +202,10 @@ public sealed class DegradationAnalyser (
         //logger.LogInformation("ONNX tensor first output: {o}", outputData[0]);
 
         //write results to csv
-        var dataPath = $"PythonDegradationTraining/outputs/csharp_results_{region}.csv";
+        var dataPath = $"PythonDegradationTraining/outputs/csharp_{degModelDetails.TurbineId}region-{region}.csv";
         var lines = new List<string>();
 
-        lines.Add($"PitchAngle,Power,PredictedPower");
+        lines.Add($"{inputVarName},Power,PredictedPower");
         for (int i = 0; i < inputData.Length; i++)
         {
             lines.Add($"{inputData[i]},{actualOutput[i]},{outputData[i]}");
@@ -232,7 +235,7 @@ public sealed class DegradationAnalyser (
         using var tempScope = scopeFactory.CreateScope();   
         var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-        //get first year of data to train model on (always gets turbine WT-004)
+        //get first year of data to train model on (always gets turbine BK-TEST-4)
         ICollection<TurbineTelemetry> telemetry = historicalDataSource.GetEarliestTurbineData();
         
         //preprocess data (remove out-of-range values)

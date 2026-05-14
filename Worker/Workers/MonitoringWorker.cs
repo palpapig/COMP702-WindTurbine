@@ -54,7 +54,9 @@ public sealed class MonitoringWorker(
                 telemetry.PitchAngle = newRaw.PitchAngle;
                 telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
 
-                telemetry = benchmarker.DummyBenchmark(telemetry);
+                //For testing, change the turbine id 
+                telemetry.TurbineId = "BK-TEST-4";
+
 
                 telemetry = FailureDetection.DetectFailure(telemetry);
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
@@ -66,18 +68,28 @@ public sealed class MonitoringWorker(
                 await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
                 await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
 
-                //##### Force benchmarking and degradation analysis for testing purposes.
-                // DateTime exampleEndDate = new DateTime(2020,1,1);
-                // bool forceRetrain = true;
-                // await benchmarker.ForceDoBenchmarking(exampleEndDate, telemetry.TurbineId);
-                // await degradationAnalyser.ForceDoAnalysis(exampleEndDate, forceRetrain, telemetry.TurbineId);
+                // For testing: do degradation analysis and benchmarking on every year of the turbine's data
+                // List<DateTime> dates = [
+                //     new DateTime(2019,1,1),
+                //     new DateTime(2020,1,1),
+                //     new DateTime(2021,1,1),
+                //     new DateTime(2022,1,1),
+                //     new DateTime(2023,1,1),
+                // ];
+                // bool forceRetrain = false;
+                // foreach (DateTime endDate in dates)
+                // {
+                //     await benchmarker.ForceDoBenchmarking(endDate, telemetry.TurbineId);
+                //     await degradationAnalyser.ForceDoAnalysis(endDate, forceRetrain, telemetry.TurbineId);
+                // }
+
+
+
+
+
 
                 using (var scope = scopeFactory.CreateScope())
                 {
-
-
-
-
                     var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
                     await dbService.AddTelemetryAsync(telemetry);
                     //await dbService.PrintDbAsync(); Prints one line for every row of turbineTelemetry

@@ -51,3 +51,4 @@ Worker/pki/
 
 # Temporary data for training degradation model in Python
 Worker/PythonDegradationTraining/TempTrainingData.csv
+Worker/PythonDegradationTraining/outputs/*

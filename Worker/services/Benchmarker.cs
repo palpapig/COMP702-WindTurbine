@@ -15,7 +15,7 @@ public sealed class Benchmarker(
 
 {
 
-    public async Task ForceDoBenchmarking(DateTime endDate, string turbineId = "WT-004", int monthsGap = 12)
+    public async Task ForceDoBenchmarking(DateTime endDate, string turbineId = "BK-TEST-4", int monthsGap = 12)
     {
         using (var tempScope = scopeFactory.CreateScope())
         {
