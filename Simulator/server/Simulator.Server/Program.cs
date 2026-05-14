@@ -52,6 +52,23 @@ var replay = new CsvReplayReader(csvPath);
 await replay.LoadAsync(CancellationToken.None);
 Console.WriteLine($"[Replay] Loaded rows for replay. Columns: {replay.ColumnMap.Count}");
 
+if (DateTime.TryParse(settings.Historical.ProbeStartUtc, null, System.Globalization.DateTimeStyles.AssumeUniversal, out var configuredStart))
+{
+    var configuredStartUtc = configuredStart.Kind == DateTimeKind.Utc ? configuredStart : configuredStart.ToUniversalTime();
+    if (replay.SeekToStartUtc(configuredStartUtc, out var actualStartUtc))
+    {
+        Console.WriteLine($"[Replay] Start positioned to configured probeStartUtc={configuredStartUtc:O} (actual row ts={actualStartUtc:O})");
+    }
+    else
+    {
+        Console.WriteLine($"[Replay] Warning: probeStartUtc={configuredStartUtc:O} is outside CSV range; replay starts from first row.");
+    }
+}
+else
+{
+    Console.WriteLine($"[Replay] Warning: invalid probeStartUtc '{settings.Historical.ProbeStartUtc}'; replay starts from first row.");
+}
+
 static string? PickColumn(IReadOnlyDictionary<string, int> columns, params string[] candidates)
 {
     foreach (var c in candidates)

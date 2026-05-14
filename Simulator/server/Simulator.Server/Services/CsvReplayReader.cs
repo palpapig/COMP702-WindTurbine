@@ -64,4 +64,28 @@ public sealed class CsvReplayReader
 
         return true;
     }
+
+    public bool SeekToStartUtc(DateTime startUtc, out DateTime actualStartUtc)
+    {
+        actualStartUtc = default;
+        if (_rows.Count == 0) return false;
+
+        var target = startUtc.Kind == DateTimeKind.Utc ? startUtc : startUtc.ToUniversalTime();
+
+        for (var i = 0; i < _rows.Count; i++)
+        {
+            var row = _rows[i];
+            if (row.Length == 0) continue;
+            if (!DateTime.TryParse(row[0], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var ts)) continue;
+            var tsUtc = DateTime.SpecifyKind(ts, DateTimeKind.Utc);
+            if (tsUtc >= target)
+            {
+                _index = i;
+                actualStartUtc = tsUtc;
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
