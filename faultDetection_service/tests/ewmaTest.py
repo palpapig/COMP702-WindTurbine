@@ -18,7 +18,7 @@ class EwmaChartGenerator:
         model_path: str | Path,
         metadata_path: str | Path,
         ewma_lambda: float = 0.2,
-        control_limit_k: float = 4.0, # 3 originaly
+        control_limit_k: float = 3.0, # 3 originaly
         a2_consecutive_count: int = 3,
     ):
         self.model_path = Path(model_path)
@@ -138,6 +138,8 @@ class EwmaChartGenerator:
         self.previous_ewma = 0.0
         self.consecutive_a1_count = 0
 
+       
+ 
         for residual in residuals:
             alarm_result = self._evaluate_alarm(float(residual))
 
