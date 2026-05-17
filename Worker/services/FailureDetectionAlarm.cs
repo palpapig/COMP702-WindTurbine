@@ -31,6 +31,9 @@ public class FailureDetectionAlarm
     {
         _stateManager = stateManager;
         _settings = options.Value.Alarm;
+       
+
+  
     }
 
     public Alarm Evaluate(string turbineId, double residual)
@@ -38,11 +41,23 @@ public class FailureDetectionAlarm
         // Get saved turbine alarm state
         AlarmState state = _stateManager.Get(turbineId);
 
+        double residualBias = 0;
+
+        // fetch bias for this turbine if exists, otherwise default to 0 
+        if (_settings.TurbineResidualBiases.TryGetValue(turbineId, out double storedBias))
+        {
+            residualBias = storedBias;
+        }
+    
+
+      // Adjust residual by subtracting the bias
+     double adjustedResidual = residual - residualBias;
+
 
         double previousEwma = state.LastEwma;
 
         // Calculate EWMA
-        double ewma = (_settings.EwmaLambda * residual) + ((1 - _settings.EwmaLambda) * previousEwma);
+        double ewma = (_settings.EwmaLambda * adjustedResidual) + ((1 - _settings.EwmaLambda) * previousEwma);
 
         // If residualStd is null, use 0
         double std = _settings.ResidualStd;
@@ -79,7 +94,7 @@ public class FailureDetectionAlarm
 
         return new Alarm
         {
-            Residual = residual,
+            Residual = adjustedResidual,
             EWMA = ewma,
             UCL = ucl,
             LCL = lcl,

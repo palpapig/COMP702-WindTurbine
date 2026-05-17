@@ -20,4 +20,6 @@ public class AlarmSettings
     public double ControlLimitK { get; set; }
     public int A1RequiredCount { get; set; }
     public double ResidualStd { get; set; }
+
+    public Dictionary<string, double> TurbineResidualBiases { get; set; } = new();
 }

@@ -25,16 +25,14 @@ builder.Services.AddSingleton<Benchmarker>();
 
 builder.Services.AddHostedService<MonitoringWorker>();
 builder.Services.AddSingleton<PythonProcessService>();
-builder.Services.AddSingleton<AlarmStateManager>();
 builder.Services.AddSingleton<FailureDetectionAlarm>();
-builder.Services.AddTransient<AlarmStateManager>();
 builder.Services.AddTransient<FailureDetectionAlarm>();
 
 
 builder.Services.AddSingleton<AlarmStateManager>();
 builder.Services.AddSingleton<FailureDetection>(sp =>
 {
-    string modelPath = @"TrainedModel\model.onnx";
+    string modelPath = Path.Combine("TrainedModel", "model.onnx");
 
     if (!File.Exists(modelPath))
     {
