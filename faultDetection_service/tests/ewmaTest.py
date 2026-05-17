@@ -175,7 +175,7 @@ class EwmaChartGenerator:
         result_df["ActualValue"] = actual_values
         result_df["LCL"] = lower_limits
         result_df["UCL"] = upper_limits
-        result_df["EWMA"] = ewma_values
+        result_df["EWMA"] = ewma_values 
         result_df["A1Triggered"] = [value == 1 for value in a1_values]
         result_df["A2Triggered"] = [value == 1 for value in a2_values]
 
