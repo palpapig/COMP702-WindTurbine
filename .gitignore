@@ -42,3 +42,6 @@ frontend/**/node_modules/
 frontend/**/.vite/
 frontend/**/.vite-temp/
 frontend/**/dist/
+
+
+faultDetection_service/**/__pycache__
