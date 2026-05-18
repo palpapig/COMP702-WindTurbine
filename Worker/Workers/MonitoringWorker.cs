@@ -26,11 +26,22 @@ public sealed class MonitoringWorker(
             DateTime lastTrainingCheckUtc = DateTime.MinValue;
 
 
+            // //######## TEMPORARY CODE - ONE-TIME BENCHMARKING ########
+            await benchmarker.ForceDoBenchmarking();
+            //Need to integrate to get inputs from the new simulator 
+            
+
+            //######## TEMPORARY CODE - ONE-TIME DEGRADATION ANALYSIS ########
+            await degradationAnalyser.ForceDoAnalysis();
+            //Need to integrate to get inputs from the new simulator 
+
 
 
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+
 
                 logger.LogInformation("Processing new data started");
                 //fetch realistic raw data from the simulated source
@@ -45,44 +56,20 @@ public sealed class MonitoringWorker(
                 };
                 var telemetry = dataFormatter.FormatData(oldRaw);
 
-
                 //add the extra fields from the new raw data
                 telemetry.WindSpeed = newRaw.WindSpeed;
                 telemetry.RotorSpeed = newRaw.RotorSpeed;
                 telemetry.PowerOutput = newRaw.ActivePower;
+                telemetry.Vibration = newRaw.Vibration;
                 telemetry.Temperature = newRaw.Temperature;
                 telemetry.PitchAngle = newRaw.PitchAngle;
                 telemetry.GearboxOilTemp = newRaw.GearboxOilTemp;
 
-                //For testing, change the turbine id 
-                telemetry.TurbineId = "BK-TEST-4";
-
+                telemetry = benchmarker.DummyBenchmark(telemetry);
 
                 telemetry = FailureDetection.DetectFailure(telemetry);
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
-
-
-                //Do benchmarking and degradation analysis if it hasn't happened recently for this turbine. (see each function for details)
-                //For the sake of simulation, it assumes that the timestamp of the current telemetry to be the current date
-                await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
-                await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
-
-                // For testing: do degradation analysis and benchmarking on every year of the turbine's data
-                // List<DateTime> dates = [
-                //     new DateTime(2019,1,1),
-                //     new DateTime(2020,1,1),
-                //     new DateTime(2021,1,1),
-                //     new DateTime(2022,1,1),
-                //     new DateTime(2023,1,1),
-                // ];
-                // bool forceRetrain = false;
-                // foreach (DateTime endDate in dates)
-                // {
-                //     await benchmarker.ForceDoBenchmarking(endDate, telemetry.TurbineId);
-                //     await degradationAnalyser.ForceDoAnalysis(endDate, forceRetrain, telemetry.TurbineId);
-                // }
-
 
 
 
@@ -92,7 +79,7 @@ public sealed class MonitoringWorker(
                 {
                     var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
                     await dbService.AddTelemetryAsync(telemetry);
-                    //await dbService.PrintDbAsync(); Prints one line for every row of turbineTelemetry
+                    await dbService.PrintDbAsync();
                 }
 
 
@@ -122,7 +109,8 @@ public sealed class MonitoringWorker(
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
-                
+
+
             }
         }
         catch (OperationCanceledException)

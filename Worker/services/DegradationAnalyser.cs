@@ -11,8 +11,7 @@ using System.Runtime.CompilerServices;
 
 public sealed class DegradationAnalyser (
     ILogger<MonitoringWorker> logger,
-    IServiceScopeFactory scopeFactory,
-    PlaceholderHistoricalDataSource historicalDataSource)
+    IServiceScopeFactory scopeFactory)
 {
     readonly string modelsDirectory = "PythonDegradationTraining/Models/";
 
@@ -20,19 +19,21 @@ public sealed class DegradationAnalyser (
     /// <para>Runs degradation analysis on wind turbine with ID "BK-TEST-4" for the year 2021 and writes results to supabase.
     /// Includes model training if necessary.</para>
     /// </summary>
-    public async Task ForceDoAnalysis(DateTime endDate, bool forceRetrain = false, string turbineId = "BK-TEST-4",  int monthsGap = 12){
+    public async Task ForceDoAnalysis(string turbineId = "BK-TEST-4", DateTime? analysisEndDate = null, int monthsGap = 12){
+        DateTime endDate = analysisEndDate ?? DateTime.Now;
         using (var tempScope = scopeFactory.CreateScope())
             {
-                var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-                Turbine turbine = await dbService.GetTurbineById(turbineId);
+                Turbine turbine = await tempDbService.GetTurbineById(turbineId);
                 
-                List<TurbineTelemetry> analysisTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
+                //todo change this to get from csv. Have it have any datetime as input, not year (have year as wrapper function?)
+                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear(turbineId, 2021);
                 
-                DegradationResult degradationResult = await DoDegradationAnalysis(analysisTelemetry, turbine, forceRetrain);
+                DegradationResult degradationResult = await DoDegradationAnalysis(recentTelemetry, turbine);
                 if ( degradationResult != null)
                 {
-                    await dbService.AddDegradationResult(degradationResult);
+                    await tempDbService.AddDegradationResult(degradationResult);
                     logger.LogInformation("Degradation result successfuly added to database!");
                 }
 
@@ -43,19 +44,16 @@ public sealed class DegradationAnalyser (
     /// <para>For the given turbine, checks whether a DegradationAnalysisResult happened within the last monthsGap months.
     /// If not, it performs degradation analysis on the turbine with data between monthsgap months ago and now.</para>
     /// </summary>
-    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12){
-        DateTime endDate = currentDate;
+    public async Task DoAnalysisIfNeeded(Turbine turbine, int monthsGap = 3){
         using (var tempScope = scopeFactory.CreateScope())
             {
-                var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+                var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
                 
-                Turbine turbine = await dbService.GetTurbineById(turbineId);
-
                 //if there is at least one degradation result, AND the most recent one happened less than monthGap months ago, don't do analysis
                 if (turbine.DegradationResults.Count > 0)
                 {
                     DateTime lastAnalysed = turbine.DegradationResults.MaxBy(r => r.TimeRangeEnd).TimeRangeEnd;
-                    if (lastAnalysed.AddMonths(monthsGap) > endDate)
+                    if (lastAnalysed.AddMonths(monthsGap) > DateTime.Now)
                     {
                         logger.LogInformation("No degradation analysis needed, latest analysis happened less than {m} months ago", monthsGap);
                         return;
@@ -63,7 +61,8 @@ public sealed class DegradationAnalyser (
                 }
                 
 
-                List<TurbineTelemetry> recentTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
+                //TODO get data from csv
+                List<TurbineTelemetry> recentTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", DateTime.Now.Year);
                 if (recentTelemetry.Count == 0)
                 {
                     logger.LogWarning("Attempted to do degradation analysis on turbine {t}, but no data exists for given time period", turbine.TurbineId);
@@ -73,7 +72,7 @@ public sealed class DegradationAnalyser (
                 DegradationResult degradationResult = await DoDegradationAnalysis(recentTelemetry, turbine);
                 if (degradationResult != null)
                 {
-                    await dbService.AddDegradationResult(degradationResult);
+                    await tempDbService.AddDegradationResult(degradationResult);
                     logger.LogInformation("Degradation result successfuly added to database!");
                 }
 
@@ -94,7 +93,7 @@ public sealed class DegradationAnalyser (
     /// </para>
     /// Returns a DegradationResult object.
     /// </summary>
-    public async Task<DegradationResult> DoDegradationAnalysis(ICollection<TurbineTelemetry> telemetry, Turbine turbine, bool forceRetrain = false)
+    public async Task<DegradationResult> DoDegradationAnalysis(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
     {
         //check that the provided turbine has an associated turbineModel
         if (turbine.TurbineModel is null)
@@ -116,7 +115,7 @@ public sealed class DegradationAnalyser (
 
         //check if turbine has degradationModelDetails exists for this turbine, and if matching model files exist
         bool trainingRequired = false;
-        if (degDetails == null || forceRetrain){
+        if (degDetails == null){
             trainingRequired = true;
             logger.LogInformation("DegradationModelDetails not found for turbine {t}. Training degradation model now...", turbine.TurbineId);
 
@@ -145,8 +144,8 @@ public sealed class DegradationAnalyser (
         string modelPathRegion2 = GenerateModelPath(degDetails.Region2Filename);
         string modelPathRegion2p5 = GenerateModelPath(degDetails.Region2p5Filename);
 
-        float region2Deviation = AnalyseRegion(inputRegion2, outputRegion2, turbine.DegradationModelDetails, modelPathRegion2, "2");
-        float region2p5Deviation = AnalyseRegion(inputRegion2p5, outputRegion2p5, turbine.DegradationModelDetails, modelPathRegion2p5, "2p5");
+        float region2Deviation = BenchmarkRegion(inputRegion2, outputRegion2, turbine.DegradationModelDetails, modelPathRegion2, "2");
+        float region2p5Deviation = BenchmarkRegion(inputRegion2p5, outputRegion2p5, turbine.DegradationModelDetails, modelPathRegion2p5, "2p5");
 
         //combine results from each region
         DegradationResult degradationResult = new() {
@@ -160,16 +159,13 @@ public sealed class DegradationAnalyser (
         return degradationResult;
     }
 
-    private float AnalyseRegion(float[] inputData, float[] actualOutput, DegradationModelDetails degModelDetails, string modelPath, string region)
+    private float BenchmarkRegion(float[] inputData, float[] actualOutput, DegradationModelDetails degModelDetails, string modelPath, string region)
     {
-        string inputVarName;
         float expectedDeviation;
         if (region == "2"){
             expectedDeviation = degModelDetails.Region2Offset;
-            inputVarName = "GeneratorSpeed";
         } else if (region == "2p5") {
             expectedDeviation = degModelDetails.Region2p5Offset;
-            inputVarName = "PitchAngle";
         } else
         {
             logger.LogCritical("Invalid region number provided to benchmarking function");
@@ -199,13 +195,13 @@ public sealed class DegradationAnalyser (
 
         var outputData = output_0.GetTensorDataAsSpan<float>();
         var tensorTypeAndShape = output_0.GetTensorTypeAndShape();
-        //logger.LogInformation("ONNX tensor first output: {o}", outputData[0]);
+        logger.LogInformation("ONNX tensor first output: {o}", outputData[0]);
 
         //write results to csv
-        var dataPath = $"PythonDegradationTraining/outputs/csharp_{degModelDetails.TurbineId}region-{region}.csv";
+        var dataPath = $"PythonDegradationTraining/outputs/csharp_results_{region}.csv";
         var lines = new List<string>();
 
-        lines.Add($"{inputVarName},Power,PredictedPower");
+        lines.Add($"PitchAngle,Power,PredictedPower");
         for (int i = 0; i < inputData.Length; i++)
         {
             lines.Add($"{inputData[i]},{actualOutput[i]},{outputData[i]}");
@@ -224,9 +220,15 @@ public sealed class DegradationAnalyser (
         float deviation = residuals.Sum() / actualOutput.Sum();
         float deviationPercentage = deviation * 100;
 
-        float correctedDeviation = deviationPercentage - expectedDeviation; //expectedDeviation was already stored as a percentage
+        float correctedDeviation = deviationPercentage - expectedDeviation;
 
         return correctedDeviation;
+
+
+        //QUALITATIVE BONUS: do manufacturer model benchmarking, but again against itself.
+            //bin the data into 0.5 generatorspeed or blade pitch.
+            //get standard deviations of each bin
+            //store that in supabase somehow
     
     }
 
@@ -235,8 +237,9 @@ public sealed class DegradationAnalyser (
         using var tempScope = scopeFactory.CreateScope();   
         var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-        //get first year of data to train model on (always gets turbine BK-TEST-4)
-        ICollection<TurbineTelemetry> telemetry = historicalDataSource.GetEarliestTurbineData();
+        //get first year of data to train model on
+        //TODO replace this with getting from csv
+        ICollection<TurbineTelemetry> telemetry = await dbService.GetFirstYearTurbineData(turbine.TurbineId);
         
         //preprocess data (remove out-of-range values)
         telemetry = Benchmarker.Preprocess(telemetry);
@@ -253,7 +256,7 @@ public sealed class DegradationAnalyser (
         float deviationRegion2p5 = TrainRegion(inputRegion2p5, outputRegion2p5, turbine, modelNameRegion2p5);
 
         DegradationModelDetails degradationModelDetails = new() {
-            TurbineId = turbine.TurbineId,
+            Turbine = turbine,
             Region2Offset = deviationRegion2,
             Region2Filename = modelNameRegion2,
             Region2p5Offset = deviationRegion2p5,
@@ -315,13 +318,13 @@ public sealed class DegradationAnalyser (
         logger.LogInformation("Degradation model training script exited with message: {o}", response?.Message);
         
         logger.LogInformation("Degradation Benchmark Models successfuly created for turbine {t}", modelName);
-        return (float)response?.ExpectedDeviationPercentage;
+        return (float)response?.ExpectedDeviation;
     }
 
     class PyResponse()
     {
         public bool Success { get; set; } = false;
-        public float? ExpectedDeviationPercentage { get; set; }
+        public float? ExpectedDeviation { get; set; }
         public string? Message { get; set; }
     }
 

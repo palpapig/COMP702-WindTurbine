@@ -19,7 +19,6 @@ builder.Services.AddScoped<DbService>();
 var dataSourceType = builder.Configuration.GetSection("DataSource").GetValue<string>("Type") ?? "Simulated";
 if (string.Equals(dataSourceType, "OpcUaSimulator", StringComparison.OrdinalIgnoreCase))
 {
-    //It should always be this one
     builder.Services.AddSingleton<IDataSource, OpcUaDataSource>();
 }
 else
@@ -31,7 +30,6 @@ builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
 builder.Services.AddSingleton<DegradationAnalyser>();
 builder.Services.AddSingleton<FailureDetection>();
-builder.Services.AddSingleton<PlaceholderHistoricalDataSource>();
 builder.Services.AddHostedService<MonitoringWorker>();
 
 builder.Services.AddSingleton<ModelTrainingConfigService>();

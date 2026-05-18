@@ -8,6 +8,8 @@ public sealed class DegradationModelDetails
     public required string Region2Filename { get; set; }
     public required string Region2p5Filename { get; set; }
 
-    public required string TurbineId { get; set; } //FK
-    public Turbine? Turbine { get; set; }
+
+
+[ForeignKey("TurbineId")] //Says that this is the child in the one-to-one relationship and should hold the Foreign Key
+    public required Turbine Turbine { get; set; } //FK
 }

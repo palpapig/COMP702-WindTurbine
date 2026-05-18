@@ -4,27 +4,19 @@ import pandas as pd
 from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import PredictionErrorDisplay
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
 
 import matplotlib.pyplot as plt
 
-do_grid_search = True
 
 data_path = sys.argv[1]
 model_path = sys.argv[2]
 model_name = sys.argv[3]
 dataset = pd.read_csv(data_path)
 
-is_region_2p5 = model_name[-1] == "5" #if region is 2p5, not 2...
-region = "2p5" if is_region_2p5 else "2"
-
-
-#take only first 4000 rows for faster grid searching
-if do_grid_search:
-    dataset = dataset.head(4000)
+#take only first 5000 rows for faster grid searching
+#dataset = dataset.head(4000)
 
 #extract datasets from training data csv
 xvar = dataset.columns[0] # = "inputVal"
@@ -37,57 +29,39 @@ y = dataset[yvar]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-#calculate Epsilon from IQR of y_train
-Q1 = y_train.quantile(0.25)
-Q3 = y_train.quantile(0.75)
-IQR = Q3 - Q1
-epsilon = IQR / 13.49
+######## normal model training ######
+svr = SVR(kernel="rbf", C=1, gamma="scale")
+svr.fit(X_train, y_train,)
 
-if not do_grid_search:
-    ######## normal model training ######
-    #create pipeline to include scaling
-    svr = Pipeline([
-        ('scaler', StandardScaler()),
-        ('svr', SVR(kernel="rbf", C=1, gamma="scale"))
-    ])
-    #svr = SVR(kernel="rbf", C=1, gamma="scale", epsilon=epsilon)
+#get predictions using test data
+y_pred = svr.predict(X_test)
+####### end of normal model training ######
 
-    svr.fit(X_train, y_train,)
 
-    #get predictions using test data
-    y_pred = svr.predict(X_test)
-    ####### end of normal model training ######
+###### grid search ###### 
+# search_params = {
+#     "C": [0.01, 0.1, 1, 10, 100],
+#     "gamma": [0.01, 0.1, 1, 10, 100],
+#     #"epsilon": [0.01, 0.1, 1, 10, 100],
+# }
 
-else:
-    ###### grid search ###### 
-    search_params = {
-        "svr__C": [0.01, 0.1, 1, 10, 100],
-        "svr__gamma": [0.01, 0.1, 1, 10, 100],
-        #"svr__epsilon": [0.01, 0.1, 1, 10, 100],
-    }
+# base_svr = SVR(kernel="rbf")
 
-    #base_svr = SVR(kernel="rbf", epsilon=epsilon)
-    base_svr = Pipeline([
-        ('scaler', StandardScaler()),
-        ('svr', SVR(kernel="rbf", epsilon=epsilon))
-    ])
+# grid_search = GridSearchCV(base_svr, search_params)
+# svr = grid_search.fit(X_train, y_train)
 
-    grid_search = GridSearchCV(base_svr, search_params)
-    svr = grid_search.fit(X_train, y_train)
-    
+# best_params = grid_search.get_params()
 
-    best_params = grid_search.best_params_
-
-    with open(f'PythonDegradationTraining/outputs/params-r{region}.txt', 'w') as f:
-        for key, value in best_params.items():
-            try:
-                f.write(f"{key}: {value}\n")
-            except:
-                try:
-                    f.write(f"failed to serialize {key}\n")
-                except:
-                    pass
-    ####### end of grid search #######
+# with open('params.txt', 'w') as f:
+#     for key, value in best_params.items():
+#         try:
+#             f.write(f"{key}: {value}\n")
+#         except:
+#             try:
+#                 f.write(f"failed to serialize {key}\n")
+#             except:
+#                 pass
+####### end of grid search #######
 
 
 y_pred = svr.predict(X_test)
@@ -97,11 +71,11 @@ y_pred = svr.predict(X_test)
 display = PredictionErrorDisplay.from_predictions(y_test, y_pred, kind="actual_vs_predicted")
 display.plot()
 plt.savefig(f"PythonDegradationTraining/outputs/scilearn_{model_name}")
-#plt.show()
+plt.show()
 
 #combine test data and predictions into a csv for later manual validation
 x_var_name = 'GeneratorSpeed'
-if (is_region_2p5): 
+if (model_name[-1] == "5"): #if region is 2p5, not 2...
     x_var_name = "PitchAngle"
 
 results_df = pd.DataFrame({
@@ -131,7 +105,7 @@ with open(model_path, "wb") as f:
 #return expected deviation to C#
 response = {
     "Success": True,
-    "ExpectedDeviationPercentage": expected_deviation_percent,
+    "ExpectedDeviation": expected_deviation_percent,
     "Message": "Model trained without issue"
 }
 

@@ -10,21 +10,21 @@ public sealed class PowerBin
 
 public sealed class Benchmarker(
     ILogger<MonitoringWorker> logger,
-    IServiceScopeFactory scopeFactory,
-    PlaceholderHistoricalDataSource historicalDataSource)
+    IServiceScopeFactory scopeFactory)
 
 {
 
-    public async Task ForceDoBenchmarking(DateTime endDate, string turbineId = "BK-TEST-4", int monthsGap = 12)
+    public async Task ForceDoBenchmarking(string turbineId = "BK-TEST-4", DateTime? benchmarkEndDate = null, int monthsGap = 12)
     {
+        DateTime endDate = benchmarkEndDate ?? DateTime.Now;
         using (var tempScope = scopeFactory.CreateScope())
         {
-            var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+            var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
-            Turbine turbine = await dbService.GetTurbineById(turbineId);
+            Turbine turbine = await tempDbService.GetTurbineById(turbineId);
 
-            List<TurbineTelemetry> benchmarkTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
-
+            //TODO get data from csv
+            List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear(turbineId, endDate.Year);
             logger.LogInformation("turbine name: {tname}", turbine.Name);
 
             if (yearTelemetry.Count == 0)
@@ -40,20 +40,17 @@ public sealed class Benchmarker(
         }
     }
 
-    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12)
+    public async Task DoAnalysisIfNeeded(Turbine turbine, int monthsGap = 3)
     {
-        DateTime endDate = currentDate;
         using (var tempScope = scopeFactory.CreateScope())
         {
-            var dbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
-
-            Turbine turbine = await dbService.GetTurbineById(turbineId);
+            var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
 
             //if there is at least one benchmark result, AND the most recent one happened less than monthGap months ago, don't do analysis
             if (turbine.BenchmarkResults.Count > 0)
             {
                 DateTime lastAnalysed = turbine.BenchmarkResults.MaxBy(r => r.TimeRangeEnd).TimeRangeEnd;
-                if (lastAnalysed.AddMonths(monthsGap) > currentDate)
+                if (lastAnalysed.AddMonths(monthsGap) > DateTime.Now)
                 {
                     logger.LogInformation("No benchmarking needed, latest benchmark for turbine {t} happened less than {m} months ago", turbine.TurbineId, monthsGap);
                     return;
@@ -61,18 +58,19 @@ public sealed class Benchmarker(
             }
 
 
-            List<TurbineTelemetry> recentTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
+            //TODO get data from csv
+            List<TurbineTelemetry> benchmarkTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", DateTime.Now.Year);
 
-            if (recentTelemetry.Count == 0)
+            if (benchmarkTelemetry.Count == 0)
             {
                 logger.LogWarning("Attempted to do degradation analysis on turbine {t}, but no data exists for given time period", turbine.TurbineId);
                 return;
             }
 
-            BenchmarkResult benchmarkResult = Benchmark(recentTelemetry, turbine);
+            BenchmarkResult benchmarkResult = Benchmark(benchmarkTelemetry, turbine);
             if (benchmarkResult != null)
             {
-                await dbService.AddBenchmarkResultAsync(benchmarkResult);
+                await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
                 logger.LogInformation("Successfully written benchmark results to database");
             }
 
@@ -141,8 +139,8 @@ public sealed class Benchmarker(
 
             float binWeight = (float)frequencyBins[windSpeed] / telemetry.Count;
             weightedTotalDeviation += binWeight * deviationRatio;
+
         }
-        weightedTotalDeviation = (weightedTotalDeviation - 1) * 100; //become percentage difference 
 
         //convert dictionary to PowerBin list
         ICollection<PowerBinMeasured> convertedMeasuredPowerBins = [.. measuredPowerBins.Select(pair => new PowerBinMeasured { WindSpeed = pair.Key, Power = pair.Value, BenchmarkResult = result })];

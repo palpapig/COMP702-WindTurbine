@@ -25,7 +25,7 @@
   },
   "data": {
     "csvPath": "data/turbine4_2017-2022.csv",
-    "turbineId": "BK-TEST-4",
+    "turbineId": "WT-004",
     "replayYear": 2024,
     "historyYear": 2023,
     "turbineFilePrefix": "Turbine_Data_Kelmarsh_"

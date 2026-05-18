@@ -55,5 +55,5 @@ public sealed class DataSettings
     public int HistoryYear { get; set; } = 2023;
     public string TurbineFilePrefix { get; set; } = "Turbine_Data_Kelmarsh_";
     public string CsvPath { get; set; } = "data/turbine4_2017-2022.csv";
-    public string TurbineId { get; set; } = "BK-TEST-4";
+    public string TurbineId { get; set; } = "WT-004";
 }

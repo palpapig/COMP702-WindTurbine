@@ -34,8 +34,6 @@ faultDetection_service/artifacts/**/*.pkl
 # ignore python cashing files
 __pycache__/
 *.pyc
-bin/
-obj/
 
 # ingonre .venv vertuall envirnment to avoid envirnment conflicts
 .venv/
@@ -53,4 +51,3 @@ Worker/pki/
 
 # Temporary data for training degradation model in Python
 Worker/PythonDegradationTraining/TempTrainingData.csv
-Worker/PythonDegradationTraining/outputs/*
