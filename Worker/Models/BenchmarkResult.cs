@@ -1,4 +1,5 @@
 namespace COMP702_WindTurbine.models;
+using COMP702_WindTurbine.models;
 public sealed class BenchmarkResult
 {
     public long Id { get; set; }

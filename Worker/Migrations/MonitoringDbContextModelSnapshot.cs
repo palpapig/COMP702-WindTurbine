@@ -321,10 +321,10 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<double>("MinimumPowerOutput")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("PitchAngle")
+                    b.Property<double>("PitchAngle")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("PowerOutput")
+                    b.Property<double>("PowerOutput")
                         .HasColumnType("double precision");
 
                     b.Property<double?>("RotorSpeed")
@@ -342,9 +342,6 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<string>("TurbineId")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<double?>("Vibration")
-                        .HasColumnType("double precision");
 
                     b.Property<double?>("WindSpeed")
                         .HasColumnType("double precision");

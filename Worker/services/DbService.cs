@@ -80,14 +80,36 @@ public sealed class DbService (
     }
 
     public async Task AddDegradationModelDetails(DegradationModelDetails dmd)
+{
+    //update the existing one for that turbine if it already has one
+    var existing = await db.Set<DegradationModelDetails>()
+        .FirstOrDefaultAsync(x => x.TurbineId == dmd.TurbineId);
+    
+    if (existing != null)
     {
-        db.Set<Turbine>().Attach(dmd.Turbine); //indicates to not re-add the turbine as a new row
-        db.Set<DegradationModelDetails>().Add(dmd);
-        await db.SaveChangesAsync();
+        existing.Region2Offset = dmd.Region2Offset;
+        existing.Region2p5Offset = dmd.Region2p5Offset;
+        existing.Region2Filename = dmd.Region2Filename;
+        existing.Region2p5Filename = dmd.Region2p5Filename;
     }
+    else
+    {
+        if (dmd.Turbine != null)
+        {
+            db.Set<Turbine>().Attach(dmd.Turbine);
+        }
+        db.Set<DegradationModelDetails>().Add(dmd);
+    }
+    
+    await db.SaveChangesAsync();
+}
 
     public async Task AddDegradationResult(DegradationResult result)
     {
+        if (result.Turbine != null)
+        {
+            db.Set<Turbine>().Attach(result.Turbine); //indicates to not re-add the turbine as a new row
+        }
         db.Set<DegradationResult>().Add(result);
         await db.SaveChangesAsync();
     }

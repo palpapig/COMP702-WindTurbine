@@ -1,0 +1,44 @@
+### Health
+GET http://127.0.0.1:8000/health
+
+### Train one turbine
+POST http://127.0.0.1:8000/train
+Content-Type: application/json
+
+{
+  "turbine_id": "T1",
+  "rows": [
+    {
+      "values": {
+        "Wind speed (m/s)": 8.5,
+        "Drive train acceleration (mm/ss)": 1.3,
+        "Gear oil inlet temperature (°C)": 42.0,
+        "Transformer temperature (°C)": 48.1,
+        "Front bearing temperature (°C)": 45.2,
+        "Tower Acceleration y (mm/ss)": 0.8,
+        "Nacelle temperature (°C)": 22.4,
+        "Gear oil temperature (°C)": 44.0,
+        "Power (kW)": 920.0
+      }
+    }
+  ]
+}
+
+### Predict for one turbine
+POST http://127.0.0.1:8000/predict
+Content-Type: application/json
+
+{
+  "turbine_id": "T1",
+  "actual_target_value": 905.0,
+  "values": {
+    "Wind speed (m/s)": 8.5,
+    "Drive train acceleration (mm/ss)": 1.3,
+    "Gear oil inlet temperature (°C)": 42.0,
+    "Transformer temperature (°C)": 48.1,
+    "Front bearing temperature (°C)": 45.2,
+    "Tower Acceleration y (mm/ss)": 0.8,
+    "Nacelle temperature (°C)": 22.4,
+    "Gear oil temperature (°C)": 44.0
+  }
+}

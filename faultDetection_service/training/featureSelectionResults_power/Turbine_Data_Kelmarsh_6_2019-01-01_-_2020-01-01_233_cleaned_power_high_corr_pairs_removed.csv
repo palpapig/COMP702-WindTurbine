@@ -1,0 +1,426 @@
+feature_1,feature_2,abs_correlation
+Nacelle position (°),Yaw bearing angle (°),0.999999911451284
+Current L1 / U (A),Grid current (A),0.9999898336591414
+Current L1 / U (A),Current L2 / V (A),0.99998941160217
+Rotor speed (RPM),Gearbox speed (RPM),0.9999875251337298
+Current L2 / V (A),Grid current (A),0.9999848116838486
+Generator RPM (RPM),Gearbox speed (RPM),0.9999844352971606
+Current L1 / U (A),Current L3 / W (A),0.9999825834660802
+Blade angle (pitch position) A (°),Blade angle (pitch position) B (°),0.9999821534974179
+Current L3 / W (A),Grid current (A),0.999977441883727
+Current L2 / V (A),Current L3 / W (A),0.999977183974284
+Rotor speed (RPM),Generator RPM (RPM),0.9999718765454186
+"Current L2 / V, max (A)","Current L3 / W, max (A)",0.9999675393278311
+"Blade angle (pitch position) A, Standard deviation (°)","Blade angle (pitch position) B, Standard deviation (°)",0.9999441054602393
+"Current L2 / V, StdDev (A)","Current L3 / W, StdDev (A)",0.9999423251318834
+"Blade angle (pitch position) B, Min (°)","Blade angle (pitch position) C, Min (°)",0.9999423242500137
+"Blade angle (pitch position) A, Max (°)","Blade angle (pitch position) B, Max (°)",0.9999216606969742
+"Blade angle (pitch position) A, Min (°)","Blade angle (pitch position) B, Min (°)",0.9999161260441224
+"Current L2 / V, min (A)","Current L3 / W, min (A)",0.9999065242021322
+Blade angle (pitch position) B (°),Blade angle (pitch position) C (°),0.9998590392120802
+Blade angle (pitch position) A (°),Blade angle (pitch position) C (°),0.9998469164089437
+"Blade angle (pitch position) A, Min (°)","Blade angle (pitch position) C, Min (°)",0.999841812874195
+"Generator RPM, Max (RPM)","Rotor speed, Max (RPM)",0.9998199663137634
+Grid current (A),Apparent power (kVA),0.9998160631934686
+Current L1 / U (A),Apparent power (kVA),0.9997863784067106
+Current L2 / V (A),Apparent power (kVA),0.9997793451372252
+Current L3 / W (A),Apparent power (kVA),0.9997646631780414
+Wind speed (m/s),Density adjusted wind speed (m/s),0.9997532216868512
+"Generator RPM, Standard deviation (RPM)","Rotor speed, Standard deviation (RPM)",0.999648662813965
+"Generator RPM, Min (RPM)","Rotor speed, Min (RPM)",0.9996401318630338
+Generator bearing rear temperature (°C),"Generator bearing rear temperature, Max (°C)",0.9981941469789348
+Generator bearing rear temperature (°C),"Generator bearing rear temperature, Min (°C)",0.9981653005260813
+Temperature motor axis 1 (°C),Temperature motor axis 3 (°C),0.997433444623851
+Wind speed Sensor 1 (m/s),Wind speed Sensor 2 (m/s),0.9967861223685544
+Temperature motor axis 1 (°C),Temperature motor axis 2 (°C),0.9966653166211581
+Temperature motor axis 2 (°C),Temperature motor axis 3 (°C),0.9965900496408722
+"Blade angle (pitch position) B, Standard deviation (°)","Blade angle (pitch position) C, Standard deviation (°)",0.9964412961821163
+"Blade angle (pitch position) A, Standard deviation (°)","Blade angle (pitch position) C, Standard deviation (°)",0.9963722409512688
+Wind speed (m/s),Wind speed Sensor 1 (m/s),0.9955210078042572
+Wind speed (m/s),Wind speed Sensor 2 (m/s),0.9950969439968431
+Wind speed Sensor 2 (m/s),Density adjusted wind speed (m/s),0.9948634081489556
+"Voltage L2 / V, Standard deviation (V)","Voltage L3 / W, Standard deviation (V)",0.9946555048058543
+Wind speed Sensor 1 (m/s),Density adjusted wind speed (m/s),0.9943218143965136
+"Blade angle (pitch position) B, Max (°)","Blade angle (pitch position) C, Max (°)",0.9939710383828673
+"Blade angle (pitch position) A, Max (°)","Blade angle (pitch position) C, Max (°)",0.9938509421431581
+Ambient temperature (converter) (°C),Transformer cell temperature (°C),0.9937893802121642
+"Voltage L1 / U, Standard deviation (V)","Voltage L3 / W, Standard deviation (V)",0.9933558176225075
+"Generator bearing rear temperature, Max (°C)","Generator bearing rear temperature, Min (°C)",0.9932092699551943
+Generator bearing front temperature (°C),"Generator bearing front temperature, Max (°C)",0.993151122143656
+Generator bearing front temperature (°C),"Generator bearing front temperature, Min (°C)",0.9931149989279456
+Gear oil inlet pressure (bar),Gear oil pump pressure (bar),0.9930087939068443
+Voltage L2 / V (V),Grid voltage (V),0.992673785620398
+"Voltage L1 / U, Standard deviation (V)","Voltage L2 / V, Standard deviation (V)",0.990313373339474
+Front bearing temperature (°C),"Front bearing temperature, Max (°C)",0.9903130149016661
+Nacelle temperature (°C),"Nacelle temperature, Min (°C)",0.9902278816395774
+Nacelle temperature (°C),"Nacelle temperature, Max (°C)",0.9898734628877296
+"Hub temperature, min (°C)","Hub temperature, max (°C)",0.988537968666814
+Reactive power (kvar),"Reactive power, Min (kvar)",0.9881667642242363
+Front bearing temperature (°C),"Front bearing temperature, Min (°C)",0.9881649758196726
+"Wind speed Sensor 1, Maximum (m/s)","Wind speed Sensor 2, Maximum (m/s)",0.9872158161888699
+Voltage L1 / U (V),Grid voltage (V),0.9863649240856396
+Reactive power (kvar),"Reactive power, Max (kvar)",0.9859841942838
+"Nacelle position, Maximum (°)",Yaw bearing angle (°),0.9854448804771558
+Nacelle position (°),"Nacelle position, Maximum (°)",0.9854424689263406
+"Voltage L1 / U, Min (V)","Voltage L2 / V, Min (V)",0.9809193046627717
+Voltage L3 / W (V),Grid voltage (V),0.9795117178665808
+"Wind speed, Maximum (m/s)","Wind speed Sensor 1, Maximum (m/s)",0.9774215118680822
+Rear bearing temperature (°C),"Rear bearing temperature, Max (°C)",0.9771377684885009
+Nacelle ambient temperature (°C),Transformer cell temperature (°C),0.9767289993527007
+Voltage L1 / U (V),Voltage L2 / V (V),0.976151527509514
+"Voltage L1 / U, Max (V)","Voltage L2 / V, Max (V)",0.9743942311795926
+"Generator bearing front temperature, Max (°C)","Generator bearing front temperature, Min (°C)",0.9738556303168563
+Nacelle ambient temperature (°C),Ambient temperature (converter) (°C),0.973380123260363
+Rotor speed (RPM),Apparent power (kVA),0.9712384134139987
+Gearbox speed (RPM),Apparent power (kVA),0.9711840583981497
+Generator RPM (RPM),Apparent power (kVA),0.9711743672489209
+Current L3 / W (A),Rotor speed (RPM),0.9709728940456129
+Current L3 / W (A),Gearbox speed (RPM),0.970950085700231
+Current L3 / W (A),Generator RPM (RPM),0.9709492681285731
+"Current L1 / U, min (A)","Generator RPM, Min (RPM)",0.970899277202023
+Current L1 / U (A),Rotor speed (RPM),0.9708548932324914
+Grid current (A),Rotor speed (RPM),0.9708362431604937
+Current L1 / U (A),Gearbox speed (RPM),0.9708313323183625
+Current L1 / U (A),Generator RPM (RPM),0.9708303136607513
+Grid current (A),Gearbox speed (RPM),0.9708113557989261
+Grid current (A),Generator RPM (RPM),0.9708105094192043
+"Wind speed, Maximum (m/s)","Wind speed Sensor 2, Maximum (m/s)",0.9707407325099137
+Current L2 / V (A),Rotor speed (RPM),0.9705703276537604
+Current L2 / V (A),Gearbox speed (RPM),0.970547557542489
+Current L2 / V (A),Generator RPM (RPM),0.97054660770987
+"Current L1 / U, min (A)","Rotor speed, Min (RPM)",0.9701892303200869
+"Nacelle position, Minimum (°)",Yaw bearing angle (°),0.9698554240836735
+Nacelle position (°),"Nacelle position, Minimum (°)",0.9698551529595139
+Current L1 / U (A),"Current L1 / U, max (A)",0.9687634802726196
+Current L3 / W (A),"Current L1 / U, max (A)",0.9687014293558605
+Grid current (A),"Current L1 / U, max (A)",0.9686915727431995
+Current L2 / V (A),"Current L1 / U, max (A)",0.9685796825722188
+"Current L1 / U, max (A)",Apparent power (kVA),0.9685654940776605
+Rear bearing temperature (°C),"Rear bearing temperature, Min (°C)",0.9684894890104951
+Vane position 1+2 (°),Yaw error (°),0.9671490223874689
+"Wind speed Sensor 1, Standard deviation (m/s)","Wind speed Sensor 2, Standard deviation (m/s)",0.9651069919051659
+"Nacelle temperature, Max (°C)","Nacelle temperature, Min (°C)",0.9638671657083556
+"Voltage L2 / V, Min (V)","Voltage L3 / W, Min (V)",0.9631718910830382
+"Front bearing temperature, Max (°C)","Front bearing temperature, Min (°C)",0.96210752117404
+"Wind speed Sensor 1, Minimum (m/s)","Wind speed Sensor 2, Minimum (m/s)",0.962005767251375
+Voltage L2 / V (V),Voltage L3 / W (V),0.9597672668604164
+"Voltage L2 / V, Max (V)","Voltage L3 / W, Max (V)",0.9589829239774827
+Wind speed Sensor 1 (m/s),Current L2 / V (A),0.9581245140389179
+Wind speed Sensor 1 (m/s),Apparent power (kVA),0.9580039816073661
+Density adjusted wind speed (m/s),Current L2 / V (A),0.9579982873248223
+Wind speed Sensor 1 (m/s),Grid current (A),0.9579584171380853
+Density adjusted wind speed (m/s),Apparent power (kVA),0.9579541020804853
+Wind speed Sensor 1 (m/s),Current L1 / U (A),0.9579176790673627
+Density adjusted wind speed (m/s),Grid current (A),0.9578486413316248
+Wind speed Sensor 1 (m/s),Current L3 / W (A),0.9578138257899128
+Density adjusted wind speed (m/s),Current L1 / U (A),0.9577757487745069
+Density adjusted wind speed (m/s),Current L3 / W (A),0.9576793839617503
+Wind speed Sensor 2 (m/s),Current L2 / V (A),0.9576477677661918
+Wind speed (m/s),Current L2 / V (A),0.9576321971520985
+Wind speed (m/s),Apparent power (kVA),0.9576094349543547
+Density adjusted wind speed (m/s),Generator RPM (RPM),0.9575566361804102
+Wind speed (m/s),Grid current (A),0.9574831241452265
+Density adjusted wind speed (m/s),Gearbox speed (RPM),0.9574796109717859
+Wind speed Sensor 2 (m/s),Grid current (A),0.9574715367308166
+Wind speed Sensor 2 (m/s),Apparent power (kVA),0.9574600837724344
+Wind speed Sensor 2 (m/s),Current L1 / U (A),0.957424468717701
+Wind speed (m/s),Current L1 / U (A),0.9574134423572823
+Density adjusted wind speed (m/s),Rotor speed (RPM),0.9573969038628868
+Wind speed Sensor 2 (m/s),Current L3 / W (A),0.9573400159809644
+Wind speed (m/s),Current L3 / W (A),0.9573118505227031
+Wind speed (m/s),Gearbox speed (RPM),0.9573084258491527
+Wind speed (m/s),Generator RPM (RPM),0.9572814966263173
+Wind speed Sensor 1 (m/s),Gearbox speed (RPM),0.957232383205144
+Wind speed (m/s),Rotor speed (RPM),0.9572254948943891
+Wind speed Sensor 1 (m/s),Rotor speed (RPM),0.9571460385452013
+Wind speed Sensor 2 (m/s),Gearbox speed (RPM),0.9570876570932377
+Wind speed Sensor 2 (m/s),Generator RPM (RPM),0.957059013492599
+Wind speed Sensor 1 (m/s),Generator RPM (RPM),0.9570075133656275
+Wind speed Sensor 2 (m/s),Rotor speed (RPM),0.9569968982452864
+Current L2 / V (A),"Current L1 / U, min (A)",0.9565681205157734
+Grid current (A),"Current L1 / U, min (A)",0.9565062721915789
+Current L1 / U (A),"Current L1 / U, min (A)",0.9564618559184361
+Current L3 / W (A),"Current L1 / U, min (A)",0.9564606580319357
+"Current L1 / U, min (A)",Apparent power (kVA),0.9563255156117304
+"Reactive power, Max (kvar)","Reactive power, Min (kvar)",0.9558992558436926
+Motor current axis 2 (A),Motor current axis 3 (A),0.9555833629744974
+"Current L1 / U, max (A)",Rotor speed (RPM),0.9550746902354219
+"Current L1 / U, max (A)",Gearbox speed (RPM),0.9550456901964919
+"Current L1 / U, max (A)",Generator RPM (RPM),0.9547330426384645
+"Nacelle position, Minimum (°)","Nacelle position, Maximum (°)",0.9542635915476895
+"Blade angle (pitch position) C, Max (°)","Blade angle (pitch position) C, Standard deviation (°)",0.953375037509682
+"Wind speed, Minimum (m/s)","Wind speed Sensor 1, Minimum (m/s)",0.953356829842075
+"Blade angle (pitch position) A, Max (°)","Blade angle (pitch position) A, Standard deviation (°)",0.9533008786877677
+"Blade angle (pitch position) A, Standard deviation (°)","Blade angle (pitch position) B, Max (°)",0.9531708952332879
+Wind speed Sensor 1 (m/s),"Wind speed Sensor 1, Maximum (m/s)",0.9531406046072716
+"Gear oil temperature, Max (°C)","Gear oil temperature, Min (°C)",0.9527862233497882
+"Blade angle (pitch position) A, Max (°)","Blade angle (pitch position) B, Standard deviation (°)",0.9527547784929988
+"Blade angle (pitch position) B, Max (°)","Blade angle (pitch position) B, Standard deviation (°)",0.9527313343730835
+Wind speed Sensor 1 (m/s),"Wind speed Sensor 2, Maximum (m/s)",0.952662708383526
+"Wind speed Sensor 1, Maximum (m/s)","Current L1 / U, max (A)",0.9522791308603686
+"Wind speed, Maximum (m/s)",Wind speed Sensor 1 (m/s),0.951496736454582
+"Voltage L1 / U, Min (V)","Voltage L3 / W, Min (V)",0.9507408720340638
+"Blade angle (pitch position) A, Max (°)","Blade angle (pitch position) C, Standard deviation (°)",0.9503889845709542
+"Blade angle (pitch position) B, Max (°)","Blade angle (pitch position) C, Standard deviation (°)",0.9503864860756689
+"Wind speed, Maximum (m/s)","Current L1 / U, max (A)",0.9498269527169554
+"Wind speed Sensor 2, Maximum (m/s)","Current L1 / U, max (A)",0.9496329168669643
+Wind speed Sensor 2 (m/s),"Wind speed Sensor 2, Maximum (m/s)",0.9494300215368063
+Wind speed (m/s),"Wind speed, Maximum (m/s)",0.9492909670440173
+Reactive power (kvar),Current L2 / V (A),0.9479655679997588
+Reactive power (kvar),Current L1 / U (A),0.9479551652854248
+Reactive power (kvar),Grid current (A),0.9478617180814966
+Reactive power (kvar),Current L3 / W (A),0.9476196498675077
+"Wind speed, Maximum (m/s)",Density adjusted wind speed (m/s),0.9475387885196629
+Reactive power (kvar),Apparent power (kVA),0.9473594710497579
+"Blade angle (pitch position) A, Standard deviation (°)","Blade angle (pitch position) C, Max (°)",0.9469142111400888
+"Blade angle (pitch position) B, Standard deviation (°)","Blade angle (pitch position) C, Max (°)",0.9464982499300895
+Gearbox speed (RPM),"Generator RPM, Max (RPM)",0.9464293531796474
+Gearbox speed (RPM),"Rotor speed, Max (RPM)",0.946428265042254
+Rotor speed (RPM),"Rotor speed, Max (RPM)",0.9463633804391387
+Rotor speed (RPM),"Generator RPM, Max (RPM)",0.9463405091075102
+Generator RPM (RPM),"Generator RPM, Max (RPM)",0.9462310020318729
+Generator RPM (RPM),"Rotor speed, Max (RPM)",0.9461986353113783
+"Wind speed, Maximum (m/s)",Wind speed Sensor 2 (m/s),0.9456277673443528
+Wind speed (m/s),"Wind speed Sensor 2, Maximum (m/s)",0.9456049240757018
+"Wind speed Sensor 1, Maximum (m/s)",Wind speed Sensor 2 (m/s),0.9452268535812972
+"Reactive power, Min (kvar)","Current L1 / U, max (A)",0.9447444513165312
+"Wind speed, Standard deviation (m/s)","Wind speed Sensor 1, Standard deviation (m/s)",0.9443585950249034
+"Voltage L1 / U, Max (V)","Voltage L3 / W, Max (V)",0.9443579453278672
+Wind speed (m/s),"Wind speed Sensor 1, Maximum (m/s)",0.9438781283057447
+"Wind speed Sensor 2, Maximum (m/s)",Density adjusted wind speed (m/s),0.9438701797015618
+"Wind speed Sensor 1, Maximum (m/s)",Density adjusted wind speed (m/s),0.9414459125834551
+Voltage L1 / U (V),Voltage L3 / W (V),0.9407211757137822
+"Reactive power, Min (kvar)",Current L1 / U (A),0.9377424065414843
+"Current L3 / W, max (A)","Current L3 / W, StdDev (A)",0.9376564960277229
+"Reactive power, Min (kvar)",Current L2 / V (A),0.9376524194407304
+"Reactive power, Min (kvar)",Grid current (A),0.9376111754720584
+"Current L2 / V, max (A)","Current L3 / W, StdDev (A)",0.9375501235334534
+"Current L3 / W, max (A)","Current L2 / V, StdDev (A)",0.9374757504334691
+"Current L2 / V, max (A)","Current L2 / V, StdDev (A)",0.9374228764643245
+"Reactive power, Min (kvar)",Current L3 / W (A),0.9373803567612157
+"Reactive power, Min (kvar)",Apparent power (kVA),0.9372481601372784
+"Current L1 / U, min (A)",Generator RPM (RPM),0.9371266402871833
+"Current L1 / U, min (A)",Rotor speed (RPM),0.9366896009239706
+"Current L1 / U, min (A)",Gearbox speed (RPM),0.9366795437986568
+"Wind speed Sensor 1, Maximum (m/s)","Rotor speed, Max (RPM)",0.9356587997607971
+"Wind speed Sensor 1, Maximum (m/s)","Generator RPM, Max (RPM)",0.9355842703635241
+Grid voltage (V),"Grid voltage, Min (V)",0.9355677139352091
+Wind speed Sensor 1 (m/s),"Current L1 / U, max (A)",0.9350166343694997
+Reactive power (kvar),"Current L1 / U, max (A)",0.9336403867308326
+"Wind speed, Maximum (m/s)",Current L2 / V (A),0.9333232892406194
+"Wind speed, Maximum (m/s)",Current L1 / U (A),0.9332976942069634
+"Wind speed Sensor 2, Maximum (m/s)",Current L2 / V (A),0.9332791240277692
+"Wind speed, Maximum (m/s)",Grid current (A),0.9332730980074287
+"Wind speed, Maximum (m/s)",Apparent power (kVA),0.9332507226067314
+"Wind speed Sensor 2, Maximum (m/s)",Current L1 / U (A),0.9332468097925765
+"Wind speed Sensor 2, Maximum (m/s)",Grid current (A),0.9331993662482444
+"Wind speed Sensor 2, Maximum (m/s)",Apparent power (kVA),0.9330878209664384
+"Wind speed, Maximum (m/s)",Current L3 / W (A),0.9330797879547482
+"Wind speed Sensor 2, Maximum (m/s)",Current L3 / W (A),0.9330482598701124
+Grid voltage (V),"Grid voltage, Max (V)",0.9328495361693973
+"Reactive power, Max (kvar)",Current L2 / V (A),0.9325683026607418
+"Reactive power, Max (kvar)",Current L1 / U (A),0.9324496624075655
+"Reactive power, Max (kvar)",Grid current (A),0.9323919693044102
+"Reactive power, Max (kvar)",Current L3 / W (A),0.9321410349703909
+"Reactive power, Max (kvar)",Apparent power (kVA),0.9317535694760959
+"Wind speed, Maximum (m/s)","Generator RPM, Max (RPM)",0.9317535390381181
+"Wind speed, Maximum (m/s)","Rotor speed, Max (RPM)",0.9317247000462254
+Voltage L2 / V (V),"Grid voltage, Min (V)",0.9316029372446323
+"Wind speed Sensor 2, Maximum (m/s)","Generator RPM, Max (RPM)",0.9310482818881461
+"Wind speed Sensor 2, Maximum (m/s)","Rotor speed, Max (RPM)",0.9310096011450064
+"Wind speed, Maximum (m/s)",Gearbox speed (RPM),0.9307972702478022
+"Wind speed, Maximum (m/s)",Rotor speed (RPM),0.930744903543886
+"Wind speed Sensor 1, Maximum (m/s)",Current L2 / V (A),0.930689458541584
+"Wind speed Sensor 1, Maximum (m/s)",Current L1 / U (A),0.9306852470153565
+"Wind speed Sensor 1, Maximum (m/s)",Grid current (A),0.9306301495655035
+"Wind speed Sensor 1, Maximum (m/s)",Apparent power (kVA),0.9305729637973816
+"Wind speed Sensor 1, Maximum (m/s)",Current L3 / W (A),0.9304781546825222
+"Wind speed, Maximum (m/s)",Generator RPM (RPM),0.930470903268444
+"Wind speed Sensor 2, Maximum (m/s)",Gearbox speed (RPM),0.9304304829451754
+"Wind speed Sensor 2, Maximum (m/s)",Rotor speed (RPM),0.930371984711614
+"Wind speed Sensor 2, Maximum (m/s)",Generator RPM (RPM),0.9301042803853051
+Wind speed (m/s),"Current L1 / U, max (A)",0.9298884484363559
+Wind speed Sensor 2 (m/s),"Current L1 / U, max (A)",0.9298027575261741
+"Wind speed Sensor 1, Maximum (m/s)",Gearbox speed (RPM),0.9292527131259746
+"Wind speed Sensor 1, Maximum (m/s)",Rotor speed (RPM),0.9291933955682333
+"Wind speed, Minimum (m/s)","Wind speed Sensor 2, Minimum (m/s)",0.929033751907176
+"Wind speed Sensor 1, Maximum (m/s)",Generator RPM (RPM),0.9287873749407729
+"Current L1 / U, max (A)","Current L1 / U, StdDev (A)",0.9287626286919611
+"Power factor (cosphi), Max","Power factor (cosphi), Standard deviation",0.9286502765777466
+Density adjusted wind speed (m/s),"Current L1 / U, max (A)",0.9286208586598265
+"Current L1 / U, max (A)","Rotor speed, Max (RPM)",0.9276226960189374
+"Current L1 / U, max (A)","Generator RPM, Max (RPM)",0.9275771986098658
+Temp. top box (°C),CPU temperature (°C),0.9265642441739457
+Density adjusted wind speed (m/s),"Current L1 / U, min (A)",0.9262696398460738
+"Rotor speed, Min (RPM)",Apparent power (kVA),0.9261422927762636
+Current L3 / W (A),"Rotor speed, Min (RPM)",0.9260266584877348
+Grid current (A),"Rotor speed, Min (RPM)",0.9258650156120698
+Current L1 / U (A),"Rotor speed, Min (RPM)",0.9257622604425382
+"Reactive power, Max (kvar)","Current L1 / U, min (A)",0.9257603371089439
+Current L2 / V (A),"Rotor speed, Min (RPM)",0.9256934603322468
+"Generator RPM, Min (RPM)",Apparent power (kVA),0.9255752274437159
+Current L3 / W (A),"Generator RPM, Min (RPM)",0.9255006676691376
+Grid current (A),"Generator RPM, Min (RPM)",0.9253367884944247
+Current L1 / U (A),"Generator RPM, Min (RPM)",0.9252333171765496
+Current L2 / V (A),"Generator RPM, Min (RPM)",0.9251643128490459
+Motor current axis 1 (A),Motor current axis 2 (A),0.9248026555569736
+Wind speed (m/s),"Current L1 / U, min (A)",0.9235367917589767
+Wind speed Sensor 2 (m/s),"Current L1 / U, min (A)",0.9234887145117314
+Voltage L2 / V (V),"Grid voltage, Max (V)",0.9234381349199555
+Voltage L1 / U (V),"Grid voltage, Max (V)",0.9228448854764312
+Reactive power (kvar),Generator RPM (RPM),0.922296764309048
+Reactive power (kvar),Rotor speed (RPM),0.9222814146822056
+Reactive power (kvar),Gearbox speed (RPM),0.9222629957745335
+"Wind speed Sensor 1, Maximum (m/s)","Reactive power, Min (kvar)",0.9220808463373014
+Voltage L1 / U (V),"Grid voltage, Min (V)",0.9208665477095536
+"Wind speed, Maximum (m/s)","Reactive power, Min (kvar)",0.9204642511867336
+"Wind speed Sensor 2, Maximum (m/s)","Reactive power, Min (kvar)",0.9203215905395054
+"Reactive power, Min (kvar)",Rotor speed (RPM),0.9201070710112031
+"Reactive power, Min (kvar)",Gearbox speed (RPM),0.920101097026855
+"Reactive power, Min (kvar)",Generator RPM (RPM),0.9199591744131158
+Generator RPM (RPM),"Rotor speed, Min (RPM)",0.9199542231121156
+Rotor speed (RPM),"Rotor speed, Min (RPM)",0.9196771908628426
+Wind speed Sensor 1 (m/s),"Rotor speed, Max (RPM)",0.9196285536297809
+Gearbox speed (RPM),"Rotor speed, Min (RPM)",0.9195884013818526
+Wind speed Sensor 1 (m/s),"Generator RPM, Max (RPM)",0.9195476197409942
+Generator RPM (RPM),"Generator RPM, Min (RPM)",0.919450612015941
+Rotor speed (RPM),"Generator RPM, Min (RPM)",0.9190977383691372
+Gearbox speed (RPM),"Generator RPM, Min (RPM)",0.9190459856534025
+Wind direction (°),Yaw bearing angle (°),0.9189096750712277
+Wind direction (°),Nacelle position (°),0.9189079051975715
+Wind speed Sensor 1 (m/s),"Current L1 / U, min (A)",0.9182365401762166
+"Wind speed, Standard deviation (m/s)","Wind speed Sensor 2, Standard deviation (m/s)",0.9175432369059691
+Gear oil inlet temperature (°C),Gear oil pump pressure (bar),0.9170646030507709
+Hub temperature (°C),Rotor bearing temp (°C),0.9165900670400102
+Voltage L3 / W (V),"Grid voltage, Min (V)",0.9152785683506589
+Wind speed (m/s),"Generator RPM, Max (RPM)",0.9151587949529169
+Wind direction (°),"Nacelle position, Maximum (°)",0.9151013218863334
+Wind speed Sensor 2 (m/s),"Generator RPM, Max (RPM)",0.9150556859738096
+Wind speed (m/s),"Rotor speed, Max (RPM)",0.9150521609480523
+Wind speed Sensor 2 (m/s),"Rotor speed, Max (RPM)",0.9149456489109578
+Density adjusted wind speed (m/s),"Generator RPM, Max (RPM)",0.9138995199796829
+Motor current axis 1 (A),Motor current axis 3 (A),0.9138976172832839
+Density adjusted wind speed (m/s),"Rotor speed, Max (RPM)",0.913693062864767
+Voltage L3 / W (V),"Grid voltage, Max (V)",0.9136614454378927
+Reactive power (kvar),"Current L1 / U, min (A)",0.9134617176277068
+"Wind speed, Maximum (m/s)",Reactive power (kvar),0.9106316711930458
+"Wind speed Sensor 2, Maximum (m/s)",Reactive power (kvar),0.910424198811787
+"Wind speed Sensor 1, Minimum (m/s)",Wind speed Sensor 2 (m/s),0.9103059259184314
+Rotor bearing temp (°C),Transformer cell temperature (°C),0.9102614585204997
+"Wind speed Sensor 1, Minimum (m/s)",Density adjusted wind speed (m/s),0.9100902954959553
+"Wind speed Sensor 1, Maximum (m/s)",Reactive power (kvar),0.9097014985812247
+Wind speed (m/s),"Wind speed Sensor 1, Minimum (m/s)",0.9093939561902241
+Wind direction (°),"Nacelle position, Minimum (°)",0.9072251692155624
+Wind speed Sensor 1 (m/s),"Wind speed Sensor 1, Minimum (m/s)",0.906960638619564
+"Rear bearing temperature, Max (°C)","Rear bearing temperature, Min (°C)",0.9049637030028304
+"Reactive power, Min (kvar)",Drive train acceleration (mm/ss),0.9046012761676095
+Reactive power (kvar),Drive train acceleration (mm/ss),0.9044376059073161
+Nacelle ambient temperature (°C),Hub temperature (°C),0.9025918390134587
+"Reactive power, Max (kvar)",Generator RPM (RPM),0.9018885487107327
+"Reactive power, Max (kvar)",Rotor speed (RPM),0.9016561325204068
+"Reactive power, Max (kvar)",Gearbox speed (RPM),0.9016358288505602
+Wind speed Sensor 1 (m/s),Reactive power (kvar),0.901156256425754
+Density adjusted wind speed (m/s),Reactive power (kvar),0.8993137641211667
+"Reactive power, Min (kvar)","Rotor speed, Max (RPM)",0.8990594226941031
+"Reactive power, Min (kvar)","Generator RPM, Max (RPM)",0.899012712814483
+Wind speed Sensor 2 (m/s),Reactive power (kvar),0.8989970611473653
+Wind speed (m/s),Reactive power (kvar),0.8987155013827045
+Wind speed Sensor 1 (m/s),"Reactive power, Min (kvar)",0.8986753825266931
+"Reactive power, Max (kvar)","Current L1 / U, max (A)",0.8972588474742933
+"Wind speed, Minimum (m/s)",Density adjusted wind speed (m/s),0.897015970889805
+Gear oil inlet temperature (°C),Gear oil inlet pressure (bar),0.8968162826631126
+Generator RPM (RPM),Gear oil inlet pressure (bar),0.8960789033099036
+Rotor speed (RPM),Gear oil inlet pressure (bar),0.8957623108018962
+Gearbox speed (RPM),Gear oil inlet pressure (bar),0.8956240359512292
+Ambient temperature (converter) (°C),Rotor bearing temp (°C),0.8952694440101305
+Wind speed (m/s),"Wind speed, Minimum (m/s)",0.8951508542632863
+Wind speed Sensor 2 (m/s),"Reactive power, Min (kvar)",0.8943314964706178
+Wind speed Sensor 2 (m/s),"Wind speed Sensor 2, Minimum (m/s)",0.8940632749200886
+Wind speed (m/s),"Reactive power, Min (kvar)",0.8939887182250131
+Current L3 / W (A),Gear oil inlet pressure (bar),0.8937524174906004
+Density adjusted wind speed (m/s),"Reactive power, Min (kvar)",0.8936332637759193
+Gear oil inlet pressure (bar),Apparent power (kVA),0.8935892161792496
+Current L1 / U (A),Gear oil inlet pressure (bar),0.8935432999174221
+Grid current (A),Gear oil inlet pressure (bar),0.8934751218969758
+Current L2 / V (A),Gear oil inlet pressure (bar),0.8930279273673176
+"Current L2 / V, max (A)","Current L3 / W, min (A)",0.8926892033745906
+"Current L3 / W, max (A)","Current L3 / W, min (A)",0.8926865607747323
+"Current L2 / V, max (A)","Current L2 / V, min (A)",0.8918679875869486
+"Current L3 / W, max (A)","Current L2 / V, min (A)",0.8918609625526023
+"Rotor speed, Max (RPM)",Apparent power (kVA),0.8917267192099801
+"Generator RPM, Max (RPM)",Apparent power (kVA),0.8916410310812858
+Current L1 / U (A),"Rotor speed, Max (RPM)",0.8914616394072359
+Current L1 / U (A),"Generator RPM, Max (RPM)",0.8914177048230032
+Current L3 / W (A),"Rotor speed, Max (RPM)",0.891347828471647
+Grid current (A),"Rotor speed, Max (RPM)",0.8913238501162287
+Current L3 / W (A),"Generator RPM, Max (RPM)",0.8913026795580293
+Grid current (A),"Generator RPM, Max (RPM)",0.8912777276601705
+Current L2 / V (A),"Rotor speed, Max (RPM)",0.8910577562133742
+Current L2 / V (A),"Generator RPM, Max (RPM)",0.8910142768685261
+"Wind speed Sensor 2, Minimum (m/s)",Density adjusted wind speed (m/s),0.8901198531859084
+"Wind speed, Minimum (m/s)",Wind speed Sensor 2 (m/s),0.8893120468421243
+Wind speed (m/s),"Wind speed Sensor 2, Minimum (m/s)",0.8882272708555621
+Hub temperature (°C),Transformer cell temperature (°C),0.8872408251979308
+Nacelle ambient temperature (°C),Rotor bearing temp (°C),0.8866477435253177
+"Current L1 / U, min (A)","Current L1 / U, max (A)",0.8845188761620507
+"Front bearing temperature, Standard deviation (°C)","Rear bearing temperature, Standard deviation (°C)",0.8842685812753498
+"Wind speed, Minimum (m/s)",Wind speed Sensor 1 (m/s),0.8829336016548642
+Density adjusted wind speed (m/s),"Reactive power, Max (kvar)",0.8828191931582191
+"Reactive power, Max (kvar)",Drive train acceleration (mm/ss),0.8827769534805373
+Wind speed Sensor 1 (m/s),"Wind speed Sensor 2, Minimum (m/s)",0.8826923951353988
+"Reactive power, Min (kvar)","Current L1 / U, min (A)",0.8823753352342331
+Density adjusted wind speed (m/s),"Rotor speed, Min (RPM)",0.8814070984841383
+Wind speed Sensor 2 (m/s),"Reactive power, Max (kvar)",0.8812078925927606
+Wind speed (m/s),"Reactive power, Max (kvar)",0.8810700750336875
+"Wind speed Sensor 1, Maximum (m/s)","Current L1 / U, StdDev (A)",0.8809979375293179
+Density adjusted wind speed (m/s),"Generator RPM, Min (RPM)",0.8809550009351085
+Wind speed Sensor 1 (m/s),"Reactive power, Max (kvar)",0.8807942878767998
+"Wind speed Sensor 1, Minimum (m/s)","Current L1 / U, min (A)",0.878902270944483
+Wind speed (m/s),"Rotor speed, Min (RPM)",0.8788724958763565
+Wind speed Sensor 2 (m/s),"Rotor speed, Min (RPM)",0.8787400691648041
+Hub temperature (°C),Ambient temperature (converter) (°C),0.8784232233004923
+Wind speed (m/s),"Generator RPM, Min (RPM)",0.8783007273003591
+Wind speed Sensor 2 (m/s),"Generator RPM, Min (RPM)",0.878202147322823
+Reactive power (kvar),"Generator RPM, Max (RPM)",0.8778049201751751
+Reactive power (kvar),"Rotor speed, Max (RPM)",0.8777397171774395
+"Wind speed, Maximum (m/s)","Reactive power, Max (kvar)",0.877154135628814
+"Wind speed Sensor 2, Maximum (m/s)","Reactive power, Max (kvar)",0.8767361460736991
+Power factor (cosphi),"Power factor (cosphi), Max",0.8763444029771352
+"Generator RPM, Min (RPM)",Gear oil inlet pressure (bar),0.8747109313337178
+"Rotor speed, Min (RPM)",Gear oil inlet pressure (bar),0.8744693059047498
+"Current L1 / U, max (A)",Drive train acceleration (mm/ss),0.873918517555274
+"Wind speed Sensor 1, Maximum (m/s)","Reactive power, Max (kvar)",0.8735166719267263
+"Wind speed, Maximum (m/s)","Current L1 / U, StdDev (A)",0.8728134317559855
+Wind speed Sensor 1 (m/s),"Rotor speed, Min (RPM)",0.8727999977814483
+"Wind speed Sensor 2, Maximum (m/s)","Current L1 / U, StdDev (A)",0.8724116743885801
+Wind speed Sensor 1 (m/s),"Generator RPM, Min (RPM)",0.8720188983613205
+"Current L1 / U, min (A)",Gear oil inlet pressure (bar),0.870373589236088
+Generator RPM (RPM),Gear oil pump pressure (bar),0.87027480340621
+Rotor speed (RPM),Gear oil pump pressure (bar),0.8698664022427903
+Gearbox speed (RPM),Gear oil pump pressure (bar),0.8697260077866931
+"Current L1 / U, max (A)",Gear oil inlet pressure (bar),0.8686512374541908
+"Reactive power, Max (kvar)","Rotor speed, Min (RPM)",0.86715165609644
+"Reactive power, Max (kvar)","Generator RPM, Min (RPM)",0.8669154647718412
+Current L3 / W (A),Gear oil pump pressure (bar),0.8651789736287869
+Gear oil pump pressure (bar),Apparent power (kVA),0.8649522531719759
+Current L1 / U (A),Gear oil pump pressure (bar),0.8649186342167718
+Grid current (A),Gear oil pump pressure (bar),0.8648418887465634
+"Front bearing temperature, Max (°C)","Rear bearing temperature, Max (°C)",0.8643411800807678
+Current L2 / V (A),Gear oil pump pressure (bar),0.8643275856165846
+"Wind speed, Minimum (m/s)","Current L1 / U, min (A)",0.863430660469928
+"Wind speed Sensor 2, Minimum (m/s)","Current L1 / U, min (A)",0.8613479170270686
+"Wind speed, Maximum (m/s)","Current L1 / U, min (A)",0.8597215068428977
+"Wind speed Sensor 2, Maximum (m/s)","Current L1 / U, min (A)",0.8595886691116392
+"Wind direction, Maximum (°)","Nacelle position, Maximum (°)",0.8576090005419097
+Current L1 / U (A),Drive train acceleration (mm/ss),0.855481242702168
+Grid current (A),Drive train acceleration (mm/ss),0.8553619914609477
+Current L2 / V (A),Drive train acceleration (mm/ss),0.8553058421436395
+Current L3 / W (A),Drive train acceleration (mm/ss),0.8552407367787935
+"Wind speed Sensor 1, Maximum (m/s)",Drive train acceleration (mm/ss),0.8550759388907896
+Apparent power (kVA),Drive train acceleration (mm/ss),0.8549306062107568
+Reactive power (kvar),"Rotor speed, Min (RPM)",0.8528782490263357
+"Wind speed Sensor 1, Maximum (m/s)","Current L1 / U, min (A)",0.8528286309307924
+"Wind speed, Maximum (m/s)",Drive train acceleration (mm/ss),0.8525020419460078
+Reactive power (kvar),"Generator RPM, Min (RPM)",0.8523909920571107
+Wind direction (°),"Wind direction, Maximum (°)",0.8517823915259445
+"Wind speed Sensor 2, Maximum (m/s)",Drive train acceleration (mm/ss),0.8513933798109354

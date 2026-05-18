@@ -1,0 +1,19 @@
+{
+  "turbine_id": "WT-004",
+  "trained_at_utc": "2026-04-26T13:29:24.442561+00:00",
+  "model_type": "knn_bagging",
+  "target_column": "power",
+  "feature_columns": [
+    "windSpeed",
+    "rotorSpeed",
+    "temperature",
+    "pitchAngle",
+    "gearOilTemp"
+  ],
+  "rows_used": 18,
+  "metrics": {
+    "rmse": 14.437079025608558,
+    "r2": 0.9601720545777598,
+    "residual_std": 14.678144418258192
+  }
+}
