@@ -7,12 +7,16 @@ using COMP702_WindTurbine.ModelTraining;
 using COMP702_WindTurbine.models;
 
 
+
+
 public sealed class MonitoringWorker(
     IDataSource dataSource, // new: injected instead of DataInput
     DataFormatter dataFormatter,
     Benchmarker benchmarker,
     DegradationAnalyser degradationAnalyser,
-    FailureDetection FailureDetection,
+    PythonProcessService pythonService,
+    FailureDetection failureDetection,
+
 
     ILogger<MonitoringWorker> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService
@@ -23,9 +27,32 @@ public sealed class MonitoringWorker(
     {
         try
         {
-            DateTime lastTrainingCheckUtc = DateTime.MinValue;
+            // pythonService.Start();
+            //bool pythonReady = false;
 
 
+
+
+            Console.WriteLine("Python ready!");
+
+            // DateTime lastTrainingCheckUtc = DateTime.MinValue; no more needed for new design
+
+
+            //######## TEMPORARY CODE ########
+            //runs benchmarking on a single turbine for a given time period
+            //using (var tempScope = scopeFactory.CreateScope())
+            //{
+            //   var tempDbService = tempScope.ServiceProvider.GetRequiredService<DbService>();
+
+            //    Turbine turbine = await tempDbService.GetTurbineById("BK-TEST-4");
+            //    List<TurbineTelemetry> yearTelemetry = await tempDbService.GetTurbineDataYear("BK-TEST-4", 2018);
+            //    logger.LogInformation("turbine name: {tname}", turbine.Name);
+
+            //    BenchmarkResult benchmarkResult = benchmarker.Benchmark(yearTelemetry, turbine);
+            //    await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+            //    logger.LogInformation("Successfully written benchmark results to database");
+
+            //}
 
 
 
@@ -58,7 +85,21 @@ public sealed class MonitoringWorker(
                 telemetry.TurbineId = "BK-TEST-4";
 
 
-                telemetry = FailureDetection.DetectFailure(telemetry);
+
+
+
+                // currently this only returns the predicted and prints out pred vs actuall, alarms still need to be done
+                telemetry = failureDetection.DetectFailure(newRaw, telemetry, stoppingToken);
+                if (telemetry.FailureDetectionResult != null)
+                {
+                    logger.LogWarning($"Predicted :{telemetry.FailureDetectionResult.PredictedValue} Actual:{telemetry.FailureDetectionResult.ActualValue} Alarm1:{telemetry.FailureDetectionResult.AlarmLvl}");
+                    }
+                    else
+                    {
+                        logger.LogWarning("FailureDetectionResult is null after DetectFailure call.");
+                    }
+
+
                 logger.LogWarning("Pipeline complete. id:{Id} power:{PowerOutput} efficiency:{Efficiency} alert:{StartedAlert}",
                 telemetry.Id, telemetry.PowerOutput, telemetry.Efficiency, telemetry.StartedAlert);
 
@@ -96,30 +137,33 @@ public sealed class MonitoringWorker(
                 }
 
 
-                if (DateTime.UtcNow - lastTrainingCheckUtc >= TimeSpan.FromHours(1))
-                {
-                    lastTrainingCheckUtc = DateTime.UtcNow;
+                //############ removed as auto training no more needed in new design #################
+                /*
+                                if (DateTime.UtcNow - lastTrainingCheckUtc >= TimeSpan.FromHours(1))
+                                {
+                                    lastTrainingCheckUtc = DateTime.UtcNow;
 
-                    try
-                    {
-                        using var trainingScope = scopeFactory.CreateScope();
+                                    try
+                                    {
+                                        using var trainingScope = scopeFactory.CreateScope();
 
-                        var trainingScheduleService = trainingScope.ServiceProvider.GetRequiredService<TrainingScheduleService>();
-                        var modelTrainingService = trainingScope.ServiceProvider.GetRequiredService<ModelTrainingService>();
+                                        var trainingScheduleService = trainingScope.ServiceProvider.GetRequiredService<TrainingScheduleService>();
+                                        var modelTrainingService = trainingScope.ServiceProvider.GetRequiredService<ModelTrainingService>();
 
-                        var dueTurbines = trainingScheduleService.GetTurbinesDueForTraining();
+                                        var dueTurbines = trainingScheduleService.GetTurbinesDueForTraining();
 
-                        foreach (var turbineId in dueTurbines)
-                        {
-                            logger.LogInformation("Model retraining due for turbine {TurbineId}", turbineId);
-                            await modelTrainingService.RunTrainingForTurbineAsync(turbineId, stoppingToken);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Error while checking or running model retraining.");
-                    }
-                }
+                                        foreach (var turbineId in dueTurbines)
+                                        {
+                                            logger.LogInformation("Model retraining due for turbine {TurbineId}", turbineId);
+                                            await modelTrainingService.RunTrainingForTurbineAsync(turbineId, stoppingToken);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        logger.LogError(ex, "Error while checking or running model retraining.");
+                                    }
+                                }
+                                */
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
                 
@@ -144,5 +188,11 @@ public sealed class MonitoringWorker(
             // recovery options, we need to terminate the process with a non-zero exit code.
             Environment.Exit(1);
         }
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        pythonService.Stop();
+        await base.StopAsync(cancellationToken);
     }
 }

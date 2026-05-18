@@ -10,4 +10,5 @@ public sealed class DegradationModelDetails
 
     public required string TurbineId { get; set; } //FK
     public Turbine? Turbine { get; set; }
+
 }

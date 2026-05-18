@@ -22,55 +22,6 @@ namespace COMP702_WindTurbine.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("COMP702_WindTurbine.models.Alert", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime?>("AcknowledgedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ClearedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ResolvedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TurbineId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TurbineId");
-
-                    b.ToTable("Alert");
-                });
-
             modelBuilder.Entity("COMP702_WindTurbine.models.BenchmarkResult", b =>
                 {
                     b.Property<long>("Id")
@@ -162,6 +113,56 @@ namespace COMP702_WindTurbine.Migrations
                     b.HasIndex("TurbineId");
 
                     b.ToTable("DegradationResult");
+                });
+
+            modelBuilder.Entity("COMP702_WindTurbine.models.FailureDetectionResult", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool?>("A1Triggered")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("A2Triggered")
+                        .HasColumnType("boolean");
+
+                    b.Property<double?>("ActualValue")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("AlarmLvl")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("EWMA")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool?>("IsAbnormal")
+                        .HasColumnType("boolean");
+
+                    b.Property<double?>("LCL")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PredictedValue")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Residual")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime?>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TurbineId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double?>("UCL")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FailureDetectionResult");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.PowerBinDeviation", b =>
@@ -312,7 +313,22 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<double?>("Efficiency")
                         .HasColumnType("double precision");
 
+                    b.Property<long?>("FailureDetectionResultId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double?>("GearOilInletPressure")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GearOilInletTemp")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GearOilPumpPressure")
+                        .HasColumnType("double precision");
+
                     b.Property<double?>("GearboxOilTemp")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("GeneratorBearingFrontTemp")
                         .HasColumnType("double precision");
 
                     b.Property<double>("GeneratorSpeed")
@@ -321,10 +337,16 @@ namespace COMP702_WindTurbine.Migrations
                     b.Property<double>("MinimumPowerOutput")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("PitchAngle")
+                    b.Property<double?>("NacelleTemp")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("PowerOutput")
+                    b.Property<double?>("PitchAngle")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PowerOutput")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("RearBearingTemp")
                         .HasColumnType("double precision");
 
                     b.Property<double?>("RotorSpeed")
@@ -343,25 +365,19 @@ namespace COMP702_WindTurbine.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double?>("Vibration")
+                        .HasColumnType("double precision");
+
                     b.Property<double?>("WindSpeed")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FailureDetectionResultId");
+
                     b.HasIndex("TurbineId");
 
                     b.ToTable("TurbineData");
-                });
-
-            modelBuilder.Entity("COMP702_WindTurbine.models.Alert", b =>
-                {
-                    b.HasOne("COMP702_WindTurbine.models.Turbine", "Turbine")
-                        .WithMany("Alerts")
-                        .HasForeignKey("TurbineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Turbine");
                 });
 
             modelBuilder.Entity("COMP702_WindTurbine.models.BenchmarkResult", b =>
@@ -441,11 +457,17 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.TurbineTelemetry", b =>
                 {
+                    b.HasOne("COMP702_WindTurbine.models.FailureDetectionResult", "FailureDetectionResult")
+                        .WithMany()
+                        .HasForeignKey("FailureDetectionResultId");
+
                     b.HasOne("COMP702_WindTurbine.models.Turbine", "Turbine")
                         .WithMany("TelemetryHistories")
                         .HasForeignKey("TurbineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("FailureDetectionResult");
 
                     b.Navigation("Turbine");
                 });
@@ -459,8 +481,6 @@ namespace COMP702_WindTurbine.Migrations
 
             modelBuilder.Entity("COMP702_WindTurbine.models.Turbine", b =>
                 {
-                    b.Navigation("Alerts");
-
                     b.Navigation("BenchmarkResults");
 
                     b.Navigation("DegradationModelDetails");

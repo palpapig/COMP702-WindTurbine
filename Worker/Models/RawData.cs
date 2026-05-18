@@ -10,6 +10,12 @@ public sealed class RawData
     public double RotorSpeed { get; init; } // RPM
     public double PitchAngle { get; init; } // degrees
     public double GearboxOilTemp { get; init; } // °C
+    public double GearOilInletTemp { get; init; }      // °C
+    public double RearBearingTemp { get; init; }       // °C
+    public double GearOilPumpPressure { get; init; }   // pressure
+    public double GeneratorBearingFrontTemp { get; init; } // °C
+    public double GearOilInletPressure { get; init; }  // pressure
+    public double NacelleTemp { get; init; } // °C
     public double Vibration { get; init; }
     public double Temperature { get; init; }
 

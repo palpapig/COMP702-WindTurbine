@@ -4,6 +4,7 @@ using COMP702_WindTurbine.database;
 using COMP702_WindTurbine.DataSources;
 using COMP702_WindTurbine.ModelTraining;
 using Microsoft.EntityFrameworkCore;
+using COMP702_WindTurbine.models;
 
 var builder = Host.CreateApplicationBuilder(args);
 var monitoringDbConnection =
@@ -33,14 +34,42 @@ builder.Services.AddSingleton<DegradationAnalyser>();
 builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddSingleton<PlaceholderHistoricalDataSource>();
 builder.Services.AddHostedService<MonitoringWorker>();
+builder.Services.AddSingleton<PythonProcessService>();
+builder.Services.AddSingleton<FailureDetectionAlarm>();
+builder.Services.AddTransient<FailureDetectionAlarm>();
 
-builder.Services.AddSingleton<ModelTrainingConfigService>();
-builder.Services.AddSingleton<TrainingScheduleService>();
 
-builder.Services.AddHttpClient<ModelTrainingService>(client =>
+builder.Services.AddSingleton<AlarmStateManager>();
+builder.Services.AddSingleton<FailureDetection>(sp =>
 {
-    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
+    string modelPath = Path.Combine("TrainedModel", "model.onnx");
+
+    if (!File.Exists(modelPath))
+    {
+        throw new FileNotFoundException($"ONNX model not found: {Path.GetFullPath(modelPath)}");
+    }
+
+    var alarmService = sp.GetRequiredService<FailureDetectionAlarm>();
+    return new FailureDetection(modelPath, alarmService);
 });
+
+builder.Services.Configure<FailureDetectionSettings>(
+    builder.Configuration.GetSection("FailureDetectionSettings")
+);
+
+
+
+
+//######## This is for auto-training. not used anymore ##########
+//builder.Services.AddSingleton<ModelTrainingConfigService>();
+//builder.Services.AddSingleton<TrainingScheduleService>();
+
+//builder.Services.AddHttpClient<ModelTrainingService>(client =>
+//{
+//    client.BaseAddress = new Uri("http://127.0.0.1:8000/");
+//});
+
+
 
 
 var host = builder.Build();

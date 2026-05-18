@@ -1,0 +1,57 @@
+.alerts-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.alerts-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.refresh-btn {
+  background-color: #06A2DF;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.acknowledge-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.acknowledge-btn:hover {
+  background-color: #218838;
+}
+
+.alerts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.alerts-table th, .alerts-table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+    white-space: nowrap;
+
+}
+
+.alerts-table th {
+  background-color: #0588c4;
+  color: white;
+}
+
+.alerts-table tr:hover {
+  background-color: #f5f5f5;
+}
