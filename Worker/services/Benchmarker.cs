@@ -29,6 +29,7 @@ public sealed class Benchmarker(
 
             Turbine turbine = await dbService.GetTurbineById(turbineId);
 
+            //Get telemetry to be benchmarked
             List<TurbineTelemetry> benchmarkTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
 
             logger.LogInformation("turbine name: {tname}", turbine.Name);
@@ -39,6 +40,7 @@ public sealed class Benchmarker(
                 return;
             }
 
+            //Actual benchmarking happens in this function here
             BenchmarkResult benchmarkResult = Benchmark(benchmarkTelemetry, turbine);
             await dbService.AddBenchmarkResultAsync(benchmarkResult);
             logger.LogInformation("Successfully written benchmark results to database");
@@ -47,7 +49,7 @@ public sealed class Benchmarker(
     }
 
     /// <summary>
-    /// <para> Checks if the given turbine has a BenchmarkResult ending in the last monthsGap months.
+    /// <para> Checks if the turbine with the given turbine Id has a BenchmarkResult ending in the last monthsGap months. If not, performs benchmarking on the last monthsGap months of telemetry starting at currentDate 
     /// </para>
     /// Turbine information is read directly from Supabase.
     /// Telemetry data is read from PlaceholderHistoricalDataSource.cs, which reads from the same .csv as the live data simulator.
@@ -72,7 +74,7 @@ public sealed class Benchmarker(
                 }
             }
 
-
+            //Get telemetry to be benchmarked
             List<TurbineTelemetry> recentTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
 
             if (recentTelemetry.Count == 0)
@@ -81,6 +83,7 @@ public sealed class Benchmarker(
                 return;
             }
 
+            //Actual benchmarking happens in this function here
             BenchmarkResult benchmarkResult = Benchmark(recentTelemetry, turbine);
             if (benchmarkResult != null)
             {
@@ -93,9 +96,11 @@ public sealed class Benchmarker(
 
 
     /// <summary>
-    /// <para>Performs a benchmark on a given Turbine and it's Telemetry. Provided Telemetry is assumed to be owned by the Turbine. 
+    /// <para>The core function which actually performs the benchmarking. Benchmarks a given Turbine with it's Telemetry.
+    /// Provided Telemetry is assumed to be owned by the Turbine. 
     /// </para>
-    /// Bins the power output of the telemetry into 0.5 m/s windSpeed bins then compares it to the expected power bins from the Turbine's TurbineModel.
+    /// Bins the power output of the telemetry into 0.5 m/s windSpeed bins then compares it to the expected power bins from the Turbine's TurbineModel to get the deviation at each wind speed.
+    /// Also averages the deviations to get a single benchmark score for the given time period.
     /// Stores the information in a BenchmarkResult and returns it.
     /// </summary>
 

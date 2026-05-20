@@ -16,9 +16,10 @@ public sealed class DegradationAnalyser (
 {
     readonly string modelsDirectory = "PythonDegradationTraining/Models/";
 
-    /// <summary>
-    /// <para>Runs degradation analysis on wind turbine with ID "BK-TEST-4" for the year 2021 and writes results to supabase.
-    /// Includes model training if necessary.</para>
+    /// <para>Performs degradation analysis on the turbine with the given Id and the described time period.
+    /// </para>
+    /// Turbine information is read directly from Supabase.
+    /// Telemetry data is read from PlaceholderHistoricalDataSource.cs, which reads from the same .csv as the live data simulator.
     /// </summary>
     public async Task ForceDoAnalysis(DateTime endDate, bool forceRetrain = false, string turbineId = "BK-TEST-4",  int monthsGap = 12){
         using (var tempScope = scopeFactory.CreateScope())
@@ -27,8 +28,10 @@ public sealed class DegradationAnalyser (
 
                 Turbine turbine = await dbService.GetTurbineById(turbineId);
                 
+                //Get telemetry to be analysed
                 List<TurbineTelemetry> analysisTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
                 
+                //The actual degradation analysis happens in this function here
                 DegradationResult degradationResult = await DoDegradationAnalysis(analysisTelemetry, turbine, forceRetrain);
                 if ( degradationResult != null)
                 {
@@ -40,8 +43,10 @@ public sealed class DegradationAnalyser (
     }
 
     /// <summary>
-    /// <para>For the given turbine, checks whether a DegradationAnalysisResult happened within the last monthsGap months.
-    /// If not, it performs degradation analysis on the turbine with data between monthsgap months ago and now.</para>
+    /// <para> Checks if the turbine with the given turbine Id has a DegradationResult ending in the last monthsGap months. If not, performs analysis on the last monthsGap months of telemetry starting at currentDate
+    /// </para>
+    /// Turbine information is read directly from Supabase.
+    /// Telemetry data is read from PlaceholderHistoricalDataSource.cs, which reads from the same .csv as the live data simulator.
     /// </summary>
     public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12){
         DateTime endDate = currentDate;
@@ -62,14 +67,16 @@ public sealed class DegradationAnalyser (
                     }
                 }
                 
-
+                //Get telemetry to be analysed
                 List<TurbineTelemetry> recentTelemetry = historicalDataSource.GetHistoricalTurbineData(monthsGap, endDate);
+
                 if (recentTelemetry.Count == 0)
                 {
                     logger.LogWarning("Attempted to do degradation analysis on turbine {t}, but no data exists for given time period", turbine.TurbineId);
                     return;
                 }
                 
+                //The actual degradation analysis happens in this function here
                 DegradationResult degradationResult = await DoDegradationAnalysis(recentTelemetry, turbine);
                 if (degradationResult != null)
                 {
@@ -80,19 +87,19 @@ public sealed class DegradationAnalyser (
             }
     }
 
-    public async Task FullyAnalyzeTurbine(Turbine turbine, int monthsGap = 12){
-        //get data from each section, run it through DoDegredationAnalysis]
-
-    }
-
     /// <summary>
-    /// <para>Runs degradation analysis on a given set of telemtry data, using the trained degradation models associated with the given turbine.
-    /// Assumes that the provided telemtry is from the provided turbine.
+    /// <para>The core function which actually performs degradation analysis.
+    /// Provided Telemetry is assumed to be owned by the Turbine. 
     /// </para>
-    /// <para>If trained degradation models for the turbine don't yet exist, they will automatically be created using the first year of the turbine's telemetry and a DegradationModelDetails entry will be added to Supabase.
-    /// The trained models and raw output results of each analysis are stored at PythonDegradationTraining/Models and .../outputs respectively
+    /// <para>Splits telemetry into regions 2 and 2.5 (2p5) based on wind speed. Performs analysis on each region using the trained degradation models associated with the given turbine.
     /// </para>
-    /// Returns a DegradationResult object.
+    /// <para>If trained degradation models for the turbine don't yet exist, the first year of turbine telemetry will be read from PlaceholderHistoricalDataSource.cs and sent to a python script to train SVR models on.
+    /// One model is trained for each region.
+    /// The models are stored as .onnx files and their file paths are stored in a DegradationModelDetails entry and saved to the database.
+    /// </para>
+    /// <para>Uses the trained model to get the difference between actual and predicted power for every row of telemetry.
+    /// Averages those residuals into a final degradation score for that time period and returns a DegradationResult with that information.
+    /// </para>
     /// </summary>
     public async Task<DegradationResult> DoDegradationAnalysis(ICollection<TurbineTelemetry> telemetry, Turbine turbine, bool forceRetrain = false)
     {
@@ -230,6 +237,12 @@ public sealed class DegradationAnalyser (
     
     }
 
+    /// <summary>
+    /// <para>Reads the first year of a turbine's telemetry and uses it to train an SVR model for each region, then save them as .onnx files.
+    /// Saves a DegredationModelDetails entry related to the turbine in the database
+    /// </para>
+    /// 
+    /// </summary>
     private async Task<DegradationModelDetails> TrainModels(Turbine turbine)
     {   
         using var tempScope = scopeFactory.CreateScope();   
@@ -266,6 +279,12 @@ public sealed class DegradationAnalyser (
         return degradationModelDetails;
     }
 
+    ///<summary>
+    /// <para>Trains one SVR model using one region of telemetry. Telemetry is stored as a .csv then a python script runs and reads that .csv file.
+    /// It runs a grid search for optimal hyperparameters then saves the most effective model as an .onnx file.
+    /// </para>
+    /// 
+    /// </summary>
     private float TrainRegion(float[] input, float[] output, Turbine turbine, string modelName){
         //create file name and path for .onnx model to be created
         string modelPath = GenerateModelPath(modelName);
@@ -324,6 +343,11 @@ public sealed class DegradationAnalyser (
         public float? ExpectedDeviationPercentage { get; set; }
         public string? Message { get; set; }
     }
+
+    /// <summary>
+    /// Helper function to split telemetry into regions based on wind speed and extract the relevant variables for each region.
+    /// Generator speed and power for region 2, Blade pitch and power for region 2.5.
+    /// </summary>
 
     static private (float[], float[], float[], float[]) SplitRegions(ICollection<TurbineTelemetry> telemetry, TurbineModel turbineModel)
     {
