@@ -172,7 +172,6 @@ public class SimulatedLiveDataSource : IDataSource
             PitchAngle = Math.Max(0, pitchNoise),                  // pitch can't be negative
             GearboxOilTemp = rec.GearboxOilTemp,                     // removed noise from gearboxOilTemp as it could effect faul analysis
             // keep the old fields for compatibility with existing code
-            Vibration = _random.NextDouble() * 10,
             Temperature = tempNoise,
 
             //Fault detection neq coloumns
@@ -257,7 +256,6 @@ public class SimulatedLiveDataSource : IDataSource
             RotorSpeed = rotorSpeed,
             PitchAngle = pitchAngle,
             GearboxOilTemp = temp,
-            Vibration = _random.NextDouble() * 10,
             Temperature = temp
         };
     }

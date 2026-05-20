@@ -15,6 +15,12 @@ public sealed class Benchmarker(
 
 {
 
+    /// <summary>
+    /// <para>Performs benchmarking on the turbine with the given Id and the described time period.
+    /// </para>
+    /// Turbine information is read directly from Supabase.
+    /// Telemetry data is read from PlaceholderHistoricalDataSource.cs, which reads from the same .csv as the live data simulator.
+    /// </summary>
     public async Task ForceDoBenchmarking(DateTime endDate, string turbineId = "BK-TEST-4", int monthsGap = 12)
     {
         using (var tempScope = scopeFactory.CreateScope())
@@ -27,20 +33,26 @@ public sealed class Benchmarker(
 
             logger.LogInformation("turbine name: {tname}", turbine.Name);
 
-            if (yearTelemetry.Count == 0)
+            if (benchmarkTelemetry.Count == 0)
             {
                 logger.LogWarning("Skipping benchmark for turbine {turbineId}: no telemetry found for year {year}", turbineId, endDate.Year);
                 return;
             }
 
-            BenchmarkResult benchmarkResult = Benchmark(yearTelemetry, turbine);
-            await tempDbService.AddBenchmarkResultAsync(benchmarkResult);
+            BenchmarkResult benchmarkResult = Benchmark(benchmarkTelemetry, turbine);
+            await dbService.AddBenchmarkResultAsync(benchmarkResult);
             logger.LogInformation("Successfully written benchmark results to database");
 
         }
     }
 
-    public async Task DoAnalysisIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12)
+    /// <summary>
+    /// <para> Checks if the given turbine has a BenchmarkResult ending in the last monthsGap months.
+    /// </para>
+    /// Turbine information is read directly from Supabase.
+    /// Telemetry data is read from PlaceholderHistoricalDataSource.cs, which reads from the same .csv as the live data simulator.
+    /// </summary>
+    public async Task DoBenchmarkingIfNeeded(string turbineId, DateTime currentDate, int monthsGap = 12)
     {
         DateTime endDate = currentDate;
         using (var tempScope = scopeFactory.CreateScope())
@@ -78,12 +90,14 @@ public sealed class Benchmarker(
 
         }
     }
-    public TurbineTelemetry DummyBenchmark(TurbineTelemetry telemetry)
-    {
-        var rand = new Random();
-        telemetry.Efficiency = Math.Round(rand.NextDouble() * 100, 2);
-        return telemetry;
-    }
+
+
+    /// <summary>
+    /// <para>Performs a benchmark on a given Turbine and it's Telemetry. Provided Telemetry is assumed to be owned by the Turbine. 
+    /// </para>
+    /// Bins the power output of the telemetry into 0.5 m/s windSpeed bins then compares it to the expected power bins from the Turbine's TurbineModel.
+    /// Stores the information in a BenchmarkResult and returns it.
+    /// </summary>
 
     public BenchmarkResult Benchmark(ICollection<TurbineTelemetry> telemetry, Turbine turbine)
     {
@@ -156,21 +170,21 @@ public sealed class Benchmarker(
         return result;
     }
 
+    /// <summary>
+    /// Removes Telemetry with a minimum power output below 0
+    /// </summary>
+
     public static ICollection<TurbineTelemetry> Preprocess(ICollection<TurbineTelemetry> telemetry, bool hasCorrectedWindSpeed = true)
     {
         //remove rows with negative minimum power output.
         telemetry = [.. telemetry.Where(row => row.MinimumPowerOutput > 0)];
 
-        //TODO binning or SVR to filter by blade pitch angle
-
-        if (!hasCorrectedWindSpeed)
-        {
-            //TODO do math to convert wind speed and temperature to corrected wind speed
-        }
-
         return telemetry;
     }
 
+    /// <summary>
+    /// Helper function to convert a Telemetry list into Power-WindSpeed bins, and each bin's frequency.
+    /// </summary>
     private (Dictionary<float, float>, Dictionary<float, int>) BinTelemetry(ICollection<TurbineTelemetry> telemetry, float minBin, float maxBin, float binInterval = 0.5f)
     {
 

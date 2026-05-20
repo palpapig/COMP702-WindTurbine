@@ -31,7 +31,6 @@ else
 builder.Services.AddSingleton<DataFormatter>();
 builder.Services.AddSingleton<Benchmarker>();
 builder.Services.AddSingleton<DegradationAnalyser>();
-builder.Services.AddSingleton<FailureDetection>();
 builder.Services.AddSingleton<PlaceholderHistoricalDataSource>();
 builder.Services.AddHostedService<MonitoringWorker>();
 builder.Services.AddSingleton<PythonProcessService>();

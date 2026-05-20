@@ -15,12 +15,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
-<<<<<<<< HEAD:Worker/Worker.csproj
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.25.1" />
-========
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
     <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.26.0" />
->>>>>>>> FaultDetection_sprint3:Worker/COMP702-WindTurbine.csproj
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />

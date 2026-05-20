@@ -81,7 +81,6 @@ function Table() {
                   <td>{row.WindSpeed?.toFixed(2)}</td>
                   <td>{row.RotorSpeed?.toFixed(2)}</td>
                   <td>{row.PowerOutput?.toFixed(2)}</td>
-                  <td>{row.Vibration?.toFixed(2)}</td>
                   <td>{row.Temperature?.toFixed(2)}</td>
                   <td>{row.Efficiency?.toFixed(2)}</td>
                   <td>{row.StartedAlert ? 'TRUE' : 'FALSE'}</td>

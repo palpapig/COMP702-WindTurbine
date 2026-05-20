@@ -99,8 +99,6 @@ public sealed class OpcUaDataSource : IDataSource
             ActivePower = activePower,
             RotorSpeed = rotorSpeed,
             PitchAngle = pitchAngle,
-            GearboxOilTemp = gearboxOilTemp,
-            Vibration = 0,
             Temperature = gearboxOilTemp
         };
     }

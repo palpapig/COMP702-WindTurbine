@@ -106,7 +106,7 @@ public sealed class MonitoringWorker(
 
                 //Do benchmarking and degradation analysis if it hasn't happened recently for this turbine. (see each function for details)
                 //For the sake of simulation, it assumes that the timestamp of the current telemetry to be the current date
-                await benchmarker.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
+                await benchmarker.DoBenchmarkingIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
                 await degradationAnalyser.DoAnalysisIfNeeded(telemetry.TurbineId, telemetry.Timestamp);
 
                 // For testing: do degradation analysis and benchmarking on every year of the turbine's data

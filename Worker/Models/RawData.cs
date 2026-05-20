@@ -16,13 +16,11 @@ public sealed class RawData
     public double GeneratorBearingFrontTemp { get; init; } // °C
     public double GearOilInletPressure { get; init; }  // pressure
     public double NacelleTemp { get; init; } // °C
-    public double Vibration { get; init; }
     public double Temperature { get; init; }
 
     //Legacy properties for compatibility with existing formatter
     public double WSSensor => WindSpeed;
     public double RSSensor => RotorSpeed;
     public double POSensor => ActivePower;
-    public double VibSensor => Vibration;
     public double TempSensor => Temperature;
 }

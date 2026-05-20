@@ -7,6 +7,7 @@ public class MonitoringDbContext : DbContext
 {
     public DbSet<TurbineTelemetry> TurbineData { get; set; }
     public DbSet<Turbine> Turbine { get; set; }
+    public DbSet<FailureDetectionResult> FailureDetectionResults { get; set; }
 
     public MonitoringDbContext(DbContextOptions<MonitoringDbContext> options)
         : base(options)
