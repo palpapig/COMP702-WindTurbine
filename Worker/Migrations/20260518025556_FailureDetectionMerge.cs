@@ -10,21 +10,30 @@ namespace COMP702_WindTurbine.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_TurbineData_FailureDetectionResult_FailureDetectionResultId",
-                table: "TurbineData");
+            migrationBuilder.Sql("""
+                ALTER TABLE "TurbineData"
+                DROP CONSTRAINT IF EXISTS "FK_TurbineData_FailureDetectionResult_FailureDetectionResultId";
+            """);
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_FailureDetectionResult",
-                table: "FailureDetectionResult");
+            migrationBuilder.Sql("""
+                ALTER TABLE "TurbineData"
+                DROP CONSTRAINT IF EXISTS "FK_TurbineData_FailureDetectionResults_FailureDetectionResultId";
+            """);
 
-            migrationBuilder.DropColumn(
-                name: "Vibration",
-                table: "TurbineData");
+            migrationBuilder.Sql("""
+                ALTER TABLE IF EXISTS "FailureDetectionResult"
+                DROP CONSTRAINT IF EXISTS "PK_FailureDetectionResult";
+            """);
 
-            migrationBuilder.RenameTable(
-                name: "FailureDetectionResult",
-                newName: "FailureDetectionResults");
+            migrationBuilder.Sql("""
+                ALTER TABLE "TurbineData"
+                DROP COLUMN IF EXISTS "Vibration";
+            """);
+
+            migrationBuilder.Sql("""
+                ALTER TABLE IF EXISTS "FailureDetectionResult"
+                RENAME TO "FailureDetectionResults";
+            """);
 
             migrationBuilder.AlterColumn<double>(
                 name: "PowerOutput",
@@ -46,17 +55,47 @@ namespace COMP702_WindTurbine.Migrations
                 oldType: "double precision",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsAcknowledged",
-                table: "FailureDetectionResults",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql("""
+                ALTER TABLE "FailureDetectionResults"
+                ADD COLUMN IF NOT EXISTS "IsAcknowledged" boolean NOT NULL DEFAULT false;
+            """);
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_FailureDetectionResults",
-                table: "FailureDetectionResults",
-                column: "Id");
+            migrationBuilder.Sql("""
+                DO $$
+                DECLARE pk_name text;
+                BEGIN
+                    SELECT c.conname INTO pk_name
+                    FROM pg_constraint c
+                    JOIN pg_class t ON t.oid = c.conrelid
+                    WHERE t.relname = 'FailureDetectionResults' AND c.contype = 'p'
+                    LIMIT 1;
+
+                    IF pk_name IS NOT NULL THEN
+                        EXECUTE format('ALTER TABLE "FailureDetectionResults" DROP CONSTRAINT %I', pk_name);
+                    END IF;
+
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint c
+                        JOIN pg_class t ON t.oid = c.conrelid
+                        WHERE t.relname = 'FailureDetectionResults' AND c.contype = 'p'
+                    ) THEN
+                        ALTER TABLE "FailureDetectionResults"
+                        ADD CONSTRAINT "PK_FailureDetectionResults" PRIMARY KEY ("Id");
+                    END IF;
+                END $$;
+            """);
+
+            migrationBuilder.Sql("""
+                UPDATE "TurbineData" td
+                SET "FailureDetectionResultId" = NULL
+                WHERE "FailureDetectionResultId" IS NOT NULL
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM "FailureDetectionResults" fdr
+                      WHERE fdr."Id" = td."FailureDetectionResultId"
+                  );
+            """);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TurbineData_FailureDetectionResults_FailureDetectionResultId",
@@ -101,11 +140,10 @@ namespace COMP702_WindTurbine.Migrations
                 oldClrType: typeof(double),
                 oldType: "double precision");
 
-            migrationBuilder.AddColumn<double>(
-                name: "Vibration",
-                table: "TurbineData",
-                type: "double precision",
-                nullable: true);
+            migrationBuilder.Sql("""
+                ALTER TABLE "TurbineData"
+                ADD COLUMN IF NOT EXISTS "Vibration" double precision NULL;
+            """);
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_FailureDetectionResult",
