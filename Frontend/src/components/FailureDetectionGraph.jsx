@@ -28,7 +28,7 @@ function FailureDetectionGraph({ turbineId }) {
       setError('')
 
       const { data, error } = await supabase
-        .from('FailureDetectionResult')
+        .from('FailureDetectionResults')
         .select('Timestamp, PredictedValue, ActualValue, IsAbnormal, AlarmLvl')
         .eq('TurbineId', turbineId)
         .order('Timestamp', { ascending: true })
