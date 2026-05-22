@@ -15,6 +15,7 @@
 
 body {
   background-color: var(--bg-light);      
+  color: #1a2c3e
 }
 
 html, body, #root {

@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import BenchmarkGraphs from '../components/BenchmarkGraphs';
 import FailureDetectionGraph from '../components/FailureDetectionGraph';
+import DegradationResultTable from '../components/DegradationResultTable';
 import { FiActivity } from 'react-icons/fi';
 
 function DashboardPage() {
@@ -28,7 +29,7 @@ function DashboardPage() {
     <div className="dashboard-container">
       {/* turbine selector – now shows all ids */}
       <div style={{ marginTop: '0.5rem', marginBottom: '20px', padding: '10px', borderRadius: '8px' }}>
-        <label style={{ marginRight: '10px', fontWeight: 'bold' }}>Select Turbine: </label>
+        <label style={{ marginRight: '10px', fontWeight: 'bold', color: '#1f2937' }}>Select Turbine: </label>
         <select
           value={selectedTurbine}
           onChange={(e) => setSelectedTurbine(e.target.value)}
@@ -53,7 +54,20 @@ function DashboardPage() {
           <FailureDetectionGraph turbineId={selectedTurbine} />
         </div>
       </section>
+
+      <section className="dashboard-section">
+        <div className="section-title">
+          <FiActivity color="#06A2DF" size={24} />
+          <h2>Degradation Results</h2>
+        </div>
+
+        <div className="graph-wrapper">
+          <DegradationResultTable turbineId={selectedTurbine} />
+        </div>
+      </section>
     </div>
+
+
   );
 }
 
