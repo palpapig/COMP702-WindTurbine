@@ -75,33 +75,32 @@ flowchart LR
 COMP702-WindTurbine/
 ├── COMP702-WindTurbine.Api/          # Unused WebAPI stub
 ├── Simulator/
-│   ├── config/simulator.settings.json
-│   ├── data/turbine4_2017-2022.csv
-│   └── server/Simulator.Server/      # OPC UA server console project
+�?  ├── config/simulator.settings.json
+�?  ├── data/turbine4_2017-2022.csv
+�?  └── server/Simulator.Server/      # OPC UA server console project
 ├── Worker/                            # Main .NET worker service
-│   ├── appsettings.json
-│   ├── data/turbine1_clean.csv
-│   ├── TrainedModel/                  # ONNX model & metadata (kNN failure detection)
-│   ├── PythonDegradationTraining/     # SVR training script & output models
-│   ├── services/                      # Benchmarker, FailureDetection, DegradationAnalyser, etc.
-│   ├── Workers/MonitoringWorker.cs
-│   ├── Migrations/                    # EF Core migrations
-│   └── Worker.csproj                  # Single project file (after cleanup)
+�?  ├── appsettings.json
+�?  ├── data/turbine1_clean.csv
+�?  ├── TrainedModel/                  # ONNX model & metadata (kNN failure detection)
+�?  ├── PythonDegradationTraining/     # SVR training script & output models
+�?  ├── services/                      # Benchmarker, FailureDetection, DegradationAnalyser, etc.
+�?  ├── Workers/MonitoringWorker.cs
+�?  ├── Migrations/                    # EF Core migrations
+�?  └── Worker.csproj                  # Single project file (after cleanup)
 ├── faultDetection_service/            # Python training for failure detection
-│   ├── app/
-│   │   ├── config/model_settings.json
-│   │   └── ml/                        # Feature config, model registry (unused in production)
-│   ├── training/model_trainer.py      # Trains kNN and exports ONNX
-│   ├── requirements.txt
-│   └── artifacts/final_Model_converted/
+�?  ├── app/
+�?  �?  ├── config/model_settings.json
+�?  �?  └── ml/                        # Feature config, model registry (unused in production)
+�?  ├── training/model_trainer.py      # Trains kNN and exports ONNX
+�?  ├── requirements.txt
+�?  └── artifacts/final_Model_converted/
 ├── frontend/
-│   ├── src/
-│   │   ├── components/                # BenchmarkGraphs, FailureDetectionGraph, Tables, etc.
-│   │   ├── pages/                     # DashboardPage, ExportPage, AlertsPage
-│   │   └── utils/supabase.js
-│   ├── package.json
-│   └── vite.config.js
-├── test/HistoryReadClient/            # Utility for testing OPC UA history reads
+�?  ├── src/
+�?  �?  ├── components/                # BenchmarkGraphs, FailureDetectionGraph, Tables, etc.
+�?  �?  ├── pages/                     # DashboardPage, ExportPage, AlertsPage
+�?  �?  └── utils/supabase.js
+�?  ├── package.json
+�?  └── vite.config.js
 └── .gitignore
 ```
 
@@ -142,10 +141,10 @@ Navigate to:
 
 ```text
 Supabase Dashboard
-→ Project Settings
-→ Database
-→ Connection String
-→ URI
+�?Project Settings
+�?Database
+�?Connection String
+�?URI
 ```
 
 Example:
@@ -542,7 +541,7 @@ Restart the worker to load the newly trained ONNX model.
 
 The feature order in the ONNX model must match the order expected by `FailureDetection.cs`.
 
-In `Worker/services/FailureDetection.cs` (lines 35–43), the feature array is hardcoded:
+In `Worker/services/FailureDetection.cs` (lines 35�?3), the feature array is hardcoded:
 
 ```csharp
 private readonly string[] featureColumns =
