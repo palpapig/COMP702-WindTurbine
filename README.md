@@ -45,6 +45,28 @@ The system consists of four main components:
 - Data is persisted in a Supabase PostgreSQL database.
 - The frontend connects directly to Supabase and does not require a backend API.
 
+## Architecture (Brief)
+
+### How the Windows Service Connects to Database and Interface
+
+- The Windows/.NET Worker reads the PostgreSQL connection string from `ConnectionStrings__MonitoringDb` (preferred) or `Worker/appsettings.json`.
+- On startup, the Worker initializes EF Core and applies migrations automatically.
+- During runtime, the Worker ingests telemetry, computes analytics, and writes results to Supabase tables.
+- The frontend connects to Supabase directly and reads those tables for dashboards, tables, exports, and alerts.
+
+```mermaid
+flowchart LR
+    A[OPC UA Simulator] -->|Live telemetry| B[Windows Worker Service (.NET)]
+    B -->|ConnectionStrings__MonitoringDb + EF Core| C[(Supabase PostgreSQL)]
+    C -->|Read queries| D[Frontend Interface (React)]
+```
+
+### Feature Descriptions
+
+- **Failure Detection:** Uses an ONNX kNN model to predict gearbox oil temperature, then applies residual/EWMA logic to raise A1/A2 alarms.
+- **Benchmarking:** Compares actual turbine power output against expected baseline behavior to quantify performance deviation.
+- **Degradation Analysis:** Uses SVR-based models to evaluate degradation trends (for example Region 2 / 2.5 behavior) over time.
+
 ---
 
 # Repository Structure
