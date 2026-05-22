@@ -56,9 +56,9 @@ The system consists of four main components:
 
 ```mermaid
 flowchart LR
-    A[OPC UA Simulator] -->|Live telemetry| B[Windows Worker Service (.NET)]
-    B -->|ConnectionStrings__MonitoringDb + EF Core| C[(Supabase PostgreSQL)]
-    C -->|Read queries| D[Frontend Interface (React)]
+    A["OPC UA Simulator"] -->|"Live telemetry"| B["Windows Worker Service (.NET)"]
+    B -->|"DB connection + EF Core"| C["Supabase PostgreSQL"]
+    C -->|"Read queries"| D["Frontend Interface (React)"]
 ```
 
 ### Feature Descriptions
