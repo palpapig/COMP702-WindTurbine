@@ -114,7 +114,7 @@ function BenchmarkGraphs() {
         //prepare deviation scores for the table (extract year from timestamp)
         const scores = benchmarks.map(b => ({
           year: new Date(b.TimeRangeStart).getFullYear(),
-          score: (b.DeviationScore - 1) * 100
+          score: b.DeviationScore
         }));
         setDeviationScores(scores);
 
